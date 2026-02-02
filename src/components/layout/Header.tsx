@@ -11,8 +11,9 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { Menu, Phone, X } from "lucide-react";
+import { Menu, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.jpg";
 
 const services = [
   { title: "General & Preventive Dentistry", href: "/services/general-preventive", description: "Check-ups, scaling, fluoride treatments" },
@@ -51,9 +52,7 @@ const Header = () => {
       {/* Main navigation */}
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-            <span className="text-xl font-bold text-secondary-foreground">V</span>
-          </div>
+          <img src={logo} alt="Vista Dental Care" className="h-12 w-12 rounded-full object-cover" />
           <div className="flex flex-col">
             <span className="text-lg font-bold text-primary">Vista Dental</span>
             <span className="text-xs text-muted-foreground">Care</span>
