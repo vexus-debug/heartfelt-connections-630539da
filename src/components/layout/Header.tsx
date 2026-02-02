@@ -1,18 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import { Menu, Phone } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Menu, Phone, ChevronDown } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
 const services = [
@@ -27,6 +18,21 @@ const services = [
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setServicesOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -60,97 +66,98 @@ const Header = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <NavigationMenu className="hidden lg:flex">
-          <NavigationMenuList>
-            <NavigationMenuItem>
+        <nav className="hidden lg:flex items-center gap-1">
+          <NavLink
+            to="/"
+            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            activeClassName="bg-accent text-accent-foreground"
+          >
+            Home
+          </NavLink>
+
+          <NavLink
+            to="/about"
+            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            activeClassName="bg-accent text-accent-foreground"
+          >
+            About Us
+          </NavLink>
+
+          {/* Services Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <div className="flex items-center">
               <NavLink
-                to="/"
-                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+                to="/services"
+                className="inline-flex h-10 items-center justify-center rounded-l-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
                 activeClassName="bg-accent text-accent-foreground"
               >
-                Home
+                Services
               </NavLink>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavLink
-                to="/about"
-                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
-                activeClassName="bg-accent text-accent-foreground"
+              <button
+                onClick={() => setServicesOpen(!servicesOpen)}
+                className="inline-flex h-10 items-center justify-center rounded-r-md px-2 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground border-l border-border"
+                aria-expanded={servicesOpen}
+                aria-label="Toggle services menu"
               >
-                About Us
-              </NavLink>
-            </NavigationMenuItem>
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${servicesOpen ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
 
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Services</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[500px] gap-3 p-4 md:grid-cols-2">
-                  <li className="col-span-2">
-                    <NavigationMenuLink asChild>
+            {/* Dropdown Menu */}
+            {servicesOpen && (
+              <div className="absolute top-full left-0 mt-2 w-80 bg-card rounded-lg shadow-xl border z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
+                <div className="p-2">
+                  <Link
+                    to="/services"
+                    onClick={() => setServicesOpen(false)}
+                    className="block p-3 rounded-md bg-gradient-to-r from-secondary/20 to-secondary/10 hover:from-secondary/30 hover:to-secondary/20 transition-colors mb-2"
+                  >
+                    <span className="font-semibold text-secondary">All Services</span>
+                    <p className="text-xs text-muted-foreground mt-1">View our complete range of dental services</p>
+                  </Link>
+                  
+                  <div className="space-y-1">
+                    {services.map((service) => (
                       <Link
-                        to="/services"
-                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-secondary/50 to-secondary p-6 no-underline outline-none focus:shadow-md"
+                        key={service.href}
+                        to={service.href}
+                        onClick={() => setServicesOpen(false)}
+                        className="block p-3 rounded-md hover:bg-accent transition-colors"
                       >
-                        <div className="mb-2 mt-4 text-lg font-medium text-secondary-foreground">
-                          All Services
-                        </div>
-                        <p className="text-sm leading-tight text-secondary-foreground/80">
-                          Comprehensive dental care for your entire family
-                        </p>
+                        <span className="text-sm font-medium">{service.title}</span>
+                        <p className="text-xs text-muted-foreground mt-0.5">{service.description}</p>
                       </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  {services.map((service) => (
-                    <li key={service.href}>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          to={service.href}
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                        >
-                          <div className="text-sm font-medium leading-none">{service.title}</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            {service.description}
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
-            <NavigationMenuItem>
-              <NavLink
-                to="/testimonials"
-                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
-                activeClassName="bg-accent text-accent-foreground"
-              >
-                Testimonials
-              </NavLink>
-            </NavigationMenuItem>
+          <NavLink
+            to="/testimonials"
+            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            activeClassName="bg-accent text-accent-foreground"
+          >
+            Testimonials
+          </NavLink>
 
-            <NavigationMenuItem>
-              <NavLink
-                to="/gallery"
-                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
-                activeClassName="bg-accent text-accent-foreground"
-              >
-                Gallery
-              </NavLink>
-            </NavigationMenuItem>
+          <NavLink
+            to="/gallery"
+            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            activeClassName="bg-accent text-accent-foreground"
+          >
+            Gallery
+          </NavLink>
 
-            <NavigationMenuItem>
-              <NavLink
-                to="/contact"
-                className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
-                activeClassName="bg-accent text-accent-foreground"
-              >
-                Contact
-              </NavLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+          <NavLink
+            to="/contact"
+            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            activeClassName="bg-accent text-accent-foreground"
+          >
+            Contact
+          </NavLink>
+        </nav>
 
         <div className="flex items-center gap-4">
           <Button asChild className="hidden md:inline-flex bg-secondary hover:bg-secondary/90">
@@ -182,27 +189,43 @@ const Header = () => {
                 >
                   About Us
                 </Link>
+                
+                {/* Mobile Services with Collapsible */}
                 <div className="space-y-2">
-                  <Link
-                    to="/services"
-                    onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium hover:text-secondary transition-colors"
-                  >
-                    Services
-                  </Link>
-                  <div className="pl-4 space-y-2">
-                    {services.map((service) => (
-                      <Link
-                        key={service.href}
-                        to={service.href}
-                        onClick={() => setIsOpen(false)}
-                        className="block text-sm text-muted-foreground hover:text-secondary transition-colors"
-                      >
-                        {service.title}
-                      </Link>
-                    ))}
+                  <div className="flex items-center justify-between">
+                    <Link
+                      to="/services"
+                      onClick={() => setIsOpen(false)}
+                      className="text-lg font-medium hover:text-secondary transition-colors"
+                    >
+                      Services
+                    </Link>
+                    <button
+                      onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                      className="p-2 hover:bg-accent rounded-md transition-colors"
+                      aria-expanded={mobileServicesOpen}
+                      aria-label="Toggle services submenu"
+                    >
+                      <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                    </button>
                   </div>
+                  
+                  {mobileServicesOpen && (
+                    <div className="pl-4 space-y-2 border-l-2 border-secondary/30 ml-2 animate-in slide-in-from-top-2 duration-200">
+                      {services.map((service) => (
+                        <Link
+                          key={service.href}
+                          to={service.href}
+                          onClick={() => setIsOpen(false)}
+                          className="block text-sm text-muted-foreground hover:text-secondary transition-colors py-1"
+                        >
+                          {service.title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
                 <Link
                   to="/testimonials"
                   onClick={() => setIsOpen(false)}
