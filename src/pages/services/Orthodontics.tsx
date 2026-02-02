@@ -1,106 +1,223 @@
 import { Layout } from "@/components/layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { Smile, Check, ArrowLeft, Calendar } from "lucide-react";
+import {
+  ServiceHero,
+  ProcessTimeline,
+  ServiceFAQ,
+  ServiceTestimonial,
+  BenefitsGrid,
+  WhoIsThisFor,
+  RelatedServices,
+  ServiceCTA,
+  TreatmentExplainer,
+} from "@/components/services";
+import {
+  Smile,
+  Sparkles,
+  Crown,
+  Heart,
+  Timer,
+  CheckCircle,
+  Shield,
+  Ruler,
+  Target,
+  Calendar,
+  Star,
+  Zap,
+} from "lucide-react";
+import orthodonticsImage from "@/assets/orthodontics.jpg";
+import dentalTechImage from "@/assets/dental-technology.jpg";
 
-const services = [
-  "Traditional metal braces",
-  "Ceramic braces",
-  "Retainers",
-  "Bite correction",
-  "Teeth alignment",
+const processSteps = [
+  {
+    step: 1,
+    title: "Orthodontic Evaluation",
+    description: "We examine your teeth, take X-rays and impressions to create a detailed treatment plan.",
+    icon: Ruler,
+  },
+  {
+    step: 2,
+    title: "Treatment Discussion",
+    description: "We explain your options, timeline, and costs so you can make an informed decision.",
+    icon: Target,
+  },
+  {
+    step: 3,
+    title: "Braces Fitting",
+    description: "Your braces are carefully placed. We'll teach you how to care for them properly.",
+    icon: Smile,
+  },
+  {
+    step: 4,
+    title: "Regular Adjustments",
+    description: "Monthly visits ensure your teeth are moving correctly toward their final positions.",
+    icon: Calendar,
+  },
+];
+
+const benefits = [
+  {
+    icon: Smile,
+    title: "Perfectly Aligned Smile",
+    description: "Achieve beautifully straight teeth that enhance your appearance and give you a confident, radiant smile.",
+  },
+  {
+    icon: Shield,
+    title: "Improved Oral Health",
+    description: "Straight teeth are easier to clean and floss, reducing your risk of cavities, gum disease, and tooth decay.",
+  },
+  {
+    icon: Zap,
+    title: "Better Bite Function",
+    description: "Correcting bite issues prevents uneven wear, jaw pain, and TMJ problems while improving chewing efficiency.",
+  },
+  {
+    icon: Timer,
+    title: "Long-Term Results",
+    description: "With proper retainer use after treatment, your straight smile will last a lifetime. It's a permanent solution.",
+  },
+  {
+    icon: Heart,
+    title: "Boosted Confidence",
+    description: "Many patients experience improved self-esteem and confidence after orthodontic treatment. Smile freely!",
+  },
+  {
+    icon: CheckCircle,
+    title: "Various Options Available",
+    description: "Choose from traditional metal braces, ceramic braces, or other options to suit your lifestyle and preferences.",
+  },
+];
+
+const faqs = [
+  {
+    question: "How long does orthodontic treatment take?",
+    answer: "Treatment duration varies based on the complexity of your case. Simple cases may take 12-18 months, while more complex cases can take 2-3 years. During your consultation, we'll give you a more accurate timeline based on your specific needs.",
+  },
+  {
+    question: "Do braces hurt?",
+    answer: "You may experience some discomfort when braces are first placed and after adjustments, but it's typically mild and temporary. Over-the-counter pain relievers and soft foods can help. Most patients adjust within a few days and find treatment very manageable.",
+  },
+  {
+    question: "Am I too old for braces?",
+    answer: "Absolutely not! While orthodontic treatment is common in teenagers, more and more adults are getting braces. Age is not a barrier to achieving a straighter smile. We have many adult patients who are thrilled with their results.",
+  },
+  {
+    question: "What foods should I avoid with braces?",
+    answer: "You should avoid hard, sticky, and chewy foods that can damage braces. This includes popcorn, nuts, hard candies, caramel, and chewing gum. We'll provide a complete list and helpful tips for eating comfortably with braces.",
+  },
+  {
+    question: "What happens after braces are removed?",
+    answer: "After braces are removed, you'll wear a retainer to keep your teeth in their new positions. Initially, you may need to wear it all the time, then transition to nighttime only. Retainer use is crucial for maintaining your beautiful results.",
+  },
+  {
+    question: "What's the difference between metal and ceramic braces?",
+    answer: "Metal braces are durable, effective, and the most affordable option. Ceramic braces work the same way but use tooth-colored or clear brackets, making them less noticeable. Ceramic braces may cost more and require more careful maintenance.",
+  },
+];
+
+const candidates = [
+  "Children and teens with crooked or crowded teeth",
+  "Adults who want to straighten their smile",
+  "People with overbite, underbite, or crossbite",
+  "Those with spacing issues or gaps between teeth",
+  "Individuals with bite problems causing jaw pain",
+  "Anyone who didn't complete orthodontics earlier in life",
+];
+
+const relatedServices = [
+  {
+    title: "Cosmetic Dentistry",
+    description: "Complete your smile with whitening and veneers.",
+    href: "/services/cosmetic",
+    icon: Sparkles,
+  },
+  {
+    title: "General Dentistry",
+    description: "Maintain your new smile with preventive care.",
+    href: "/services/general-preventive",
+    icon: Shield,
+  },
+  {
+    title: "Restorative Dentistry",
+    description: "Repair damaged teeth alongside orthodontics.",
+    href: "/services/restorative",
+    icon: Crown,
+  },
 ];
 
 const Orthodontics = () => {
   return (
     <Layout>
-      {/* Hero */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-dental-teal-pale via-background to-dental-mint">
-        <div className="container">
-          <Link
-            to="/services"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-secondary mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Services
-          </Link>
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
-            <div className="space-y-6">
-              <div className="h-16 w-16 rounded-2xl bg-purple-500/10 flex items-center justify-center">
-                <Smile className="h-8 w-8 text-purple-600" />
-              </div>
-              <h1 className="text-4xl font-bold text-primary sm:text-5xl">
-                Orthodontics
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Correcting teeth alignment and bite issues for a healthier, more attractive smile. 
-                Our orthodontic treatments help you achieve the perfect alignment.
-              </p>
-              <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90">
-                <Link to="/book-appointment">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Book Consultation
-                </Link>
-              </Button>
-            </div>
-            <div className="rounded-2xl bg-muted h-[300px] flex items-center justify-center">
-              <Smile className="h-24 w-24 text-muted-foreground/30" />
-            </div>
-          </div>
-        </div>
-      </section>
+      <ServiceHero
+        title="Orthodontics"
+        subtitle="Straighten Your Smile"
+        description="Achieve the perfectly aligned smile you've always wanted. Our orthodontic treatments correct crooked teeth, bite issues, and spacing problems for both children and adults. With modern braces options and experienced care, your journey to a straighter smile starts here."
+        image={orthodonticsImage}
+        icon={Smile}
+        iconColor="bg-purple-600"
+        badges={["All Ages Welcome", "Multiple Options", "Payment Plans Available"]}
+      />
 
-      {/* Services List */}
-      <section className="py-16 md:py-24 bg-card">
-        <div className="container">
-          <h2 className="text-3xl font-bold text-primary mb-8">Orthodontic Treatments</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            {services.map((service) => (
-              <Card key={service} className="border-0 bg-muted">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
-                    <Check className="h-5 w-5 text-secondary" />
-                  </div>
-                  <span className="font-medium">{service}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TreatmentExplainer
+        title="How Orthodontics Works"
+        subtitle="The Science of Straight Teeth"
+        content={[
+          "Orthodontic treatment uses gentle, constant pressure to gradually move teeth into their correct positions. Braces apply this pressure through brackets attached to teeth and connected by wires.",
+          "At Vista Dental Care, we offer traditional metal braces and ceramic braces. Each option works effectively to straighten teeth, correct bite issues, and create a harmonious smile.",
+          "Treatment is highly customized to your needs. We use detailed planning and regular adjustments to ensure your teeth move safely and efficiently toward their ideal positions.",
+        ]}
+        highlights={[
+          { icon: Star, text: "Traditional metal braces" },
+          { icon: Sparkles, text: "Ceramic (clear) braces" },
+          { icon: Timer, text: "Custom treatment timelines" },
+          { icon: CheckCircle, text: "Retainers for lasting results" },
+        ]}
+        image={dentalTechImage}
+      />
 
-      {/* Benefits */}
-      <section className="py-16 md:py-24 bg-muted">
-        <div className="container">
-          <div className="max-w-3xl">
-            <h2 className="text-3xl font-bold text-primary mb-6">Benefits of Orthodontic Treatment</h2>
-            <p className="text-muted-foreground mb-4">
-              Orthodontic treatment goes beyond aesthetics. Properly aligned teeth are easier to clean, 
-              reducing the risk of cavities and gum disease. A correct bite also prevents excessive 
-              wear on your teeth and reduces jaw strain.
-            </p>
-            <p className="text-muted-foreground">
-              Our team will assess your needs and recommend the best treatment option, whether it's 
-              traditional braces or other alignment solutions. We'll work with you to create a 
-              personalized treatment plan.
-            </p>
-          </div>
-        </div>
-      </section>
+      <BenefitsGrid
+        title="Benefits of Orthodontic Treatment"
+        subtitle="More Than Just Straight Teeth"
+        benefits={benefits}
+      />
 
-      {/* CTA */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
-        <div className="container text-center space-y-6">
-          <h2 className="text-3xl font-bold">Start Your Orthodontic Journey</h2>
-          <p className="text-primary-foreground/80 max-w-2xl mx-auto">
-            Schedule a consultation to learn about your orthodontic options.
-          </p>
-          <Button asChild size="lg" variant="secondary" className="bg-secondary hover:bg-secondary/90">
-            <Link to="/book-appointment">Book Consultation</Link>
-          </Button>
-        </div>
-      </section>
+      <ProcessTimeline
+        title="Your Orthodontic Journey"
+        subtitle="What to Expect"
+        steps={processSteps}
+      />
+
+      <WhoIsThisFor
+        title="Is Orthodontic Treatment Right for You?"
+        subtitle="Who Can Benefit"
+        description="Orthodontic treatment can help people of all ages achieve straighter, healthier smiles. You might be a good candidate if:"
+        candidates={candidates}
+        image={orthodonticsImage}
+      />
+
+      <ServiceFAQ
+        title="Orthodontics FAQs"
+        subtitle="Common Questions"
+        faqs={faqs}
+      />
+
+      <ServiceTestimonial
+        quote="I never thought I'd get braces at 32, but Vista Dental made it so easy. The ceramic braces were barely noticeable, and now my smile is perfectly straight. Worth every month of treatment!"
+        author="David A."
+        role="Adult Orthodontic Patient"
+        rating={5}
+        service="Orthodontics"
+      />
+
+      <RelatedServices
+        currentService="Orthodontics"
+        services={relatedServices}
+      />
+
+      <ServiceCTA
+        title="Ready for a Straighter Smile?"
+        description="Book your orthodontic consultation today. We'll assess your needs and explain all your options for achieving the smile you deserve."
+        primaryButtonText="Book Consultation"
+      />
     </Layout>
   );
 };

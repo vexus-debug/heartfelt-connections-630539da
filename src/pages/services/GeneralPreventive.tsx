@@ -1,111 +1,227 @@
 import { Layout } from "@/components/layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { Stethoscope, Check, ArrowLeft, Calendar } from "lucide-react";
+import {
+  ServiceHero,
+  ProcessTimeline,
+  ServiceFAQ,
+  ServiceTestimonial,
+  BenefitsGrid,
+  WhoIsThisFor,
+  RelatedServices,
+  ServiceCTA,
+  TreatmentExplainer,
+} from "@/components/services";
+import {
+  Stethoscope,
+  Sparkles,
+  Smile,
+  Crown,
+  Syringe,
+  Scissors,
+  Heart,
+  Search,
+  ShieldCheck,
+  Brush,
+  Droplets,
+  FileCheck,
+  CheckCircle,
+  Clock,
+  ThumbsUp,
+  Leaf,
+} from "lucide-react";
+import clinicImage from "@/assets/clinic-interior.jpg";
+import dentalTeamImage from "@/assets/dental-team.jpg";
 
-const services = [
-  "Dental consultation and routine check-ups",
-  "Scaling and polishing",
-  "Fluoride treatments",
-  "Dental sealants",
-  "Tooth fillings",
-  "Oral health awareness campaigns",
+const processSteps = [
+  {
+    step: 1,
+    title: "Book Appointment",
+    description: "Schedule your visit online or call us. We offer flexible timing to suit your schedule.",
+    icon: Clock,
+  },
+  {
+    step: 2,
+    title: "Comprehensive Exam",
+    description: "Our dentist will thoroughly examine your teeth, gums, and oral health.",
+    icon: Search,
+  },
+  {
+    step: 3,
+    title: "Treatment Plan",
+    description: "We'll discuss findings and create a personalized treatment plan for you.",
+    icon: FileCheck,
+  },
+  {
+    step: 4,
+    title: "Ongoing Care",
+    description: "Regular check-ups ensure your oral health stays in top condition.",
+    icon: ThumbsUp,
+  },
+];
+
+const benefits = [
+  {
+    icon: ShieldCheck,
+    title: "Early Problem Detection",
+    description: "Regular check-ups help identify cavities, gum disease, and other issues before they become serious and costly to treat.",
+  },
+  {
+    icon: Sparkles,
+    title: "Professional Cleaning",
+    description: "Remove plaque and tartar buildup that regular brushing can't handle, keeping your teeth sparkling clean.",
+  },
+  {
+    icon: Brush,
+    title: "Fresher Breath",
+    description: "Professional cleaning and proper oral hygiene guidance help eliminate bad breath and boost your confidence.",
+  },
+  {
+    icon: Droplets,
+    title: "Fluoride Protection",
+    description: "Strengthen your tooth enamel with professional fluoride treatments that help prevent cavities.",
+  },
+  {
+    icon: Heart,
+    title: "Overall Health Connection",
+    description: "Oral health is linked to heart disease, diabetes, and other conditions. Prevention protects your whole body.",
+  },
+  {
+    icon: Leaf,
+    title: "Cost-Effective Care",
+    description: "Preventive care is more affordable than treating problems. Regular visits save money in the long run.",
+  },
+];
+
+const faqs = [
+  {
+    question: "How often should I visit the dentist for check-ups?",
+    answer: "We recommend visiting every 6 months for routine check-ups and professional cleaning. However, some patients may need more frequent visits based on their oral health needs. During your visit, we'll advise on the best schedule for you.",
+  },
+  {
+    question: "Does teeth scaling and polishing hurt?",
+    answer: "Scaling and polishing is generally painless. You may experience some mild sensitivity during the procedure, especially if you have sensitive teeth or gum issues. We use gentle techniques and can apply numbing gel if needed to ensure your comfort.",
+  },
+  {
+    question: "What is fluoride treatment and who needs it?",
+    answer: "Fluoride treatment strengthens tooth enamel and helps prevent cavities. It's beneficial for everyone, especially children, those with a history of cavities, patients with dry mouth, or those with braces. The treatment is quick, painless, and highly effective.",
+  },
+  {
+    question: "What are dental sealants?",
+    answer: "Dental sealants are thin protective coatings applied to the chewing surfaces of back teeth (molars). They fill in the grooves where food and bacteria can get trapped, providing excellent cavity protection. They're especially recommended for children but can benefit adults too.",
+  },
+  {
+    question: "Is preventive care covered by insurance?",
+    answer: "Most dental insurance plans cover preventive care including check-ups, cleanings, X-rays, and fluoride treatments. We recommend checking with your insurance provider for specific coverage details. We also offer affordable payment options for uninsured patients.",
+  },
+  {
+    question: "What happens during a routine dental check-up?",
+    answer: "During a check-up, we examine your teeth, gums, tongue, and mouth for any issues. We may take X-rays to see below the surface. We'll check for cavities, gum disease, oral cancer, and other concerns. The visit also includes professional cleaning and personalized oral hygiene advice.",
+  },
+];
+
+const candidates = [
+  "Anyone who wants to maintain good oral health",
+  "People who haven't visited a dentist in over 6 months",
+  "Those experiencing tooth sensitivity or gum bleeding",
+  "Individuals who want whiter, cleaner teeth",
+  "Parents looking for family dental care",
+  "Anyone concerned about bad breath",
+];
+
+const relatedServices = [
+  {
+    title: "Cosmetic Dentistry",
+    description: "Enhance your smile with teeth whitening and veneers.",
+    href: "/services/cosmetic",
+    icon: Sparkles,
+  },
+  {
+    title: "Gum Treatment",
+    description: "Treatment for gum disease and periodontal issues.",
+    href: "/services/periodontics",
+    icon: Heart,
+  },
+  {
+    title: "Restorative Dentistry",
+    description: "Restore damaged teeth with crowns and bridges.",
+    href: "/services/restorative",
+    icon: Crown,
+  },
 ];
 
 const GeneralPreventive = () => {
   return (
     <Layout>
-      {/* Hero */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-dental-teal-pale via-background to-dental-mint">
-        <div className="container">
-          <Link
-            to="/services"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-secondary mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Services
-          </Link>
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
-            <div className="space-y-6">
-              <div className="h-16 w-16 rounded-2xl bg-blue-500/10 flex items-center justify-center">
-                <Stethoscope className="h-8 w-8 text-blue-600" />
-              </div>
-              <h1 className="text-4xl font-bold text-primary sm:text-5xl">
-                General & Preventive Dentistry
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Focused on maintaining oral health and preventing dental issues before they become 
-                serious problems. Regular check-ups and preventive care are the foundation of a 
-                healthy smile.
-              </p>
-              <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90">
-                <Link to="/book-appointment">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Book Appointment
-                </Link>
-              </Button>
-            </div>
-            <div className="rounded-2xl bg-muted h-[300px] flex items-center justify-center">
-              <Stethoscope className="h-24 w-24 text-muted-foreground/30" />
-            </div>
-          </div>
-        </div>
-      </section>
+      <ServiceHero
+        title="General & Preventive Dentistry"
+        subtitle="Foundation of Oral Health"
+        description="Your journey to a healthy smile starts here. Our comprehensive preventive care helps you maintain optimal oral health, catch problems early, and avoid costly treatments down the road. Regular check-ups are the best investment in your dental health."
+        image={clinicImage}
+        icon={Stethoscope}
+        iconColor="bg-blue-600"
+        badges={["Family-Friendly", "Comprehensive Care", "Modern Technology"]}
+      />
 
-      {/* Services List */}
-      <section className="py-16 md:py-24 bg-card">
-        <div className="container">
-          <h2 className="text-3xl font-bold text-primary mb-8">What's Included</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            {services.map((service) => (
-              <Card key={service} className="border-0 bg-muted">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
-                    <Check className="h-5 w-5 text-secondary" />
-                  </div>
-                  <span className="font-medium">{service}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TreatmentExplainer
+        title="What is Preventive Dentistry?"
+        subtitle="Understanding the Basics"
+        content={[
+          "Preventive dentistry focuses on maintaining good oral health and preventing dental problems before they develop. It combines regular professional care with good oral hygiene habits at home.",
+          "At Vista Dental Care, we believe prevention is the cornerstone of dental health. Our preventive services include thorough examinations, professional cleanings, fluoride treatments, dental sealants, and personalized oral health education.",
+          "By catching issues early – like small cavities or early gum disease – we can treat them quickly and easily, saving you time, discomfort, and money. Prevention truly is the best medicine when it comes to your teeth.",
+        ]}
+        highlights={[
+          { icon: CheckCircle, text: "Regular check-ups every 6 months" },
+          { icon: Brush, text: "Professional scaling & polishing" },
+          { icon: Droplets, text: "Fluoride treatments available" },
+          { icon: ShieldCheck, text: "Dental sealants for protection" },
+        ]}
+        image={dentalTeamImage}
+      />
 
-      {/* Benefits */}
-      <section className="py-16 md:py-24 bg-muted">
-        <div className="container">
-          <div className="max-w-3xl">
-            <h2 className="text-3xl font-bold text-primary mb-6">Why Preventive Care Matters</h2>
-            <p className="text-muted-foreground mb-4">
-              Prevention is always better than cure. Regular dental check-ups help identify potential 
-              problems early, saving you time, money, and discomfort in the long run.
-            </p>
-            <p className="text-muted-foreground mb-4">
-              At Vista Dental Care, we recommend visiting us at least twice a year for routine 
-              check-ups and professional cleaning. This helps maintain optimal oral health and 
-              catch any issues before they develop into more serious conditions.
-            </p>
-            <p className="text-muted-foreground">
-              Our team uses modern diagnostic tools to assess your oral health and provide 
-              personalized recommendations for maintaining your smile.
-            </p>
-          </div>
-        </div>
-      </section>
+      <BenefitsGrid
+        title="Benefits of Preventive Care"
+        subtitle="Why It Matters"
+        benefits={benefits}
+      />
 
-      {/* CTA */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
-        <div className="container text-center space-y-6">
-          <h2 className="text-3xl font-bold">Schedule Your Check-up Today</h2>
-          <p className="text-primary-foreground/80 max-w-2xl mx-auto">
-            Don't wait for problems to develop. Book your preventive care appointment now.
-          </p>
-          <Button asChild size="lg" variant="secondary" className="bg-secondary hover:bg-secondary/90">
-            <Link to="/book-appointment">Book Appointment</Link>
-          </Button>
-        </div>
-      </section>
+      <ProcessTimeline
+        title="Your Preventive Care Journey"
+        subtitle="Simple 4-Step Process"
+        steps={processSteps}
+      />
+
+      <WhoIsThisFor
+        title="Is Preventive Dentistry Right for You?"
+        subtitle="Everyone Benefits"
+        description="Preventive dentistry is for everyone – from children getting their first teeth to seniors maintaining their oral health. If you fit any of these descriptions, you'll benefit from our preventive care:"
+        candidates={candidates}
+        image={clinicImage}
+      />
+
+      <ServiceFAQ
+        title="Common Questions About Preventive Care"
+        subtitle="FAQs"
+        faqs={faqs}
+      />
+
+      <ServiceTestimonial
+        quote="I used to dread dental visits, but Vista Dental changed that. The team is so gentle and thorough. My teeth have never felt cleaner, and I actually look forward to my check-ups now!"
+        author="Amina O."
+        role="Regular Patient for 3 Years"
+        rating={5}
+        service="General & Preventive Dentistry"
+      />
+
+      <RelatedServices
+        currentService="General & Preventive Dentistry"
+        services={relatedServices}
+      />
+
+      <ServiceCTA
+        title="Ready to Prioritize Your Oral Health?"
+        description="Schedule your comprehensive dental check-up today. Early prevention is the best protection for your smile."
+        primaryButtonText="Book Check-up"
+      />
     </Layout>
   );
 };
