@@ -40,10 +40,6 @@ const faqs = [
     question: "Do you offer emergency dental services?",
     answer: "Yes! We understand dental emergencies can happen at any time. We reserve slots for emergency cases and try to see urgent patients on the same day. Call our emergency line for immediate assistance.",
   },
-  {
-    question: "What COVID-19 precautions do you take?",
-    answer: "Patient safety is our priority. We follow strict infection control protocols including enhanced sanitization, air filtration systems, PPE for all staff, temperature checks, and social distancing in waiting areas. Our clinic exceeds all recommended health guidelines.",
-  },
 ];
 
 export function FAQSection() {
