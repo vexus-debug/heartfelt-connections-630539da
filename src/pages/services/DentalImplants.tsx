@@ -1,124 +1,223 @@
 import { Layout } from "@/components/layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { Syringe, Check, ArrowLeft, Calendar } from "lucide-react";
+import {
+  ServiceHero,
+  ProcessTimeline,
+  ServiceFAQ,
+  ServiceTestimonial,
+  BenefitsGrid,
+  WhoIsThisFor,
+  RelatedServices,
+  ServiceCTA,
+  TreatmentExplainer,
+} from "@/components/services";
+import {
+  Syringe,
+  Sparkles,
+  Crown,
+  Heart,
+  Shield,
+  Timer,
+  CheckCircle,
+  Zap,
+  Bone,
+  Activity,
+  CalendarCheck,
+  ThumbsUp,
+} from "lucide-react";
+import dentalTechImage from "@/assets/dental-technology.jpg";
+import clinicImage from "@/assets/clinic-interior.jpg";
+
+const processSteps = [
+  {
+    step: 1,
+    title: "Comprehensive Evaluation",
+    description: "We assess your oral health, bone density, and overall suitability for implants.",
+    icon: Activity,
+  },
+  {
+    step: 2,
+    title: "Implant Placement",
+    description: "The titanium implant is surgically placed into your jawbone under local anesthesia.",
+    icon: Syringe,
+  },
+  {
+    step: 3,
+    title: "Healing Period",
+    description: "3-6 months for the implant to fuse with your bone (osseointegration).",
+    icon: Timer,
+  },
+  {
+    step: 4,
+    title: "Crown Attachment",
+    description: "A custom crown is attached to the implant for a natural-looking, permanent tooth.",
+    icon: CalendarCheck,
+  },
+];
 
 const benefits = [
-  "Natural-looking appearance",
-  "Permanent solution",
-  "Improved chewing ability",
-  "No impact on adjacent teeth",
-  "Long-lasting durability",
-  "Bone preservation",
+  {
+    icon: Bone,
+    title: "Preserves Jawbone",
+    description: "Implants stimulate the jawbone just like natural tooth roots, preventing bone loss that occurs with missing teeth.",
+  },
+  {
+    icon: Shield,
+    title: "Permanent Solution",
+    description: "Unlike dentures or bridges, implants are designed to last a lifetime with proper care. They become part of you.",
+  },
+  {
+    icon: Sparkles,
+    title: "Natural Look & Feel",
+    description: "Implants look, feel, and function just like your natural teeth. Most people can't tell the difference.",
+  },
+  {
+    icon: Zap,
+    title: "Full Chewing Power",
+    description: "Enjoy all your favorite foods without restrictions. Implants restore 100% of your natural biting force.",
+  },
+  {
+    icon: CheckCircle,
+    title: "No Adjacent Tooth Damage",
+    description: "Unlike bridges, implants don't require altering healthy neighboring teeth. Your natural teeth stay untouched.",
+  },
+  {
+    icon: Heart,
+    title: "Improved Confidence",
+    description: "No slipping, clicking, or embarrassing moments. Implants stay firmly in place, letting you live confidently.",
+  },
+];
+
+const faqs = [
+  {
+    question: "How long do dental implants last?",
+    answer: "Dental implants are designed to be a permanent solution. The titanium implant itself can last a lifetime with proper care. The crown on top may need replacement after 10-15 years due to normal wear, but this is a simple procedure.",
+  },
+  {
+    question: "Is the implant procedure painful?",
+    answer: "The procedure is performed under local anesthesia, so you won't feel pain during surgery. Post-operative discomfort is typically mild and manageable with over-the-counter pain relievers. Most patients are surprised by how comfortable the recovery is.",
+  },
+  {
+    question: "Am I a candidate for dental implants?",
+    answer: "Most adults with missing teeth are candidates for implants. Key requirements include adequate jawbone density, healthy gums, and good overall health. We'll conduct a thorough evaluation to determine if implants are right for you.",
+  },
+  {
+    question: "How long does the implant process take?",
+    answer: "The complete process typically takes 3-6 months due to the healing period needed for osseointegration. The actual procedures (implant placement and crown attachment) are relatively quick. We'll provide a detailed timeline for your case.",
+  },
+  {
+    question: "How do I care for my dental implant?",
+    answer: "Care for your implant just like natural teeth: brush twice daily, floss regularly, and visit us for check-ups. While implants can't get cavities, the surrounding gum tissue needs to stay healthy. Avoid excessive force like biting ice or hard objects.",
+  },
+  {
+    question: "What's the success rate of dental implants?",
+    answer: "Dental implants have a success rate of 95-98% when performed by experienced professionals and properly maintained. Success depends on factors like bone quality, oral hygiene, and overall health. We'll discuss your individual prognosis during consultation.",
+  },
+];
+
+const candidates = [
+  "Adults with one or more missing teeth",
+  "People with adequate jawbone density",
+  "Non-smokers or those willing to quit",
+  "Those in good general health",
+  "People unhappy with dentures or bridges",
+  "Individuals committed to good oral hygiene",
+];
+
+const relatedServices = [
+  {
+    title: "Restorative Dentistry",
+    description: "Alternative options like crowns and bridges.",
+    href: "/services/restorative",
+    icon: Crown,
+  },
+  {
+    title: "Oral Surgery",
+    description: "Extractions before implant placement.",
+    href: "/services/oral-surgery",
+    icon: Activity,
+  },
+  {
+    title: "Gum Treatment",
+    description: "Healthy gums support successful implants.",
+    href: "/services/periodontics",
+    icon: Heart,
+  },
 ];
 
 const DentalImplants = () => {
   return (
     <Layout>
-      {/* Hero */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-dental-teal-pale via-background to-dental-mint">
-        <div className="container">
-          <Link
-            to="/services"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-secondary mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Services
-          </Link>
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
-            <div className="space-y-6">
-              <div className="h-16 w-16 rounded-2xl bg-teal-500/10 flex items-center justify-center">
-                <Syringe className="h-8 w-8 text-teal-600" />
-              </div>
-              <h1 className="text-4xl font-bold text-primary sm:text-5xl">
-                Dental Implants
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Durable, natural-looking replacements for missing teeth using advanced implant 
-                technology, improving both function and aesthetics.
-              </p>
-              <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90">
-                <Link to="/book-appointment">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Book Consultation
-                </Link>
-              </Button>
-            </div>
-            <div className="rounded-2xl bg-muted h-[300px] flex items-center justify-center">
-              <Syringe className="h-24 w-24 text-muted-foreground/30" />
-            </div>
-          </div>
-        </div>
-      </section>
+      <ServiceHero
+        title="Dental Implants"
+        subtitle="The Gold Standard for Missing Teeth"
+        description="Replace missing teeth with the most advanced, permanent solution available. Dental implants look, feel, and function just like your natural teeth. They're the closest thing to getting your real teeth back—designed to last a lifetime with proper care."
+        image={dentalTechImage}
+        icon={Syringe}
+        iconColor="bg-teal-600"
+        badges={["95%+ Success Rate", "Lifetime Solution", "Natural Results"]}
+      />
 
-      {/* Benefits */}
-      <section className="py-16 md:py-24 bg-card">
-        <div className="container">
-          <h2 className="text-3xl font-bold text-primary mb-8">Benefits of Dental Implants</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {benefits.map((benefit) => (
-              <Card key={benefit} className="border-0 bg-muted">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
-                    <Check className="h-5 w-5 text-secondary" />
-                  </div>
-                  <span className="font-medium">{benefit}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TreatmentExplainer
+        title="What Are Dental Implants?"
+        subtitle="The Modern Solution"
+        content={[
+          "A dental implant is a titanium post that's surgically placed into your jawbone, where it fuses with the bone through a process called osseointegration. This creates an incredibly strong foundation for a replacement tooth.",
+          "Once healed, a custom-made crown is attached to the implant, giving you a tooth that looks, feels, and functions just like your natural teeth. Unlike dentures, implants don't slip or click—they're permanently anchored in place.",
+          "Implants also preserve your jawbone by providing stimulation that prevents the bone loss that typically occurs with missing teeth. This maintains your facial structure and oral health for the long term.",
+        ]}
+        highlights={[
+          { icon: Bone, text: "Preserves jawbone structure" },
+          { icon: ThumbsUp, text: "95-98% success rate" },
+          { icon: Timer, text: "Designed to last a lifetime" },
+          { icon: Sparkles, text: "Indistinguishable from natural teeth" },
+        ]}
+        image={clinicImage}
+      />
 
-      {/* Process */}
-      <section className="py-16 md:py-24 bg-muted">
-        <div className="container">
-          <h2 className="text-3xl font-bold text-primary mb-8">The Implant Process</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card className="border-0 bg-card">
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-secondary mb-4">01</div>
-                <h3 className="text-lg font-semibold mb-2">Consultation</h3>
-                <p className="text-muted-foreground text-sm">
-                  We assess your oral health and determine if implants are right for you.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 bg-card">
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-secondary mb-4">02</div>
-                <h3 className="text-lg font-semibold mb-2">Placement</h3>
-                <p className="text-muted-foreground text-sm">
-                  The implant is surgically placed into the jawbone with care and precision.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-0 bg-card">
-              <CardContent className="p-6">
-                <div className="text-4xl font-bold text-secondary mb-4">03</div>
-                <h3 className="text-lg font-semibold mb-2">Restoration</h3>
-                <p className="text-muted-foreground text-sm">
-                  A custom crown is attached, giving you a natural-looking tooth.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      <BenefitsGrid
+        title="Why Choose Dental Implants?"
+        subtitle="Unmatched Advantages"
+        benefits={benefits}
+      />
 
-      {/* CTA */}
-      <section className="py-16 md:py-24 bg-primary text-primary-foreground">
-        <div className="container text-center space-y-6">
-          <h2 className="text-3xl font-bold">Interested in Dental Implants?</h2>
-          <p className="text-primary-foreground/80 max-w-2xl mx-auto">
-            Book a consultation to learn if dental implants are right for you.
-          </p>
-          <Button asChild size="lg" variant="secondary" className="bg-secondary hover:bg-secondary/90">
-            <Link to="/book-appointment">Book Consultation</Link>
-          </Button>
-        </div>
-      </section>
+      <ProcessTimeline
+        title="Your Implant Journey"
+        subtitle="From Consultation to New Smile"
+        steps={processSteps}
+      />
+
+      <WhoIsThisFor
+        title="Are Dental Implants Right for You?"
+        subtitle="Ideal Candidates"
+        description="While implants are an excellent solution for most people with missing teeth, certain factors contribute to successful treatment:"
+        candidates={candidates}
+        image={dentalTechImage}
+      />
+
+      <ServiceFAQ
+        title="Dental Implant FAQs"
+        subtitle="Common Questions"
+        faqs={faqs}
+      />
+
+      <ServiceTestimonial
+        quote="My dental implant is amazing—I forget it's not my real tooth! The process was easier than I expected, and the result is worth every kobo. I can eat anything and smile with complete confidence."
+        author="Grace N."
+        role="Single Tooth Implant Patient"
+        rating={5}
+        service="Dental Implants"
+      />
+
+      <RelatedServices
+        currentService="Dental Implants"
+        services={relatedServices}
+      />
+
+      <ServiceCTA
+        title="Ready for a Permanent Solution?"
+        description="Discover if dental implants are right for you. Book a consultation for a comprehensive evaluation and personalized treatment plan."
+        primaryButtonText="Book Implant Consultation"
+      />
     </Layout>
   );
 };
