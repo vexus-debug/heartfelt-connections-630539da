@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarPlus, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, CalendarIcon, UserPlus } from "lucide-react";
 import { addDays, subDays, format, startOfWeek, addWeeks, subWeeks, isSameDay } from "date-fns";
 import { BookAppointmentDialog } from "@/components/dashboard/BookAppointmentDialog";
 import { AppointmentDetailDialog } from "@/components/dashboard/AppointmentDetailDialog";
+import { WalkInDialog } from "@/components/dashboard/WalkInDialog";
 import { cn } from "@/lib/utils";
 import { useAppointmentsByDate, type AppointmentRow } from "@/hooks/useAppointments";
 
@@ -24,6 +25,7 @@ const statusColors: Record<string, string> = {
 export default function AppointmentsPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [bookOpen, setBookOpen] = useState(false);
+  const [walkInOpen, setWalkInOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"day" | "week">("day");
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentRow | null>(null);
 
@@ -47,10 +49,16 @@ export default function AppointmentsPage() {
           <h1 className="text-2xl font-bold">Appointments</h1>
           <p className="text-sm text-muted-foreground">Manage and schedule patient visits</p>
         </div>
-        <Button size="sm" className="bg-secondary hover:bg-secondary/90" onClick={() => setBookOpen(true)}>
-          <CalendarPlus className="mr-2 h-4 w-4" />
-          Book Appointment
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setWalkInOpen(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Walk-In
+          </Button>
+          <Button size="sm" className="bg-secondary hover:bg-secondary/90" onClick={() => setBookOpen(true)}>
+            <CalendarPlus className="mr-2 h-4 w-4" />
+            Book Appointment
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="schedule">
@@ -214,6 +222,7 @@ export default function AppointmentsPage() {
       </Tabs>
 
       <BookAppointmentDialog open={bookOpen} onOpenChange={setBookOpen} />
+      <WalkInDialog open={walkInOpen} onOpenChange={setWalkInOpen} />
       <AppointmentDetailDialog appointment={selectedAppointment} open={!!selectedAppointment} onOpenChange={(o) => !o && setSelectedAppointment(null)} />
     </div>
   );
