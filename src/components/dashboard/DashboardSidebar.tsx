@@ -30,6 +30,7 @@ import logo from "@/assets/logo.jpg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { hasPageAccess, getRoleLabel } from "@/config/roleAccess";
 
 const navGroups = [
   {
@@ -70,7 +71,7 @@ export function DashboardSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
-  const { profile, user, signOut } = useAuth();
+  const { profile, user, roles, signOut } = useAuth();
 
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "Staff";
   const initials = displayName
@@ -79,6 +80,8 @@ export function DashboardSidebar() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  const primaryRole = roles[0] || "staff";
 
   const handleSignOut = async () => {
     await signOut();
@@ -98,67 +101,77 @@ export function DashboardSidebar() {
       </div>
 
       <SidebarContent className="pt-2">
-        {navGroups.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/70">
-              {group.label}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const active = location.pathname === item.url;
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-                        <NavLink
-                          to={item.url}
-                          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
-                          activeClassName="bg-secondary/10 text-secondary font-medium"
-                        >
-                          <item.icon className="h-4 w-4 shrink-0" />
-                          <span>{item.title}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        {navGroups.map((group) => {
+          // Filter items by role access
+          const visibleItems = group.items.filter((item) => hasPageAccess(roles, item.url));
+          if (visibleItems.length === 0) return null;
+
+          return (
+            <SidebarGroup key={group.label}>
+              <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/70">
+                {group.label}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {visibleItems.map((item) => {
+                    const active = location.pathname === item.url;
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
+                          <NavLink
+                            to={item.url}
+                            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                            activeClassName="bg-secondary/10 text-secondary font-medium"
+                          >
+                            <item.icon className="h-4 w-4 shrink-0" />
+                            <span>{item.title}</span>
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
 
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Notifications">
-                  <NavLink
-                    to="/dashboard/notifications"
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
-                    activeClassName="bg-secondary/10 text-secondary font-medium"
-                  >
-                    <Bell className="h-4 w-4 shrink-0" />
-                    <span>Notifications</span>
-                    {!collapsed && (
-                      <Badge variant="destructive" className="ml-auto h-5 min-w-5 text-[10px] px-1.5">
-                        5
-                      </Badge>
-                    )}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Settings">
-                  <NavLink
-                    to="/dashboard/settings"
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
-                    activeClassName="bg-secondary/10 text-secondary font-medium"
-                  >
-                    <Settings className="h-4 w-4 shrink-0" />
-                    <span>Settings</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {hasPageAccess(roles, "/dashboard/notifications") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Notifications">
+                    <NavLink
+                      to="/dashboard/notifications"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                      activeClassName="bg-secondary/10 text-secondary font-medium"
+                    >
+                      <Bell className="h-4 w-4 shrink-0" />
+                      <span>Notifications</span>
+                      {!collapsed && (
+                        <Badge variant="destructive" className="ml-auto h-5 min-w-5 text-[10px] px-1.5">
+                          5
+                        </Badge>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              {hasPageAccess(roles, "/dashboard/settings") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Settings">
+                    <NavLink
+                      to="/dashboard/settings"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                      activeClassName="bg-secondary/10 text-secondary font-medium"
+                    >
+                      <Settings className="h-4 w-4 shrink-0" />
+                      <span>Settings</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -173,7 +186,9 @@ export function DashboardSidebar() {
           {!collapsed && (
             <div className="flex flex-col overflow-hidden flex-1">
               <span className="text-sm font-medium truncate">{displayName}</span>
-              <span className="text-[10px] text-muted-foreground">{user?.email}</span>
+              <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0 mt-0.5">
+                {getRoleLabel(primaryRole)}
+              </Badge>
             </div>
           )}
           {!collapsed && (
