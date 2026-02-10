@@ -1,198 +1,128 @@
 
 
-# 🦷 Dental Clinic Management System — Dashboard
+# 🦷 Dashboard Completion Plan — Missing Features Audit
 
-A comprehensive, light-themed dental clinic management dashboard integrated with your existing public website. We'll build the complete UI with mock data first, then connect Supabase later.
-
-## Design Direction
-- **Clean, light theme** with a professional medical feel
-- **Sidebar navigation** with collapsible sections (inspired by the reference image)
-- **Card-based dashboard** with stats, charts, and quick-access widgets
-- Color accents in teal/blue (dental/medical feel) with the existing brand palette
+After reviewing all 13 dashboard pages, the **shell and list views are solid**, but the dashboard is missing critical interactive features that a real clinic management system needs. Here's what needs to be added:
 
 ---
 
-## Phase 1: Dashboard Layout & Core Shell
-
-### Sidebar Navigation
-- Collapsible sidebar with icon-only mini mode
-- Sections: General, Clinical, Finance, Admin, Settings
-- User profile & role badge at bottom
-- Clinic logo at top
-
-### Top Header Bar
-- Search bar (global search across patients, appointments)
-- Notification bell with badge count
-- User avatar with dropdown (profile, settings, logout)
-
-### Main Dashboard (Home)
-- **Stat cards**: Total Patients, Today's Appointments, Pending Payments, Revenue (this month)
-- **Charts**: Weekly appointment trends, revenue overview (bar/line chart)
-- **Today's Schedule**: List of upcoming appointments with patient name, dentist, time, chair, status
-- **Quick Actions**: New Patient, Book Appointment, Create Invoice
-- **Recent Activity** feed
+## 1. Patient Profile Page (High Priority)
+The "View Profile" dropdown exists but leads nowhere. We need a full **Patient Profile page** (`/dashboard/patients/:id`) with tabbed sections:
+- **Overview tab**: Personal info, contact, emergency contact, photo placeholder
+- **Dental History tab**: Visit timeline showing past procedures
+- **Treatment Plans tab**: Active/completed plans with progress bars
+- **Dental Chart tab**: Patient-specific interactive tooth chart
+- **Billing tab**: Payment history, outstanding balance, linked invoices
+- **Prescriptions tab**: Patient's prescription history
 
 ---
 
-## Phase 2: Patient Management
-
-### Patient List Page
-- Searchable, filterable table with patient ID, name, phone, last visit, status
-- Advanced filters (date range, treatment type, dentist)
-- Add new patient button
-
-### Patient Profile Page
-- **Bio & Contact** tab: Personal info, emergency contact, photo
-- **Dental History** tab: Visit timeline, procedures performed
-- **Treatment Plans** tab: Active/completed plans with progress
-- **Dental Chart** tab: Interactive tooth chart (clickable teeth with procedure notes, FDI numbering)
-- **Before/After Photos** tab: Image gallery per treatment
-- **Billing** tab: Payment history, outstanding balance
-- **Prescriptions** tab: Prescription history
+## 2. Patient Registration Form (High Priority)
+The "Add Patient" button currently does nothing. Build a form/dialog with:
+- Personal details (name, phone, email, gender, DOB, address)
+- Emergency contact info
+- Medical history notes field
+- Referral source
+- Form validation
 
 ---
 
-## Phase 3: Appointments & Scheduling
-
-### Appointment Calendar
-- Week/day view with chair columns (Chair 1, Chair 2, etc.)
-- Color-coded by status: Scheduled, In-Progress, Completed, Cancelled
-- Drag to reschedule (future enhancement)
-- Click to view/edit appointment details
-
-### Appointment Booking Form
-- Patient selection (search existing or register new)
-- Dentist selection with availability display
-- Chair/room allocation
-- Date & time slot picker
-- Treatment type selection
+## 3. Appointment Booking Form (High Priority)
+The "Book Appointment" button needs a proper booking form/dialog:
+- Patient search/select (existing patients)
+- Dentist selection with specialty shown
+- Chair/room selection
+- Date picker + time slot selector
+- Treatment type dropdown
 - Walk-in toggle
 - Notes field
 
 ---
 
-## Phase 4: Clinical Features
-
-### Dental Charting
-- Visual tooth map (adult 32 teeth, FDI numbering)
-- Click a tooth → add procedure, notes, status (healthy, cavity, filling, extraction, etc.)
-- Color-coded tooth status indicators
-- Planned vs. completed treatment view
-
-### Treatment & Procedures
-- Treatment catalog with pricing (scaling, filling, extraction, braces, etc.)
-- Create treatment plans with multi-visit scheduling
-- Track progress per visit
-- Dentist notes per procedure
-
-### Prescriptions
-- Create digital prescriptions from templates
-- Medication search, dosage, frequency, duration
-- Prescription history per patient
-- Print-friendly prescription view
+## 4. Invoice Creation Form (Medium Priority)
+The "Create Invoice" button needs a form:
+- Patient selection
+- Add treatment line items (from treatment catalog) with quantities
+- Subtotal/discount/total calculation
+- Payment method (Cash, Transfer, POS, Card)
+- Partial payment support
+- Invoice preview section (printable layout)
 
 ---
 
-## Phase 5: Billing & Finance
-
-### Billing Page
-- Treatment-based invoice generation
-- Partial payment support with balance tracking
-- Payment method selection (cash, transfer, POS, card)
-- Discount application
-- Invoice & receipt preview (printable)
-
-### Financial Overview
-- Revenue dashboard with charts
-- Outstanding payments list
-- Daily/monthly collection summary
-- Payment history log
+## 5. New Prescription Form (Medium Priority)
+Build a prescription creation dialog:
+- Patient selection
+- Add medications (name, dosage, frequency, duration)
+- Template quick-select for common prescriptions
+- Dentist auto-filled
+- Print-friendly preview
 
 ---
 
-## Phase 6: Lab Work Management
-
-### Lab Orders
-- Create lab requests (crowns, bridges, dentures) linked to patient & treatment
+## 6. New Lab Order Form (Medium Priority)
+Build a lab order creation dialog:
+- Patient & treatment link
+- Lab work type (crown, bridge, denture, veneer, etc.)
 - External lab selection
-- Due date tracking
-- Status pipeline: Sent → In Progress → Received
-- Attach lab result images/files
+- Due date
+- Special instructions/notes
 
 ---
 
-## Phase 7: Staff & Inventory
-
-### Dentist & Staff Management
-- Staff directory with profiles (specialty, role, contact)
-- Shift schedule view (weekly calendar)
-- Active/inactive status toggle
-
-### Inventory (Basic)
-- Item list with stock levels
-- Low-stock alerts (visual indicators)
-- Usage log
-- Supplier directory
+## 7. Functional Appointment Calendar Navigation (Medium Priority)
+The date navigation arrows in the schedule view don't work. Add:
+- Working previous/next day navigation
+- A date picker to jump to any date
+- Mock data for multiple days
+- Week view option
 
 ---
 
-## Phase 8: Reports & Settings
-
-### Reports Dashboard
-- Daily/weekly patient count charts
-- Revenue summary with filters
-- Most common treatments breakdown
-- Dentist performance metrics (appointments, revenue)
-- Outstanding payments report
-
-### Settings
-- Clinic profile (name, address, hours, logo)
-- User roles & permissions management (Admin, Dentist, Assistant, Receptionist, Accountant)
-- Notification preferences
-- Treatment & pricing catalog management
+## 8. Dental Chart Enhancements (Medium Priority)
+The chart is interactive but limited:
+- Add patient selector dropdown so it's not hardcoded to one patient
+- "Add Procedure" button should open a modal (select status, procedure type, date, notes)
+- History log per tooth showing procedure timeline
 
 ---
 
-## Phase 9: Notifications & Integration
-
-### Notification Center
-- In-app notification panel
-- Appointment reminders
-- Follow-up reminders
-- Payment due alerts
-- Lab completion notifications
-
-### Website Integration
-- Shared appointment flow: patients book on the public site → appears in the dashboard
-- Consistent patient records between website bookings and dashboard
+## 9. Invoice/Receipt Detail View (Low Priority)
+Clicking an invoice should show:
+- Full invoice breakdown with line items
+- Payment history (partial payments)
+- Printable receipt/invoice layout
+- Record payment action button
 
 ---
 
-## Navigation Structure
+## 10. Staff Schedule & Management (Low Priority)
+Currently only shows staff cards. Add:
+- Weekly shift schedule grid view
+- Edit staff profile capability
+- Add new staff member form
 
-```
-📊 Dashboard (Home)
-👥 Patients
-   → Patient List
-   → Add Patient
-📅 Appointments
-   → Calendar View
-   → Book Appointment
-🦷 Clinical
-   → Dental Charts
-   → Treatment Plans
-   → Prescriptions
-💰 Billing
-   → Invoices
-   → Payments
-   → Financial Reports
-🔬 Lab Work
-👨‍⚕️ Staff
-📦 Inventory
-📈 Reports
-🔔 Notifications
-⚙️ Settings
-```
+---
 
-All pages will be built with realistic mock data and designed to be backend-ready for Supabase integration in a future phase.
+## 11. Inventory Actions (Low Priority)
+Add interactive inventory management:
+- "Add Item" button with form
+- "Restock" action on low-stock items
+- Usage log view
+
+---
+
+## 12. Working Global Search (Low Priority)
+The header search bar is currently just a visual placeholder. Add:
+- Search results dropdown as you type
+- Search across patients (by name/ID/phone), appointments, invoices
+- Click result to navigate to the relevant page
+
+---
+
+## Implementation Approach
+- All forms will use **dialogs/modals** for quick actions (not separate pages) to keep the workflow smooth
+- All data remains **mock data** — designed to be backend-ready for Supabase later
+- Forms will include proper validation using react-hook-form + zod
+- Priority order: Patient Profile → Registration → Booking → Invoice → Prescription → Lab Order → Calendar → remaining items
 
