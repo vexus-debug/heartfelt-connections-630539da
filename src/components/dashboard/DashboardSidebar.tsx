@@ -37,6 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPageAccess, getRoleLabel } from "@/config/roleAccess";
 import { useUnreadCount } from "@/hooks/useNotifications";
+import { motion } from "framer-motion";
 
 const navGroups = [
   {
@@ -106,26 +107,29 @@ export function DashboardSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r bg-card">
-      <div className="flex items-center gap-2 px-4 py-4 border-b">
-        <img src={logo} alt="Vista Dental" className="h-9 w-9 rounded-full object-cover shrink-0" />
+    <Sidebar collapsible="icon" className="border-r border-border/40 bg-card/60 backdrop-blur-xl">
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 px-4 py-4 border-b border-border/40">
+        <div className="relative shrink-0">
+          <img src={logo} alt="Vista Dental" className="h-9 w-9 rounded-xl object-cover ring-2 ring-secondary/20" />
+          <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-card" />
+        </div>
         {!collapsed && (
           <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-bold text-primary truncate">Vista Dental</span>
-            <span className="text-[10px] text-muted-foreground">Clinic Management</span>
+            <span className="text-sm font-bold text-foreground truncate tracking-tight">Vista Dental</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Clinic Management</span>
           </div>
         )}
       </div>
 
-      <SidebarContent className="pt-2">
+      <SidebarContent className="pt-2 px-2">
         {navGroups.map((group) => {
-          // Filter items by role access
           const visibleItems = group.items.filter((item) => hasPageAccess(roles, item.url));
           if (visibleItems.length === 0) return null;
 
           return (
             <SidebarGroup key={group.label}>
-              <SidebarGroupLabel className="text-[10px] uppercase tracking-widest text-muted-foreground/70">
+              <SidebarGroupLabel className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 font-semibold px-2 mb-0.5">
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -137,11 +141,18 @@ export function DashboardSidebar() {
                         <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
                           <NavLink
                             to={item.url}
-                            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
-                            activeClassName="bg-secondary/10 text-secondary font-medium"
+                            className="relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 hover:bg-accent/60 group"
+                            activeClassName="bg-secondary/10 text-secondary font-medium shadow-sm"
                           >
-                            <item.icon className="h-4 w-4 shrink-0" />
-                            <span>{item.title}</span>
+                            {active && (
+                              <motion.div
+                                layoutId="sidebar-active-pill"
+                                className="absolute inset-0 rounded-lg bg-secondary/10 border border-secondary/20"
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                              />
+                            )}
+                            <item.icon className={`h-4 w-4 shrink-0 relative z-10 transition-transform duration-200 group-hover:scale-110 ${active ? "text-secondary" : "text-muted-foreground"}`} />
+                            <span className="relative z-10">{item.title}</span>
                           </NavLink>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -161,13 +172,13 @@ export function DashboardSidebar() {
                   <SidebarMenuButton asChild tooltip="Notifications">
                     <NavLink
                       to="/dashboard/notifications"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                      className="relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 hover:bg-accent/60 group"
                       activeClassName="bg-secondary/10 text-secondary font-medium"
                     >
-                      <Bell className="h-4 w-4 shrink-0" />
+                      <Bell className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
                       <span>Notifications</span>
                       {!collapsed && unreadCount > 0 && (
-                        <Badge variant="destructive" className="ml-auto h-5 min-w-5 text-[10px] px-1.5">
+                        <Badge variant="destructive" className="ml-auto h-5 min-w-5 text-[10px] px-1.5 animate-pulse">
                           {unreadCount}
                         </Badge>
                       )}
@@ -180,10 +191,10 @@ export function DashboardSidebar() {
                   <SidebarMenuButton asChild tooltip="Tutorials">
                     <NavLink
                       to="/dashboard/tutorials"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                      className="relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 hover:bg-accent/60 group"
                       activeClassName="bg-secondary/10 text-secondary font-medium"
                     >
-                      <GraduationCap className="h-4 w-4 shrink-0" />
+                      <GraduationCap className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
                       <span>Tutorials</span>
                     </NavLink>
                   </SidebarMenuButton>
@@ -194,10 +205,10 @@ export function DashboardSidebar() {
                   <SidebarMenuButton asChild tooltip="Settings">
                     <NavLink
                       to="/dashboard/settings"
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                      className="relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 hover:bg-accent/60 group"
                       activeClassName="bg-secondary/10 text-secondary font-medium"
                     >
-                      <Settings className="h-4 w-4 shrink-0" />
+                      <Settings className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
                       <span>Settings</span>
                     </NavLink>
                   </SidebarMenuButton>
@@ -208,18 +219,19 @@ export function DashboardSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-3">
+      {/* User Profile Footer */}
+      <SidebarFooter className="border-t border-border/40 p-3">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate("/dashboard/profile")} className="shrink-0" title="My Profile">
-            <Avatar className="h-8 w-8">
+          <button onClick={() => navigate("/dashboard/profile")} className="shrink-0 group" title="My Profile">
+            <Avatar className="h-8 w-8 ring-2 ring-secondary/20 transition-all duration-200 group-hover:ring-secondary/40">
               <AvatarImage src={profile?.avatar_url || ""} />
-              <AvatarFallback className="bg-secondary/20 text-secondary text-xs">{initials}</AvatarFallback>
+              <AvatarFallback className="bg-gradient-to-br from-secondary/20 to-secondary/10 text-secondary text-xs font-semibold">{initials}</AvatarFallback>
             </Avatar>
           </button>
           {!collapsed && (
             <button onClick={() => navigate("/dashboard/profile")} className="flex flex-col overflow-hidden flex-1 text-left hover:opacity-80 transition-opacity">
               <span className="text-sm font-medium truncate">{displayName}</span>
-              <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0 mt-0.5">
+              <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0 mt-0.5 border-secondary/30 text-secondary/80">
                 {getRoleLabel(primaryRole)}
               </Badge>
             </button>
@@ -227,7 +239,7 @@ export function DashboardSidebar() {
           {!collapsed && (
             <button
               onClick={handleSignOut}
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-destructive transition-colors p-1.5 rounded-md hover:bg-destructive/10"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />
