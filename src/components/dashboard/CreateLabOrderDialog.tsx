@@ -4,7 +4,6 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "@/hooks/use-toast";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -16,7 +15,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
-import { patients, staff, treatments } from "@/data/mockDashboardData";
+
+import { usePatients } from "@/hooks/usePatients";
+import { useDentists } from "@/hooks/useStaff";
+import { useTreatments } from "@/hooks/useTreatments";
+import { useCreateLabOrder } from "@/hooks/useLabOrders";
 
 const labWorkTypes = [
   "PFM Crown", "Zirconia Crown", "E-max Crown",
@@ -49,7 +52,10 @@ interface CreateLabOrderDialogProps {
 }
 
 export function CreateLabOrderDialog({ open, onOpenChange }: CreateLabOrderDialogProps) {
-  const dentists = staff.filter((s) => s.role === "dentist");
+  const { data: patients = [] } = usePatients();
+  const { data: dentists = [] } = useDentists();
+  const { data: treatments = [] } = useTreatments();
+  const createLabOrder = useCreateLabOrder();
 
   const form = useForm<LabOrderForm>({
     resolver: zodResolver(labOrderSchema),
@@ -64,13 +70,23 @@ export function CreateLabOrderDialog({ open, onOpenChange }: CreateLabOrderDialo
   });
 
   function onSubmit(data: LabOrderForm) {
-    const patient = patients.find((p) => p.id === data.patientId);
-    toast({
-      title: "Lab order created",
-      description: `${data.labWorkType} for ${patient?.name} — due ${format(data.dueDate, "PPP")}`,
-    });
-    form.reset();
-    onOpenChange(false);
+    createLabOrder.mutate(
+      {
+        patient_id: data.patientId,
+        treatment_id: data.treatmentId,
+        dentist_id: data.dentistId,
+        lab_work_type: data.labWorkType,
+        lab_name: data.lab,
+        due_date: format(data.dueDate, "yyyy-MM-dd"),
+        notes: data.notes || "",
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          onOpenChange(false);
+        },
+      }
+    );
   }
 
   return (
@@ -93,7 +109,7 @@ export function CreateLabOrderDialog({ open, onOpenChange }: CreateLabOrderDialo
                   </FormControl>
                   <SelectContent>
                     {patients.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      <SelectItem key={p.id} value={p.id}>{p.first_name} {p.last_name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -167,7 +183,7 @@ export function CreateLabOrderDialog({ open, onOpenChange }: CreateLabOrderDialo
                     </FormControl>
                     <SelectContent>
                       {dentists.map((d) => (
-                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                        <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -210,7 +226,9 @@ export function CreateLabOrderDialog({ open, onOpenChange }: CreateLabOrderDialo
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90">Create Lab Order</Button>
+              <Button type="submit" className="bg-secondary hover:bg-secondary/90" disabled={createLabOrder.isPending}>
+                {createLabOrder.isPending ? "Creating..." : "Create Lab Order"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

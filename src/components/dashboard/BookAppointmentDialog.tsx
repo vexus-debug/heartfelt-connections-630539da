@@ -5,7 +5,6 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "@/hooks/use-toast";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -19,7 +18,10 @@ import { Switch } from "@/components/ui/switch";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription,
 } from "@/components/ui/form";
-import { patients, staff, treatments } from "@/data/mockDashboardData";
+import { usePatients } from "@/hooks/usePatients";
+import { useDentists } from "@/hooks/useStaff";
+import { useTreatments } from "@/hooks/useTreatments";
+import { useCreateAppointment } from "@/hooks/useAppointments";
 
 const timeSlots = [
   "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
@@ -49,7 +51,10 @@ interface BookAppointmentDialogProps {
 }
 
 export function BookAppointmentDialog({ open, onOpenChange, preselectedPatientId }: BookAppointmentDialogProps) {
-  const dentists = staff.filter((s) => s.role === "dentist");
+  const { data: patients = [] } = usePatients();
+  const { data: dentists = [] } = useDentists();
+  const { data: treatments = [] } = useTreatments();
+  const createAppointment = useCreateAppointment();
 
   const form = useForm<BookingForm>({
     resolver: zodResolver(bookingSchema),
@@ -65,13 +70,24 @@ export function BookAppointmentDialog({ open, onOpenChange, preselectedPatientId
   });
 
   function onSubmit(data: BookingForm) {
-    const patient = patients.find((p) => p.id === data.patientId);
-    toast({
-      title: "Appointment booked",
-      description: `${patient?.name} on ${format(data.date, "PPP")} at ${data.time}`,
-    });
-    form.reset();
-    onOpenChange(false);
+    createAppointment.mutate(
+      {
+        patient_id: data.patientId,
+        staff_id: data.dentistId,
+        treatment_id: data.treatmentId,
+        appointment_date: format(data.date, "yyyy-MM-dd"),
+        appointment_time: data.time,
+        chair: data.chair,
+        is_walk_in: data.isWalkIn,
+        notes: data.notes || "",
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          onOpenChange(false);
+        },
+      }
+    );
   }
 
   return (
@@ -94,7 +110,7 @@ export function BookAppointmentDialog({ open, onOpenChange, preselectedPatientId
                   </FormControl>
                   <SelectContent>
                     {patients.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name} ({p.id})</SelectItem>
+                      <SelectItem key={p.id} value={p.id}>{p.first_name} {p.last_name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -112,7 +128,7 @@ export function BookAppointmentDialog({ open, onOpenChange, preselectedPatientId
                   </FormControl>
                   <SelectContent>
                     {dentists.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>{d.name} — {d.specialty}</SelectItem>
+                      <SelectItem key={d.id} value={d.id}>{d.full_name} — {d.specialty}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -224,7 +240,9 @@ export function BookAppointmentDialog({ open, onOpenChange, preselectedPatientId
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90">Book Appointment</Button>
+              <Button type="submit" className="bg-secondary hover:bg-secondary/90" disabled={createAppointment.isPending}>
+                {createAppointment.isPending ? "Booking..." : "Book Appointment"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

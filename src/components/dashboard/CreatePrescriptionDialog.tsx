@@ -2,7 +2,6 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Trash2, Plus, Zap } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -12,7 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
-import { patients, staff } from "@/data/mockDashboardData";
+import { usePatients } from "@/hooks/usePatients";
+import { useDentists } from "@/hooks/useStaff";
+import { useCreatePrescription } from "@/hooks/usePrescriptions";
 
 const prescriptionTemplates = [
   {
@@ -56,7 +57,9 @@ interface CreatePrescriptionDialogProps {
 }
 
 export function CreatePrescriptionDialog({ open, onOpenChange }: CreatePrescriptionDialogProps) {
-  const dentists = staff.filter((s) => s.role === "dentist");
+  const { data: patients = [] } = usePatients();
+  const { data: dentists = [] } = useDentists();
+  const createPrescription = useCreatePrescription();
 
   const form = useForm<PrescriptionForm>({
     resolver: zodResolver(prescriptionSchema),
@@ -78,13 +81,19 @@ export function CreatePrescriptionDialog({ open, onOpenChange }: CreatePrescript
   }
 
   function onSubmit(data: PrescriptionForm) {
-    const patient = patients.find((p) => p.id === data.patientId);
-    toast({
-      title: "Prescription created",
-      description: `${data.medications.length} medication(s) for ${patient?.name}`,
-    });
-    form.reset();
-    onOpenChange(false);
+    createPrescription.mutate(
+      {
+        patient_id: data.patientId,
+        dentist_id: data.dentistId,
+        medications: data.medications as { name: string; dosage: string; frequency: string; duration: string }[],
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          onOpenChange(false);
+        },
+      }
+    );
   }
 
   return (
@@ -107,7 +116,7 @@ export function CreatePrescriptionDialog({ open, onOpenChange }: CreatePrescript
                   </FormControl>
                   <SelectContent>
                     {patients.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      <SelectItem key={p.id} value={p.id}>{p.first_name} {p.last_name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -125,7 +134,7 @@ export function CreatePrescriptionDialog({ open, onOpenChange }: CreatePrescript
                   </FormControl>
                   <SelectContent>
                     {dentists.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -190,7 +199,9 @@ export function CreatePrescriptionDialog({ open, onOpenChange }: CreatePrescript
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90">Create Prescription</Button>
+              <Button type="submit" className="bg-secondary hover:bg-secondary/90" disabled={createPrescription.isPending}>
+                {createPrescription.isPending ? "Creating..." : "Create Prescription"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
