@@ -1,55 +1,60 @@
 
 
-## Phase 2: Admin Role Assignment + Appointments, Prescriptions & Lab Orders
+## Phase 3: Billing, Invoices & Inventory
 
-### Step 1: Assign Admin Role
-- Insert admin role for your account (`obayomioladayo50@gmail.com`) into the `user_roles` table
-- Verify login works and dashboard is accessible
+This phase connects the Billing and Inventory pages to real Supabase data, replacing all hardcoded mock data with persistent database-backed functionality.
 
-### Step 2: Create Database Tables
-Create the following tables via migrations with proper RLS policies:
+---
 
-**Appointments Table**
-- Links to patients, staff (dentist), and treatments
-- Fields: date, time, chair, status (scheduled/completed/cancelled/no-show), walk-in flag, notes
-- All authenticated staff can read; staff can create/update; admins can delete
+### 1. Disable Email Confirmation for Login
+- Update Supabase Auth settings to allow login without email confirmation, so you can sign in with your email immediately
 
-**Prescriptions Table**
-- Links to patients and staff (prescribing dentist)
-- Fields: date, notes/diagnosis
-- Child table: **prescription_medications** with medication name, dosage, frequency, duration
+### 2. Create Database Tables
 
-**Lab Orders Table**
-- Links to patients, staff (dentist), and treatments
-- Fields: lab work type, lab name, due date, sent date, received date, status (pending/sent/in-progress/completed), notes
+**Invoices Table**
+- Links to a patient, with fields for invoice date, status (paid/pending/partial), discount percentage, payment method, total amount, and amount paid
+- Auto-generates a human-readable invoice number (e.g., INV-2026-001)
 
-### Step 3: Connect Existing Forms to Supabase
-Replace mock data usage in each dialog/page:
+**Invoice Items Table**
+- Each invoice can have multiple line items
+- Each item links to a treatment, with quantity, unit price, and line total
 
-- **Book Appointment Dialog** → inserts into `appointments` table, selects real patients/staff/treatments for dropdowns
-- **Appointments Page** → queries appointments with patient and dentist names joined, filtered by date
-- **Create Prescription Dialog** → inserts into `prescriptions` + `prescription_medications`
-- **Prescriptions Page** → queries prescriptions with medications and patient info
-- **Create Lab Order Dialog** → inserts into `lab_orders`
-- **Lab Work Page** → queries lab orders with patient and treatment info
+**Payments Table**
+- Tracks individual payments against an invoice over time (supports partial payments)
+- Fields: amount, payment method, date, and optional reference number
 
-### Step 4: Create Reusable Data Hooks
-- `useAppointments()` — fetch, create, update appointments with React Query
-- `usePrescriptions()` — fetch, create prescriptions with medications
-- `useLabOrders()` — fetch, create, update lab orders
-- All hooks use `useQuery`/`useMutation` with toast notifications on success/error
+**Inventory Table**
+- Tracks clinic supplies: name, category, current quantity, minimum stock threshold, unit, supplier name, and last restocked date
 
-### Step 5: Update Patients & Staff Pages
-- **Patients Page** → already has the table, switch from mock data to `useQuery` from Supabase
-- **Add Patient Dialog** → insert into `patients` table with mutation
-- **Staff Page** → query from `staff` table instead of mock data
-- **Treatments Page** → query from `treatments` table instead of mock data
+### 3. Security (Row-Level Security)
+- All tables will have RLS enabled
+- All authenticated staff can read invoices, invoice items, payments, and inventory
+- Admin, dentist, receptionist, and accountant roles can create/update invoices and record payments
+- Only admins can delete invoices
+- Admin and accountant roles can manage inventory (add items, update stock)
+
+### 4. Connect Billing Page to Database
+- **Create Invoice dialog** → inserts into invoices + invoice_items tables, with patient and treatment dropdowns pulling from real Supabase data
+- **Billing page stats** (Collected Today, Outstanding Balance, Overdue Invoices) → live queries from invoices table
+- **Recent Invoices list** → queries invoices joined with patient names, sorted by date
+- **Invoice Detail dialog** → shows real line items and payment history from the database
+- **Record Payment** → inserts into payments table and updates invoice paid amount/status
+
+### 5. Connect Inventory Page to Database
+- **Inventory list** → queries from inventory table instead of mock data
+- **Low Stock Alert** → computed from real stock levels vs. minimum thresholds
+- **Add ability to update stock** → admin/accountant can adjust quantities and add new inventory items
+
+### 6. Create Reusable Data Hooks
+- `useInvoices()` — fetch invoices with patient info, create new invoices with line items
+- `usePayments()` — fetch payment history for an invoice, record new payments
+- `useInventory()` — fetch inventory items, update stock levels, add new items
 
 ### What You'll Be Able to Do After This Phase
-- Log in as admin and access the dashboard
-- Add real patients that persist in the database
-- Book appointments linked to real patients, dentists, and treatments
-- Create prescriptions with multiple medications
-- Create and track lab orders
-- View all data in list pages with real-time updates
+- Create real invoices linked to patients and treatments that persist in the database
+- View invoice details with actual line items and totals
+- Record partial or full payments against invoices with payment history tracking
+- See live billing stats (today's collections, outstanding balances, overdue count)
+- Track clinic inventory with real stock levels and low-stock alerts
+- Update inventory quantities as supplies are used or restocked
 
