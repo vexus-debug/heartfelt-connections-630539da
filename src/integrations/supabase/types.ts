@@ -341,6 +341,209 @@ export type Database = {
           },
         ]
       }
+      lab_case_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          field_changed: string
+          id: string
+          lab_case_id: string
+          new_value: string | null
+          old_value: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          field_changed: string
+          id?: string
+          lab_case_id: string
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          field_changed?: string
+          id?: string
+          lab_case_id?: string
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_case_history_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "lab_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_case_images: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          lab_case_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          lab_case_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          lab_case_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_case_images_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "lab_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_case_notes: {
+        Row: {
+          created_at: string
+          id: string
+          lab_case_id: string
+          note: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lab_case_id: string
+          note: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lab_case_id?: string
+          note?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_case_notes_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "lab_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_cases: {
+        Row: {
+          assigned_technician_id: string | null
+          case_number: string
+          completed_date: string | null
+          created_at: string
+          delivered_date: string | null
+          delivery_method: string | null
+          dentist_id: string
+          due_date: string | null
+          id: string
+          instructions: string | null
+          is_paid: boolean
+          is_urgent: boolean
+          lab_fee: number
+          patient_id: string
+          sent_date: string | null
+          status: string
+          tooth_number: number | null
+          treatment_id: string | null
+          updated_at: string
+          work_type: string
+        }
+        Insert: {
+          assigned_technician_id?: string | null
+          case_number?: string
+          completed_date?: string | null
+          created_at?: string
+          delivered_date?: string | null
+          delivery_method?: string | null
+          dentist_id: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          is_paid?: boolean
+          is_urgent?: boolean
+          lab_fee?: number
+          patient_id: string
+          sent_date?: string | null
+          status?: string
+          tooth_number?: number | null
+          treatment_id?: string | null
+          updated_at?: string
+          work_type: string
+        }
+        Update: {
+          assigned_technician_id?: string | null
+          case_number?: string
+          completed_date?: string | null
+          created_at?: string
+          delivered_date?: string | null
+          delivery_method?: string | null
+          dentist_id?: string
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          is_paid?: boolean
+          is_urgent?: boolean
+          lab_fee?: number
+          patient_id?: string
+          sent_date?: string | null
+          status?: string
+          tooth_number?: number | null
+          treatment_id?: string | null
+          updated_at?: string
+          work_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_cases_assigned_technician_id_fkey"
+            columns: ["assigned_technician_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_cases_dentist_id_fkey"
+            columns: ["dentist_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_cases_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lab_cases_treatment_id_fkey"
+            columns: ["treatment_id"]
+            isOneToOne: false
+            referencedRelation: "treatments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lab_orders: {
         Row: {
           created_at: string
@@ -887,6 +1090,7 @@ export type Database = {
         | "hygienist"
         | "receptionist"
         | "accountant"
+        | "lab_technician"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1021,6 +1225,7 @@ export const Constants = {
         "hygienist",
         "receptionist",
         "accountant",
+        "lab_technician",
       ],
     },
   },

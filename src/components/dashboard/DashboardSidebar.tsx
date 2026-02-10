@@ -25,6 +25,10 @@ import {
   Settings,
   LogOut,
   GraduationCap,
+  Microscope,
+  ClipboardList,
+  DollarSign,
+  Wrench,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
@@ -64,6 +68,16 @@ const navGroups = [
       { title: "Lab Work", url: "/dashboard/lab-work", icon: FlaskConical },
       { title: "Staff", url: "/dashboard/staff", icon: UserCog },
       { title: "Inventory", url: "/dashboard/inventory", icon: Package },
+    ],
+  },
+  {
+    label: "Lab Management",
+    items: [
+      { title: "Lab Dashboard", url: "/dashboard/lab", icon: Microscope },
+      { title: "Lab Cases", url: "/dashboard/lab/cases", icon: ClipboardList },
+      { title: "Technicians", url: "/dashboard/lab/technicians", icon: Users },
+      { title: "Lab Billing", url: "/dashboard/lab/billing", icon: DollarSign },
+      { title: "Lab Settings", url: "/dashboard/lab/settings", icon: Wrench },
     ],
   },
 ];

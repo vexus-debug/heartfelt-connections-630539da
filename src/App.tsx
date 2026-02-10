@@ -43,6 +43,11 @@ import PrescriptionsPage from "./pages/dashboard/PrescriptionsPage";
 import BillingPage from "./pages/dashboard/BillingPage";
 import ReportsPage from "./pages/dashboard/ReportsPage";
 import LabWorkPage from "./pages/dashboard/LabWorkPage";
+import LabDashboardPage from "./pages/dashboard/LabDashboardPage";
+import LabCasesPage from "./pages/dashboard/LabCasesPage";
+import LabTechniciansPage from "./pages/dashboard/LabTechniciansPage";
+import LabBillingPage from "./pages/dashboard/LabBillingPage";
+import LabSettingsPage from "./pages/dashboard/LabSettingsPage";
 import StaffPage from "./pages/dashboard/StaffPage";
 import InventoryPage from "./pages/dashboard/InventoryPage";
 import NotificationsPage from "./pages/dashboard/NotificationsPage";
@@ -108,6 +113,11 @@ const App = () => (
             <Route path="/dashboard/billing" element={<ProtectedDashboard><BillingPage /></ProtectedDashboard>} />
             <Route path="/dashboard/reports" element={<ProtectedDashboard><ReportsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/lab-work" element={<ProtectedDashboard><LabWorkPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/lab" element={<ProtectedDashboard><LabDashboardPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/lab/cases" element={<ProtectedDashboard><LabCasesPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/lab/technicians" element={<ProtectedDashboard><LabTechniciansPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/lab/billing" element={<ProtectedDashboard><LabBillingPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/lab/settings" element={<ProtectedDashboard><LabSettingsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/staff" element={<ProtectedDashboard><StaffPage /></ProtectedDashboard>} />
             <Route path="/dashboard/inventory" element={<ProtectedDashboard><InventoryPage /></ProtectedDashboard>} />
             <Route path="/dashboard/notifications" element={<ProtectedDashboard><NotificationsPage /></ProtectedDashboard>} />
