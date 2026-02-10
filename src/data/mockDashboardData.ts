@@ -47,6 +47,36 @@ export const todayAppointments: Appointment[] = [
   { id: "APT-008", patientName: "Ngozi Eze", dentist: "Dr. Adeyemi", time: "01:00 PM", chair: "Chair 2", treatment: "Crown Placement", status: "scheduled" },
 ];
 
+// Multi-day appointment data for calendar navigation
+export const appointmentsByDate: Record<string, Appointment[]> = {
+  "2026-02-10": [
+    { id: "APT-001", patientName: "Adewale Johnson", dentist: "Dr. Okonkwo", time: "09:00 AM", chair: "Chair 1", treatment: "Root Canal", status: "completed" },
+    { id: "APT-002", patientName: "Fatima Bello", dentist: "Dr. Adeyemi", time: "09:30 AM", chair: "Chair 2", treatment: "Teeth Cleaning", status: "completed" },
+    { id: "APT-003", patientName: "Chinedu Obi", dentist: "Dr. Okonkwo", time: "10:00 AM", chair: "Chair 1", treatment: "Dental Filling", status: "in-progress" },
+    { id: "APT-004", patientName: "Amina Yusuf", dentist: "Dr. Nwosu", time: "10:30 AM", chair: "Chair 3", treatment: "Orthodontic Check", status: "scheduled" },
+    { id: "APT-005", patientName: "Oluwaseun Ade", dentist: "Dr. Adeyemi", time: "11:00 AM", chair: "Chair 2", treatment: "Tooth Extraction", status: "scheduled" },
+    { id: "APT-006", patientName: "Grace Okafor", dentist: "Dr. Okonkwo", time: "11:30 AM", chair: "Chair 1", treatment: "Veneer Fitting", status: "scheduled" },
+    { id: "APT-007", patientName: "Ibrahim Musa", dentist: "Dr. Nwosu", time: "12:00 PM", chair: "Chair 3", treatment: "Teeth Whitening", status: "scheduled" },
+    { id: "APT-008", patientName: "Ngozi Eze", dentist: "Dr. Adeyemi", time: "01:00 PM", chair: "Chair 2", treatment: "Crown Placement", status: "scheduled" },
+  ],
+  "2026-02-11": [
+    { id: "APT-009", patientName: "Blessing Nnamdi", dentist: "Dr. Okonkwo", time: "09:00 AM", chair: "Chair 1", treatment: "Teeth Whitening", status: "scheduled" },
+    { id: "APT-010", patientName: "Tunde Bakare", dentist: "Dr. Adeyemi", time: "10:00 AM", chair: "Chair 2", treatment: "Root Canal", status: "scheduled" },
+    { id: "APT-011", patientName: "Fatima Bello", dentist: "Dr. Nwosu", time: "11:00 AM", chair: "Chair 3", treatment: "Orthodontic Check", status: "scheduled" },
+    { id: "APT-012", patientName: "Adewale Johnson", dentist: "Dr. Okonkwo", time: "02:00 PM", chair: "Chair 1", treatment: "Follow-up", status: "scheduled" },
+  ],
+  "2026-02-12": [
+    { id: "APT-013", patientName: "Grace Okafor", dentist: "Dr. Adeyemi", time: "09:30 AM", chair: "Chair 2", treatment: "Dental Filling", status: "scheduled" },
+    { id: "APT-014", patientName: "Chinedu Obi", dentist: "Dr. Okonkwo", time: "10:30 AM", chair: "Chair 1", treatment: "Crown Fitting", status: "scheduled" },
+    { id: "APT-015", patientName: "Ngozi Eze", dentist: "Dr. Nwosu", time: "01:30 PM", chair: "Chair 3", treatment: "Follow-up", status: "scheduled" },
+  ],
+  "2026-02-09": [
+    { id: "APT-016", patientName: "Oluwaseun Ade", dentist: "Dr. Okonkwo", time: "09:00 AM", chair: "Chair 1", treatment: "Scaling & Polishing", status: "completed" },
+    { id: "APT-017", patientName: "Amina Yusuf", dentist: "Dr. Adeyemi", time: "10:00 AM", chair: "Chair 2", treatment: "Consultation", status: "completed" },
+    { id: "APT-018", patientName: "Ibrahim Musa", dentist: "Dr. Nwosu", time: "11:30 AM", chair: "Chair 3", treatment: "Denture Adjustment", status: "completed" },
+  ],
+};
+
 export interface RecentActivity {
   id: string;
   action: string;
