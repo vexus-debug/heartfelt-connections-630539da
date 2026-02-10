@@ -1,19 +1,10 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, CreditCard, TrendingUp, AlertCircle } from "lucide-react";
-import { patients } from "@/data/mockDashboardData";
+import { FileText, CreditCard, TrendingUp, AlertCircle, Loader2 } from "lucide-react";
 import { CreateInvoiceDialog } from "@/components/dashboard/CreateInvoiceDialog";
 import { InvoiceDetailDialog } from "@/components/dashboard/InvoiceDetailDialog";
-
-const invoices = [
-  { id: "INV-2026-042", patient: "Adewale Johnson", treatment: "Root Canal", amount: 80000, paid: 80000, date: "2026-02-10", status: "paid" },
-  { id: "INV-2026-041", patient: "Chinedu Obi", treatment: "Dental Filling", amount: 25000, paid: 0, date: "2026-02-10", status: "pending" },
-  { id: "INV-2026-040", patient: "Ngozi Eze", treatment: "Crown Placement", amount: 80000, paid: 35000, date: "2026-02-09", status: "partial" },
-  { id: "INV-2026-039", patient: "Blessing Nnamdi", treatment: "Teeth Whitening", amount: 50000, paid: 50000, date: "2026-02-08", status: "paid" },
-  { id: "INV-2026-038", patient: "Fatima Bello", treatment: "Scaling & Polishing", amount: 15000, paid: 0, date: "2026-02-07", status: "pending" },
-  { id: "INV-2026-037", patient: "Ibrahim Musa", treatment: "Complete Denture", amount: 150000, paid: 30000, date: "2026-02-05", status: "partial" },
-];
+import { useInvoices, useBillingStats, type InvoiceWithPatient } from "@/hooks/useInvoices";
 
 const statusStyles: Record<string, string> = {
   paid: "bg-emerald-100 text-emerald-700",
@@ -27,8 +18,9 @@ function formatCurrency(amount: number) {
 
 export default function BillingPage() {
   const [invoiceOpen, setInvoiceOpen] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState<typeof invoices[0] | null>(null);
-  const totalOutstanding = patients.reduce((sum, p) => sum + p.balance, 0);
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithPatient | null>(null);
+  const { data: invoices = [], isLoading } = useInvoices();
+  const { data: stats } = useBillingStats();
 
   return (
     <div className="space-y-6">
@@ -52,7 +44,7 @@ export default function BillingPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Collected Today</p>
-              <p className="text-xl font-bold">{formatCurrency(130000)}</p>
+              <p className="text-xl font-bold">{formatCurrency(stats?.collectedToday ?? 0)}</p>
             </div>
           </CardContent>
         </Card>
@@ -63,7 +55,7 @@ export default function BillingPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Outstanding Balance</p>
-              <p className="text-xl font-bold">{formatCurrency(totalOutstanding)}</p>
+              <p className="text-xl font-bold">{formatCurrency(stats?.totalOutstanding ?? 0)}</p>
             </div>
           </CardContent>
         </Card>
@@ -74,7 +66,7 @@ export default function BillingPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Overdue Invoices</p>
-              <p className="text-xl font-bold">5</p>
+              <p className="text-xl font-bold">{stats?.overdueCount ?? 0}</p>
             </div>
           </CardContent>
         </Card>
@@ -87,36 +79,44 @@ export default function BillingPage() {
           <CardDescription>Click an invoice to view details</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Invoice</th>
-                  <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Patient</th>
-                  <th className="py-2.5 px-4 text-left font-medium text-muted-foreground hidden md:table-cell">Treatment</th>
-                  <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Amount</th>
-                  <th className="py-2.5 px-4 text-left font-medium text-muted-foreground hidden md:table-cell">Paid</th>
-                  <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map((inv) => (
-                  <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/20 cursor-pointer" onClick={() => setSelectedInvoice(inv)}>
-                    <td className="py-2.5 px-4 font-mono text-xs">{inv.id}</td>
-                    <td className="py-2.5 px-4 font-medium">{inv.patient}</td>
-                    <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{inv.treatment}</td>
-                    <td className="py-2.5 px-4 font-medium">{formatCurrency(inv.amount)}</td>
-                    <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{formatCurrency(inv.paid)}</td>
-                    <td className="py-2.5 px-4">
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${statusStyles[inv.status]}`}>
-                        {inv.status}
-                      </span>
-                    </td>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : invoices.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">No invoices yet. Create your first invoice.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/30">
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Invoice</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Patient</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground hidden md:table-cell">Date</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Amount</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground hidden md:table-cell">Paid</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {invoices.map((inv) => (
+                    <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/20 cursor-pointer" onClick={() => setSelectedInvoice(inv)}>
+                      <td className="py-2.5 px-4 font-mono text-xs">{inv.invoice_number}</td>
+                      <td className="py-2.5 px-4 font-medium">{inv.patient_name}</td>
+                      <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{inv.invoice_date}</td>
+                      <td className="py-2.5 px-4 font-medium">{formatCurrency(inv.total_amount)}</td>
+                      <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{formatCurrency(inv.amount_paid)}</td>
+                      <td className="py-2.5 px-4">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${statusStyles[inv.status] || ""}`}>
+                          {inv.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
