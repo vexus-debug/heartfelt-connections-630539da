@@ -14,7 +14,9 @@ import { Separator } from "@/components/ui/separator";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
-import { patients, treatments } from "@/data/mockDashboardData";
+import { usePatients } from "@/hooks/usePatients";
+import { useTreatments } from "@/hooks/useTreatments";
+import { useCreateInvoice } from "@/hooks/useInvoices";
 
 const paymentMethods = ["Cash", "Bank Transfer", "POS", "Card"];
 
@@ -41,6 +43,10 @@ function formatCurrency(amount: number) {
 }
 
 export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogProps) {
+  const { data: patients = [] } = usePatients();
+  const { data: treatments = [] } = useTreatments();
+  const createInvoice = useCreateInvoice();
+
   const form = useForm<InvoiceForm>({
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
@@ -62,22 +68,46 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
 
   const subtotal = watchedItems.reduce((sum, item) => {
     const treatment = treatments.find((t) => t.id === item.treatmentId);
-    return sum + (treatment?.price || 0) * (item.quantity || 0);
+    return sum + (Number(treatment?.price) || 0) * (item.quantity || 0);
   }, 0);
 
   const discountAmount = (subtotal * watchedDiscount) / 100;
   const total = subtotal - discountAmount;
 
-  function onSubmit(data: InvoiceForm) {
+  async function onSubmit(data: InvoiceForm) {
     const patient = patients.find((p) => p.id === data.patientId);
     const paid = data.amountPaid || 0;
-    const status = paid >= total ? "paid" : paid > 0 ? "partial" : "pending";
-    toast({
-      title: "Invoice created",
-      description: `${formatCurrency(total)} for ${patient?.name} — ${status}`,
+
+    const lineItemsData = data.lineItems.map((li) => {
+      const treatment = treatments.find((t) => t.id === li.treatmentId);
+      const unitPrice = Number(treatment?.price) || 0;
+      return {
+        treatment_id: li.treatmentId,
+        description: treatment?.name || "",
+        quantity: li.quantity,
+        unit_price: unitPrice,
+        line_total: unitPrice * li.quantity,
+      };
     });
-    form.reset();
-    onOpenChange(false);
+
+    try {
+      await createInvoice.mutateAsync({
+        patient_id: data.patientId,
+        discount_percent: data.discount || 0,
+        payment_method: data.paymentMethod,
+        amount_paid: paid,
+        line_items: lineItemsData,
+      });
+      const status = paid >= total ? "paid" : paid > 0 ? "partial" : "pending";
+      toast({
+        title: "Invoice created",
+        description: `${formatCurrency(total)} for ${patient?.first_name} ${patient?.last_name} — ${status}`,
+      });
+      form.reset();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Error creating invoice", description: err.message, variant: "destructive" });
+    }
   }
 
   return (
@@ -100,7 +130,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                   </FormControl>
                   <SelectContent>
                     {patients.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name} ({p.id})</SelectItem>
+                      <SelectItem key={p.id} value={p.id}>{p.first_name} {p.last_name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -115,7 +145,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                 const selectedTreatment = treatments.find(
                   (t) => t.id === watchedItems[index]?.treatmentId
                 );
-                const lineTotal = (selectedTreatment?.price || 0) * (watchedItems[index]?.quantity || 0);
+                const lineTotal = (Number(selectedTreatment?.price) || 0) * (watchedItems[index]?.quantity || 0);
 
                 return (
                   <div key={field.id} className="flex items-end gap-2">
@@ -128,7 +158,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                           <SelectContent>
                             {treatments.map((t) => (
                               <SelectItem key={t.id} value={t.id}>
-                                {t.name} — {formatCurrency(t.price)}
+                                {t.name} — {formatCurrency(Number(t.price))}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -218,7 +248,9 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90">Create Invoice</Button>
+              <Button type="submit" className="bg-secondary hover:bg-secondary/90" disabled={createInvoice.isPending}>
+                {createInvoice.isPending ? "Creating..." : "Create Invoice"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
