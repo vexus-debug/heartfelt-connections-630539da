@@ -1,13 +1,15 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Phone, Mail, AlertTriangle, User, FileText } from "lucide-react";
+import { ArrowLeft, Phone, Mail, AlertTriangle, User, FileText, Pencil } from "lucide-react";
 import {
   usePatientDetail, usePatientVisits, usePatientTreatmentPlans, usePatientInvoices, usePatientPrescriptions,
 } from "@/hooks/usePatientProfile";
+import { EditPatientDialog } from "@/components/dashboard/EditPatientDialog";
 
 const statusStyles: Record<string, string> = {
   paid: "bg-emerald-100 text-emerald-700",
@@ -22,6 +24,7 @@ function formatCurrency(amount: number) {
 export default function PatientProfilePage() {
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
+  const [editOpen, setEditOpen] = useState(false);
 
   const { data: patient, isLoading } = usePatientDetail(patientId);
   const { data: visits = [] } = usePatientVisits(patientId);
@@ -63,6 +66,9 @@ export default function PatientProfilePage() {
           </div>
           <p className="text-sm text-muted-foreground">{patient.gender} · Registered: {patient.registered_date}</p>
         </div>
+        <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+          <Pencil className="mr-2 h-4 w-4" /> Edit
+        </Button>
         {outstandingBalance > 0 && (
           <div className="text-right">
             <p className="text-xs text-muted-foreground">Outstanding</p>
@@ -280,6 +286,8 @@ export default function PatientProfilePage() {
           ))}
         </TabsContent>
       </Tabs>
+
+      <EditPatientDialog patient={patient} open={editOpen} onOpenChange={setEditOpen} />
     </div>
   );
 }

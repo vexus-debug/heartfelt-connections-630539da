@@ -1,16 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
-export interface InventoryItem {
-  id: string;
-  name: string;
-  category: string;
-  quantity: number;
-  min_stock: number;
-  unit: string;
-  supplier: string;
-  last_restocked: string;
-}
+export type InventoryItem = Tables<"inventory">;
 
 export function useInventory() {
   return useQuery({
@@ -29,7 +21,7 @@ export function useInventory() {
 export function useAddInventoryItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (item: Omit<InventoryItem, "id">) => {
+    mutationFn: async (item: Omit<InventoryItem, "id" | "created_at" | "updated_at">) => {
       const { error } = await supabase.from("inventory").insert(item);
       if (error) throw error;
     },
@@ -45,6 +37,28 @@ export function useUpdateInventoryStock() {
         .from("inventory")
         .update({ quantity, last_restocked: new Date().toISOString().split("T")[0] })
         .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["inventory"] }),
+  });
+}
+
+export function useUpdateInventoryItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; name?: string; category?: string; unit?: string; min_stock?: number; supplier?: string | null }) => {
+      const { error } = await supabase.from("inventory").update(updates).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["inventory"] }),
+  });
+}
+
+export function useDeleteInventoryItem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("inventory").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["inventory"] }),
