@@ -31,6 +31,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPageAccess, getRoleLabel } from "@/config/roleAccess";
+import { useUnreadCount } from "@/hooks/useNotifications";
 
 const navGroups = [
   {
@@ -72,6 +73,7 @@ export function DashboardSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, user, roles, signOut } = useAuth();
+  const { data: unreadCount = 0 } = useUnreadCount();
 
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "Staff";
   const initials = displayName
@@ -149,9 +151,9 @@ export function DashboardSidebar() {
                     >
                       <Bell className="h-4 w-4 shrink-0" />
                       <span>Notifications</span>
-                      {!collapsed && (
+                      {!collapsed && unreadCount > 0 && (
                         <Badge variant="destructive" className="ml-auto h-5 min-w-5 text-[10px] px-1.5">
-                          5
+                          {unreadCount}
                         </Badge>
                       )}
                     </NavLink>

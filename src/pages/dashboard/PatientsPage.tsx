@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, UserPlus, Filter, MoreHorizontal } from "lucide-react";
+import { Search, UserPlus, Filter, MoreHorizontal, ArrowUpDown } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -17,18 +17,25 @@ export default function PatientsPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
   const [addOpen, setAddOpen] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string>("");
 
   const { data: patients = [], isLoading } = usePatients();
 
-  const filtered = patients.filter((p) => {
-    const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
-    const matchesSearch = fullName.includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()) || p.phone.includes(search);
-    const matchesStatus = statusFilter === "all" || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filtered = patients
+    .filter((p) => {
+      const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
+      const matchesSearch = fullName.includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()) || p.phone.includes(search);
+      const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (sortBy === "name") return `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`);
+      if (sortBy === "registered") return b.registered_date.localeCompare(a.registered_date);
+      return 0;
+    });
 
   return (
     <div className="space-y-6">
@@ -59,6 +66,16 @@ export default function PatientsPage() {
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[160px]">
+                <ArrowUpDown className="mr-2 h-4 w-4" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Sort by Name</SelectItem>
+                <SelectItem value="registered">Sort by Date</SelectItem>
               </SelectContent>
             </Select>
           </div>
