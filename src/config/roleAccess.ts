@@ -13,6 +13,11 @@ export const PAGE_ROLE_ACCESS: Record<string, AppRole[]> = {
   "/dashboard/billing": ["admin", "dentist", "receptionist", "accountant"],
   "/dashboard/reports": ["admin", "accountant"],
   "/dashboard/lab-work": ["admin", "dentist", "hygienist", "assistant"],
+  "/dashboard/lab": ["admin", "lab_technician"],
+  "/dashboard/lab/cases": ["admin", "lab_technician"],
+  "/dashboard/lab/technicians": ["admin", "lab_technician"],
+  "/dashboard/lab/billing": ["admin", "lab_technician"],
+  "/dashboard/lab/settings": ["admin", "lab_technician"],
   "/dashboard/staff": ["admin"],
   "/dashboard/inventory": ["admin", "accountant"],
   "/dashboard/notifications": ["admin", "dentist", "receptionist", "hygienist", "assistant", "accountant"],
@@ -45,6 +50,7 @@ export function getRoleLabel(role: string): string {
     hygienist: "Hygienist",
     assistant: "Assistant",
     accountant: "Accountant",
+    lab_technician: "Lab Technician",
   };
   return labels[role] || role;
 }
