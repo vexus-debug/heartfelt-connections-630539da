@@ -24,6 +24,7 @@ import {
   Bell,
   Settings,
   LogOut,
+  GraduationCap,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
@@ -156,6 +157,20 @@ export function DashboardSidebar() {
                           {unreadCount}
                         </Badge>
                       )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              {hasPageAccess(roles, "/dashboard/tutorials") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Tutorials">
+                    <NavLink
+                      to="/dashboard/tutorials"
+                      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
+                      activeClassName="bg-secondary/10 text-secondary font-medium"
+                    >
+                      <GraduationCap className="h-4 w-4 shrink-0" />
+                      <span>Tutorials</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
