@@ -1,0 +1,357 @@
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
+import {
+  Users,
+  CalendarDays,
+  CreditCard,
+  TrendingUp,
+  UserPlus,
+  CalendarPlus,
+  FileText,
+  Clock,
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+} from "recharts";
+import {
+  dashboardStats,
+  weeklyAppointments,
+  revenueData,
+  todayAppointments,
+  recentActivities,
+} from "@/data/mockDashboardData";
+
+const statusColors: Record<string, string> = {
+  scheduled: "bg-blue-100 text-blue-700",
+  "in-progress": "bg-amber-100 text-amber-700",
+  completed: "bg-emerald-100 text-emerald-700",
+  cancelled: "bg-red-100 text-red-700",
+};
+
+const activityIcons: Record<string, typeof Activity> = {
+  appointment: CalendarDays,
+  payment: CreditCard,
+  patient: Users,
+  lab: FileText,
+  prescription: FileText,
+};
+
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+    minimumFractionDigits: 0,
+  }).format(amount);
+}
+
+export default function DashboardHome() {
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm text-muted-foreground">
+            Welcome back, Dr. Okonkwo. Here's what's happening today.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" asChild>
+            <Link to="/dashboard/patients/new">
+              <UserPlus className="mr-2 h-4 w-4" />
+              New Patient
+            </Link>
+          </Button>
+          <Button size="sm" className="bg-secondary hover:bg-secondary/90" asChild>
+            <Link to="/dashboard/appointments/new">
+              <CalendarPlus className="mr-2 h-4 w-4" />
+              Book Appointment
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Stat Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Total Patients</p>
+                <p className="text-2xl font-bold mt-1">{dashboardStats.totalPatients.toLocaleString()}</p>
+                <p className="text-xs text-emerald-600 flex items-center mt-1">
+                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
+                  +12 this week
+                </p>
+              </div>
+              <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Today's Appointments</p>
+                <p className="text-2xl font-bold mt-1">{dashboardStats.todayAppointments}</p>
+                <p className="text-xs text-emerald-600 flex items-center mt-1">
+                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
+                  3 completed
+                </p>
+              </div>
+              <div className="h-10 w-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                <CalendarDays className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Pending Payments</p>
+                <p className="text-2xl font-bold mt-1">{dashboardStats.pendingPayments}</p>
+                <p className="text-xs text-red-500 flex items-center mt-1">
+                  <ArrowDownRight className="h-3 w-3 mr-0.5" />
+                  5 overdue
+                </p>
+              </div>
+              <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center">
+                <CreditCard className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Revenue (Feb)</p>
+                <p className="text-2xl font-bold mt-1">{formatCurrency(dashboardStats.monthlyRevenue)}</p>
+                <p className="text-xs text-emerald-600 flex items-center mt-1">
+                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
+                  +8.5% vs Jan
+                </p>
+              </div>
+              <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-purple-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Weekly Appointments</CardTitle>
+            <CardDescription>Appointment trends this week</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={weeklyAppointments}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="day" className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                <YAxis className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                  }}
+                />
+                <Bar dataKey="count" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Revenue Overview</CardTitle>
+            <CardDescription>Monthly revenue trend (₦)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="month" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                <YAxis
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                  tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                  }}
+                  formatter={(value: number) => [formatCurrency(value), "Revenue"]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="hsl(var(--primary))"
+                  fill="hsl(var(--primary) / 0.1)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Schedule + Activity Row */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Today's Schedule */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base">Today's Schedule</CardTitle>
+                <CardDescription>
+                  {todayAppointments.filter((a) => a.status === "completed").length} completed,{" "}
+                  {todayAppointments.filter((a) => a.status === "in-progress").length} in progress,{" "}
+                  {todayAppointments.filter((a) => a.status === "scheduled").length} upcoming
+                </CardDescription>
+              </div>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/dashboard/appointments">View All</Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/30">
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Time</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Patient</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground hidden md:table-cell">Dentist</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground hidden lg:table-cell">Chair</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Treatment</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {todayAppointments.map((apt) => (
+                    <tr key={apt.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                      <td className="py-2.5 px-4 font-medium">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3 w-3 text-muted-foreground" />
+                          {apt.time}
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-4">{apt.patientName}</td>
+                      <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{apt.dentist}</td>
+                      <td className="py-2.5 px-4 hidden lg:table-cell text-muted-foreground">{apt.chair}</td>
+                      <td className="py-2.5 px-4">{apt.treatment}</td>
+                      <td className="py-2.5 px-4">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${statusColors[apt.status]}`}>
+                          {apt.status.replace("-", " ")}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Recent Activity</CardTitle>
+            <CardDescription>Latest clinic updates</CardDescription>
+          </CardHeader>
+          <CardContent className="px-4">
+            <div className="space-y-4">
+              {recentActivities.map((activity) => {
+                const Icon = activityIcons[activity.type] || Activity;
+                return (
+                  <div key={activity.id} className="flex gap-3">
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium leading-tight">{activity.action}</p>
+                      <p className="text-xs text-muted-foreground truncate">{activity.subject}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{activity.time}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Link to="/dashboard/patients/new">
+          <Card className="hover:border-secondary/50 hover:shadow-md transition-all cursor-pointer group">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
+                <UserPlus className="h-5 w-5 text-secondary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Register Patient</p>
+                <p className="text-xs text-muted-foreground">Add a new patient record</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link to="/dashboard/appointments/new">
+          <Card className="hover:border-secondary/50 hover:shadow-md transition-all cursor-pointer group">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
+                <CalendarPlus className="h-5 w-5 text-secondary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Book Appointment</p>
+                <p className="text-xs text-muted-foreground">Schedule a visit</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link to="/dashboard/billing/new">
+          <Card className="hover:border-secondary/50 hover:shadow-md transition-all cursor-pointer group">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
+                <FileText className="h-5 w-5 text-secondary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Create Invoice</p>
+                <p className="text-xs text-muted-foreground">Generate a bill</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+    </div>
+  );
+}
