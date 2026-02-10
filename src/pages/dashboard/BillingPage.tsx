@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { FileText, CreditCard, TrendingUp, AlertCircle } from "lucide-react";
 import { patients } from "@/data/mockDashboardData";
 import { CreateInvoiceDialog } from "@/components/dashboard/CreateInvoiceDialog";
+import { InvoiceDetailDialog } from "@/components/dashboard/InvoiceDetailDialog";
 
 const invoices = [
   { id: "INV-2026-042", patient: "Adewale Johnson", treatment: "Root Canal", amount: 80000, paid: 80000, date: "2026-02-10", status: "paid" },
@@ -27,6 +27,7 @@ function formatCurrency(amount: number) {
 
 export default function BillingPage() {
   const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<typeof invoices[0] | null>(null);
   const totalOutstanding = patients.reduce((sum, p) => sum + p.balance, 0);
 
   return (
@@ -83,7 +84,7 @@ export default function BillingPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Recent Invoices</CardTitle>
-          <CardDescription>Latest billing activity</CardDescription>
+          <CardDescription>Click an invoice to view details</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -100,7 +101,7 @@ export default function BillingPage() {
               </thead>
               <tbody>
                 {invoices.map((inv) => (
-                  <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/20 cursor-pointer">
+                  <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/20 cursor-pointer" onClick={() => setSelectedInvoice(inv)}>
                     <td className="py-2.5 px-4 font-mono text-xs">{inv.id}</td>
                     <td className="py-2.5 px-4 font-medium">{inv.patient}</td>
                     <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{inv.treatment}</td>
@@ -118,7 +119,9 @@ export default function BillingPage() {
           </div>
         </CardContent>
       </Card>
+
       <CreateInvoiceDialog open={invoiceOpen} onOpenChange={setInvoiceOpen} />
+      <InvoiceDetailDialog open={!!selectedInvoice} onOpenChange={(open) => !open && setSelectedInvoice(null)} invoice={selectedInvoice} />
     </div>
   );
 }
