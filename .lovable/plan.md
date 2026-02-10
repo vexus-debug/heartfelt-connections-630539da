@@ -1,69 +1,107 @@
 
 
-## Role-Based Dashboard Access Control
+## Vista Dental Clinic Management System — Enhancement Plan
 
-Currently all 6 roles (admin, dentist, assistant, hygienist, receptionist, accountant) see the exact same sidebar and can access every page. This plan will restrict each role to only see and access the pages relevant to their job.
-
----
-
-### Role-to-Page Access Matrix
-
-| Page | Admin | Dentist | Receptionist | Hygienist | Assistant | Accountant |
-|------|-------|---------|--------------|-----------|-----------|------------|
-| Dashboard Home | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Patients | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Patient Profile | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Appointments | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Dental Charts | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| Treatments | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Prescriptions | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Billing | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
-| Reports | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Lab Work | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
-| Staff | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Inventory | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Settings | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Notifications | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+After a thorough review of all dashboard pages, here's what needs to be built to make this a complete, functional dental clinic management system.
 
 ---
 
-### Feature 1: Dynamic Sidebar Navigation
+### 1. 🔧 Make Patient Data Editable
+**Current state:** Patient profile is read-only. No way to edit personal info, contact details, medical history, or allergies after creation.
 
-The sidebar will only show menu items the logged-in user's role is allowed to access. Each nav item will be tagged with which roles can see it. If a user has no access to a page, that link simply won't appear.
-
----
-
-### Feature 2: Route-Level Protection
-
-Even if someone manually types a restricted URL (e.g., a receptionist navigating to `/dashboard/staff`), they'll be redirected to the dashboard home with a "You don't have access" message. This prevents URL-based bypass.
-
----
-
-### Feature 3: Role-Aware Dashboard Home
-
-The dashboard home page will adapt based on role:
-- **Dentist**: sees their own appointments for today, their patients, and clinical stats
-- **Receptionist**: sees today's full schedule, quick patient registration, and appointment booking
-- **Accountant**: sees financial stats (revenue, pending payments, outstanding invoices)
-- **Hygienist/Assistant**: sees today's schedule and patient list
-- **Admin**: sees everything (full overview)
-
-Quick action buttons will also change per role (e.g., a receptionist won't see "Create Prescription").
+**What we'll add:**
+- Edit button on the patient profile page that opens an edit form
+- Inline editing for personal info, contact details, emergency contacts, medical history, and allergies
+- Ability to change patient status (active/inactive)
+- Save changes to the database with proper validation
 
 ---
 
-### Feature 4: Role Badge in Sidebar
+### 2. 🔧 Make Staff Data Editable (Admin Only)
+**Current state:** Staff page is display-only — no way to add, edit, or manage staff members.
 
-The sidebar footer will display the user's role as a small badge beneath their name (e.g., "Dentist", "Receptionist") so they always know which role they're logged in with.
+**What we'll add:**
+- "Add Staff" button and dialog for creating new staff members
+- Edit dialog for existing staff (name, role, phone, email, specialty, status)
+- Ability to deactivate staff members
+- Admin-only access for all staff management actions
 
 ---
 
-### Feature 5: Seed Data for Testing
+### 3. 🔧 Make Inventory Items Editable
+**Current state:** Inventory items can be added and restocked but not edited or deleted.
 
-To properly test role-based access, we'll seed the database with:
-- A treatment catalog (common dental procedures with prices)
-- Staff members for each role
-- A few sample patients
+**What we'll add:**
+- Edit button on each inventory row to modify item details (name, category, unit, min stock, supplier)
+- Delete option for removing inventory items (admin only)
 
-This ensures every role has data to work with when testing.
+---
+
+### 4. 👤 Staff Member Own Profile Page
+**Current state:** No way for logged-in staff to view or edit their own profile.
+
+**What we'll add:**
+- New "My Profile" page at `/dashboard/profile` accessible to all roles
+- Display the staff member's name, email, phone, role, and avatar
+- Allow editing of own name, phone number, and avatar
+- Link in the sidebar footer (click on profile name to go to profile page)
+
+---
+
+### 5. ⚙️ Functional Settings — Roles & Access Management
+**Current state:** Settings page is entirely static/decorative. The "Roles & Access" tab shows roles but the "Configure" buttons don't work. Clinic profile changes don't save.
+
+**What we'll add:**
+- **Roles & Access tab (Admin only):**
+  - List all users with their assigned roles
+  - Ability to assign/remove roles to users (admin, dentist, receptionist, hygienist, assistant, accountant)
+  - Visual display of what each role can access
+- **Clinic Profile tab:** Wire up the save button to actually persist clinic settings (store in a `clinic_settings` table or similar)
+- **Notification Preferences tab:** Wire up toggles to save preferences per user
+
+---
+
+### 6. 📋 Missing Appointment Management Features
+**Current state:** Appointments can be booked and viewed, but not edited or cancelled from the list/schedule view.
+
+**What we'll add:**
+- Click on an appointment in schedule/list view to see details
+- Edit appointment (change time, chair, dentist, status)
+- Cancel/complete appointment with status updates
+- Walk-in appointment quick-add
+
+---
+
+### 7. 🔔 Real Notifications System
+**Current state:** Notifications page uses hardcoded mock data.
+
+**What we'll add:**
+- Wire notifications to real database (create `notifications` table)
+- Mark individual notifications as read
+- Mark all as read functionality
+- Auto-generate notifications for: appointment reminders, overdue payments, lab work completion, low inventory stock
+
+---
+
+### 8. 🧾 Treatment Catalog Management (Admin)
+**Current state:** Treatments page is read-only — no way to add, edit, or remove treatments/procedures.
+
+**What we'll add:**
+- "Add Treatment" button and dialog (admin only)
+- Edit treatment details (name, category, price, duration, description)
+- Delete treatment option (admin only)
+
+---
+
+### Summary of Priority
+| Feature | Impact | Roles Affected |
+|---------|--------|---------------|
+| Editable Patient Data | High | All clinical staff |
+| Editable Staff + Add Staff | High | Admin |
+| Staff Own Profile | High | All roles |
+| Settings — Roles & Access | High | Admin |
+| Appointment Edit/Cancel | High | Dentist, Receptionist |
+| Editable Inventory | Medium | Admin, Accountant |
+| Treatment Catalog Mgmt | Medium | Admin |
+| Real Notifications | Medium | All roles |
 
