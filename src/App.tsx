@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTop, FloatingBookButton } from "@/components/layout";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Pages
 import Index from "./pages/Index";
@@ -18,6 +20,8 @@ import FAQ from "./pages/FAQ";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 // Service Pages
 import GeneralPreventive from "./pages/services/GeneralPreventive";
@@ -47,60 +51,70 @@ import PatientProfilePage from "./pages/dashboard/PatientProfilePage";
 
 const queryClient = new QueryClient();
 
+const ProtectedDashboard = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute>
+    <DashboardLayout>{children}</DashboardLayout>
+  </ProtectedRoute>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <ScrollToTop />
-        <FloatingBookButton />
-        <Routes>
-          {/* Core Pages */}
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/book-appointment" element={<BookAppointment />} />
-          <Route path="/contact" element={<Contact />} />
-          
-          {/* Service Sub-Pages */}
-          <Route path="/services/general-preventive" element={<GeneralPreventive />} />
-          <Route path="/services/cosmetic" element={<CosmeticDentistry />} />
-          <Route path="/services/orthodontics" element={<Orthodontics />} />
-          <Route path="/services/restorative" element={<Restorative />} />
-          <Route path="/services/implants" element={<DentalImplants />} />
-          <Route path="/services/oral-surgery" element={<OralSurgery />} />
-          <Route path="/services/periodontics" element={<Periodontics />} />
-          
-          {/* Trust & Conversion Pages */}
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/promotions" element={<Promotions />} />
-          
-          {/* Utility Pages */}
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<Terms />} />
+        <AuthProvider>
+          <ScrollToTop />
+          <FloatingBookButton />
+          <Routes>
+            {/* Core Pages */}
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/book-appointment" element={<BookAppointment />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            
+            {/* Service Sub-Pages */}
+            <Route path="/services/general-preventive" element={<GeneralPreventive />} />
+            <Route path="/services/cosmetic" element={<CosmeticDentistry />} />
+            <Route path="/services/orthodontics" element={<Orthodontics />} />
+            <Route path="/services/restorative" element={<Restorative />} />
+            <Route path="/services/implants" element={<DentalImplants />} />
+            <Route path="/services/oral-surgery" element={<OralSurgery />} />
+            <Route path="/services/periodontics" element={<Periodontics />} />
+            
+            {/* Trust & Conversion Pages */}
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/promotions" element={<Promotions />} />
+            
+            {/* Utility Pages */}
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
 
-          {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<DashboardLayout><DashboardHome /></DashboardLayout>} />
-          <Route path="/dashboard/patients" element={<DashboardLayout><PatientsPage /></DashboardLayout>} />
-          <Route path="/dashboard/patients/:patientId" element={<DashboardLayout><PatientProfilePage /></DashboardLayout>} />
-          <Route path="/dashboard/appointments" element={<DashboardLayout><AppointmentsPage /></DashboardLayout>} />
-          <Route path="/dashboard/dental-charts" element={<DashboardLayout><DentalChartsPage /></DashboardLayout>} />
-          <Route path="/dashboard/treatments" element={<DashboardLayout><TreatmentsPage /></DashboardLayout>} />
-          <Route path="/dashboard/prescriptions" element={<DashboardLayout><PrescriptionsPage /></DashboardLayout>} />
-          <Route path="/dashboard/billing" element={<DashboardLayout><BillingPage /></DashboardLayout>} />
-          <Route path="/dashboard/reports" element={<DashboardLayout><ReportsPage /></DashboardLayout>} />
-          <Route path="/dashboard/lab-work" element={<DashboardLayout><LabWorkPage /></DashboardLayout>} />
-          <Route path="/dashboard/staff" element={<DashboardLayout><StaffPage /></DashboardLayout>} />
-          <Route path="/dashboard/inventory" element={<DashboardLayout><InventoryPage /></DashboardLayout>} />
-          <Route path="/dashboard/notifications" element={<DashboardLayout><NotificationsPage /></DashboardLayout>} />
-          <Route path="/dashboard/settings" element={<DashboardLayout><SettingsPage /></DashboardLayout>} />
-          
-          {/* Catch-all */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* Dashboard Routes - Protected */}
+            <Route path="/dashboard" element={<ProtectedDashboard><DashboardHome /></ProtectedDashboard>} />
+            <Route path="/dashboard/patients" element={<ProtectedDashboard><PatientsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/patients/:patientId" element={<ProtectedDashboard><PatientProfilePage /></ProtectedDashboard>} />
+            <Route path="/dashboard/appointments" element={<ProtectedDashboard><AppointmentsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/dental-charts" element={<ProtectedDashboard><DentalChartsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/treatments" element={<ProtectedDashboard><TreatmentsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/prescriptions" element={<ProtectedDashboard><PrescriptionsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/billing" element={<ProtectedDashboard><BillingPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/reports" element={<ProtectedDashboard><ReportsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/lab-work" element={<ProtectedDashboard><LabWorkPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/staff" element={<ProtectedDashboard><StaffPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/inventory" element={<ProtectedDashboard><InventoryPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/notifications" element={<ProtectedDashboard><NotificationsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/settings" element={<ProtectedDashboard><SettingsPage /></ProtectedDashboard>} />
+            
+            {/* Catch-all */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
