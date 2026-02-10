@@ -1,15 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { revenueData, weeklyAppointments, treatments } from "@/data/mockDashboardData";
-
-const treatmentDistribution = [
-  { name: "Cleaning", value: 35 },
-  { name: "Filling", value: 25 },
-  { name: "Extraction", value: 15 },
-  { name: "Root Canal", value: 10 },
-  { name: "Whitening", value: 8 },
-  { name: "Other", value: 7 },
-];
+import { useRevenueTrend, useTreatmentDistribution, useWeeklyAppointmentTrends, useDentistPerformance } from "@/hooks/useReportsData";
 
 const COLORS = ["hsl(174, 60%, 40%)", "hsl(220, 60%, 20%)", "hsl(174, 50%, 50%)", "hsl(220, 50%, 30%)", "hsl(165, 40%, 50%)", "hsl(210, 30%, 60%)"];
 
@@ -18,6 +9,13 @@ function formatCurrency(amount: number) {
 }
 
 export default function ReportsPage() {
+  const { data: revenueData = [] } = useRevenueTrend();
+  const { data: treatmentDist = [] } = useTreatmentDistribution();
+  const { data: weeklyData = [] } = useWeeklyAppointmentTrends();
+  const { data: dentistData = [] } = useDentistPerformance();
+
+  const maxAppts = dentistData.length ? Math.max(...dentistData.map((d) => d.appointments)) : 1;
+
   return (
     <div className="space-y-6">
       <div>
@@ -47,19 +45,23 @@ export default function ReportsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Treatment Distribution</CardTitle>
-            <CardDescription>Most common procedures this month</CardDescription>
+            <CardDescription>Most common procedures</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={treatmentDistribution} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                  {treatmentDistribution.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {treatmentDist.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-16">No treatment data yet.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie data={treatmentDist} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                    {treatmentDist.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 
@@ -69,7 +71,7 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={weeklyAppointments}>
+              <BarChart data={weeklyData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                 <XAxis dataKey="day" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
                 <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
@@ -86,26 +88,26 @@ export default function ReportsPage() {
             <CardDescription>Appointments this month</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {[
-                { name: "Dr. Okonkwo", appointments: 68, revenue: 1950000 },
-                { name: "Dr. Adeyemi", appointments: 54, revenue: 1650000 },
-                { name: "Dr. Nwosu", appointments: 42, revenue: 1250000 },
-              ].map((doc) => (
-                <div key={doc.name} className="flex items-center gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{doc.name}</p>
-                    <p className="text-xs text-muted-foreground">{doc.appointments} appointments</p>
+            {dentistData.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">No data yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {dentistData.map((doc) => (
+                  <div key={doc.name} className="flex items-center gap-4">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">{doc.name}</p>
+                      <p className="text-xs text-muted-foreground">{doc.appointments} appointments</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold">₦{(doc.revenue / 1000000).toFixed(1)}M</p>
+                    </div>
+                    <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-secondary rounded-full" style={{ width: `${(doc.appointments / maxAppts) * 100}%` }} />
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-bold">₦{(doc.revenue / 1000000).toFixed(1)}M</p>
-                  </div>
-                  <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-secondary rounded-full" style={{ width: `${(doc.appointments / 68) * 100}%` }} />
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

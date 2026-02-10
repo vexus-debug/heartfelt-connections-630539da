@@ -1,40 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import {
-  Users,
-  CalendarDays,
-  CreditCard,
-  TrendingUp,
-  UserPlus,
-  CalendarPlus,
-  FileText,
-  Clock,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
+  Users, CalendarDays, CreditCard, TrendingUp, UserPlus, CalendarPlus, FileText, Clock, Activity,
+  ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  Area,
-  AreaChart,
-} from "recharts";
-import {
-  dashboardStats,
-  weeklyAppointments,
-  revenueData,
-  todayAppointments,
-  recentActivities,
-} from "@/data/mockDashboardData";
+  useDashboardStats, useWeeklyAppointments, useRevenueData, useTodaySchedule, useRecentActivity, useCurrentUserName,
+} from "@/hooks/useDashboardData";
+import { format } from "date-fns";
 
 const statusColors: Record<string, string> = {
   scheduled: "bg-blue-100 text-blue-700",
@@ -52,14 +27,22 @@ const activityIcons: Record<string, typeof Activity> = {
 };
 
 function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 0,
-  }).format(amount);
+  return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", minimumFractionDigits: 0 }).format(amount);
 }
 
 export default function DashboardHome() {
+  const { data: stats } = useDashboardStats();
+  const { data: weeklyData } = useWeeklyAppointments();
+  const { data: revenueData } = useRevenueData();
+  const { data: todayAppointments } = useTodaySchedule();
+  const { data: activities } = useRecentActivity();
+  const { data: userName } = useCurrentUserName();
+
+  const s = stats || { totalPatients: 0, todayAppointments: 0, pendingPayments: 0, monthlyRevenue: 0 };
+  const schedule = todayAppointments || [];
+  const recentActivities = activities || [];
+  const currentMonth = format(new Date(), "MMM");
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -67,21 +50,15 @@ export default function DashboardHome() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
           <p className="text-sm text-muted-foreground">
-            Welcome back, Dr. Okonkwo. Here's what's happening today.
+            Welcome back, {userName || "Doctor"}. Here's what's happening today.
           </p>
         </div>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" asChild>
-            <Link to="/dashboard/patients/new">
-              <UserPlus className="mr-2 h-4 w-4" />
-              New Patient
-            </Link>
+            <Link to="/dashboard/patients/new"><UserPlus className="mr-2 h-4 w-4" />New Patient</Link>
           </Button>
           <Button size="sm" className="bg-secondary hover:bg-secondary/90" asChild>
-            <Link to="/dashboard/appointments/new">
-              <CalendarPlus className="mr-2 h-4 w-4" />
-              Book Appointment
-            </Link>
+            <Link to="/dashboard/appointments/new"><CalendarPlus className="mr-2 h-4 w-4" />Book Appointment</Link>
           </Button>
         </div>
       </div>
@@ -93,11 +70,7 @@ export default function DashboardHome() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Total Patients</p>
-                <p className="text-2xl font-bold mt-1">{dashboardStats.totalPatients.toLocaleString()}</p>
-                <p className="text-xs text-emerald-600 flex items-center mt-1">
-                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
-                  +12 this week
-                </p>
+                <p className="text-2xl font-bold mt-1">{s.totalPatients.toLocaleString()}</p>
               </div>
               <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center">
                 <Users className="h-5 w-5 text-blue-600" />
@@ -105,16 +78,15 @@ export default function DashboardHome() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Today's Appointments</p>
-                <p className="text-2xl font-bold mt-1">{dashboardStats.todayAppointments}</p>
+                <p className="text-2xl font-bold mt-1">{s.todayAppointments}</p>
                 <p className="text-xs text-emerald-600 flex items-center mt-1">
                   <ArrowUpRight className="h-3 w-3 mr-0.5" />
-                  3 completed
+                  {schedule.filter((a) => a.status === "completed").length} completed
                 </p>
               </div>
               <div className="h-10 w-10 rounded-lg bg-emerald-50 flex items-center justify-center">
@@ -123,17 +95,12 @@ export default function DashboardHome() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Pending Payments</p>
-                <p className="text-2xl font-bold mt-1">{dashboardStats.pendingPayments}</p>
-                <p className="text-xs text-red-500 flex items-center mt-1">
-                  <ArrowDownRight className="h-3 w-3 mr-0.5" />
-                  5 overdue
-                </p>
+                <p className="text-2xl font-bold mt-1">{s.pendingPayments}</p>
               </div>
               <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center">
                 <CreditCard className="h-5 w-5 text-amber-600" />
@@ -141,17 +108,12 @@ export default function DashboardHome() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Revenue (Feb)</p>
-                <p className="text-2xl font-bold mt-1">{formatCurrency(dashboardStats.monthlyRevenue)}</p>
-                <p className="text-xs text-emerald-600 flex items-center mt-1">
-                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
-                  +8.5% vs Jan
-                </p>
+                <p className="text-xs font-medium text-muted-foreground">Revenue ({currentMonth})</p>
+                <p className="text-2xl font-bold mt-1">{formatCurrency(s.monthlyRevenue)}</p>
               </div>
               <div className="h-10 w-10 rounded-lg bg-purple-50 flex items-center justify-center">
                 <TrendingUp className="h-5 w-5 text-purple-600" />
@@ -170,24 +132,16 @@ export default function DashboardHome() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={weeklyAppointments}>
+              <BarChart data={weeklyData || []}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="day" className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                <YAxis className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                  }}
-                />
+                <XAxis dataKey="day" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
+                <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }} />
                 <Bar dataKey="count" fill="hsl(var(--secondary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Revenue Overview</CardTitle>
@@ -195,29 +149,12 @@ export default function DashboardHome() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={revenueData}>
+              <AreaChart data={revenueData || []}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                 <XAxis dataKey="month" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                <YAxis
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-                  tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                  }}
-                  formatter={(value: number) => [formatCurrency(value), "Revenue"]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="hsl(var(--primary))"
-                  fill="hsl(var(--primary) / 0.1)"
-                  strokeWidth={2}
-                />
+                <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`} />
+                <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }} formatter={(value: number) => [formatCurrency(value), "Revenue"]} />
+                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.1)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -226,16 +163,15 @@ export default function DashboardHome() {
 
       {/* Schedule + Activity Row */}
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Today's Schedule */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base">Today's Schedule</CardTitle>
                 <CardDescription>
-                  {todayAppointments.filter((a) => a.status === "completed").length} completed,{" "}
-                  {todayAppointments.filter((a) => a.status === "in-progress").length} in progress,{" "}
-                  {todayAppointments.filter((a) => a.status === "scheduled").length} upcoming
+                  {schedule.filter((a) => a.status === "completed").length} completed,{" "}
+                  {schedule.filter((a) => a.status === "in-progress").length} in progress,{" "}
+                  {schedule.filter((a) => a.status === "scheduled").length} upcoming
                 </CardDescription>
               </div>
               <Button variant="ghost" size="sm" asChild>
@@ -257,20 +193,17 @@ export default function DashboardHome() {
                   </tr>
                 </thead>
                 <tbody>
-                  {todayAppointments.map((apt) => (
+                  {schedule.length === 0 ? (
+                    <tr><td colSpan={6} className="py-8 text-center text-muted-foreground">No appointments today.</td></tr>
+                  ) : schedule.map((apt) => (
                     <tr key={apt.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
-                      <td className="py-2.5 px-4 font-medium">
-                        <div className="flex items-center gap-1.5">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          {apt.time}
-                        </div>
-                      </td>
+                      <td className="py-2.5 px-4 font-medium"><div className="flex items-center gap-1.5"><Clock className="h-3 w-3 text-muted-foreground" />{apt.time}</div></td>
                       <td className="py-2.5 px-4">{apt.patientName}</td>
                       <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{apt.dentist}</td>
                       <td className="py-2.5 px-4 hidden lg:table-cell text-muted-foreground">{apt.chair}</td>
                       <td className="py-2.5 px-4">{apt.treatment}</td>
                       <td className="py-2.5 px-4">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${statusColors[apt.status]}`}>
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${statusColors[apt.status] || ""}`}>
                           {apt.status.replace("-", " ")}
                         </span>
                       </td>
@@ -282,7 +215,6 @@ export default function DashboardHome() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Recent Activity</CardTitle>
@@ -290,17 +222,20 @@ export default function DashboardHome() {
           </CardHeader>
           <CardContent className="px-4">
             <div className="space-y-4">
-              {recentActivities.map((activity) => {
-                const Icon = activityIcons[activity.type] || Activity;
+              {recentActivities.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">No recent activity.</p>
+              ) : recentActivities.map((activity) => {
+                const Icon = activityIcons[activity.event_type] || Activity;
                 return (
                   <div key={activity.id} className="flex gap-3">
                     <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0 mt-0.5">
                       <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium leading-tight">{activity.action}</p>
-                      <p className="text-xs text-muted-foreground truncate">{activity.subject}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{activity.time}</p>
+                      <p className="text-sm font-medium leading-tight">{activity.description}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {format(new Date(activity.created_at), "MMM d, h:mm a")}
+                      </p>
                     </div>
                   </div>
                 );

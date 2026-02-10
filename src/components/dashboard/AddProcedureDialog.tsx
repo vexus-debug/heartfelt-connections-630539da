@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { useCreateDentalChartEntry } from "@/hooks/useDentalCharts";
+import { useStaff } from "@/hooks/useStaff";
 import { toast } from "@/hooks/use-toast";
 
 type ToothStatus = "healthy" | "cavity" | "filling" | "crown" | "extraction" | "planned";
@@ -14,6 +16,7 @@ interface AddProcedureDialogProps {
   onOpenChange: (open: boolean) => void;
   toothNumber: number;
   currentStatus: ToothStatus;
+  patientId: string;
 }
 
 const procedures = [
@@ -22,22 +25,39 @@ const procedures = [
   "Sealant", "Scaling & Polishing", "Veneer", "Inlay/Onlay", "Implant",
 ];
 
-export function AddProcedureDialog({ open, onOpenChange, toothNumber, currentStatus }: AddProcedureDialogProps) {
+export function AddProcedureDialog({ open, onOpenChange, toothNumber, currentStatus, patientId }: AddProcedureDialogProps) {
   const [status, setStatus] = useState<ToothStatus>(currentStatus);
   const [procedure, setProcedure] = useState("");
   const [notes, setNotes] = useState("");
-  const [date, setDate] = useState("2026-02-10");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [dentistId, setDentistId] = useState("");
+
+  const createEntry = useCreateDentalChartEntry();
+  const { data: staffList = [] } = useStaff();
+  const dentists = staffList.filter((s: any) => s.role === "dentist");
 
   const handleSubmit = () => {
     if (!procedure) {
       toast({ title: "Please select a procedure", variant: "destructive" });
       return;
     }
-    toast({ title: "Procedure recorded", description: `${procedure} on tooth #${toothNumber}` });
-    onOpenChange(false);
-    setProcedure("");
-    setNotes("");
-    setStatus(currentStatus);
+    createEntry.mutate({
+      patient_id: patientId,
+      tooth_number: toothNumber,
+      procedure,
+      status,
+      entry_date: date,
+      notes,
+      dentist_id: dentistId || undefined,
+    }, {
+      onSuccess: () => {
+        onOpenChange(false);
+        setProcedure("");
+        setNotes("");
+        setStatus(currentStatus);
+        setDentistId("");
+      },
+    });
   };
 
   return (
@@ -70,6 +90,17 @@ export function AddProcedureDialog({ open, onOpenChange, toothNumber, currentSta
             </Select>
           </div>
           <div className="space-y-2">
+            <Label>Dentist</Label>
+            <Select value={dentistId} onValueChange={setDentistId}>
+              <SelectTrigger><SelectValue placeholder="Select dentist" /></SelectTrigger>
+              <SelectContent>
+                {dentists.map((d: any) => (
+                  <SelectItem key={d.id} value={d.id}>{d.full_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
             <Label>Date</Label>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
@@ -80,7 +111,9 @@ export function AddProcedureDialog({ open, onOpenChange, toothNumber, currentSta
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSubmit} className="bg-secondary hover:bg-secondary/90">Save Procedure</Button>
+          <Button onClick={handleSubmit} className="bg-secondary hover:bg-secondary/90" disabled={createEntry.isPending}>
+            {createEntry.isPending ? "Saving..." : "Save Procedure"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
