@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Printer } from "lucide-react";
+import { CreatePrescriptionDialog } from "@/components/dashboard/CreatePrescriptionDialog";
 
 const prescriptions = [
   { id: "RX-001", patient: "Chinedu Obi", dentist: "Dr. Okonkwo", date: "2026-02-10", medications: [{ name: "Amoxicillin 500mg", dosage: "1 cap 3x daily", duration: "7 days" }, { name: "Ibuprofen 400mg", dosage: "1 tab 2x daily after meals", duration: "5 days" }] },
@@ -10,6 +12,7 @@ const prescriptions = [
 ];
 
 export default function PrescriptionsPage() {
+  const [rxOpen, setRxOpen] = useState(false);
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -17,7 +20,7 @@ export default function PrescriptionsPage() {
           <h1 className="text-2xl font-bold">Prescriptions</h1>
           <p className="text-sm text-muted-foreground">Digital prescriptions and medication records</p>
         </div>
-        <Button size="sm" className="bg-secondary hover:bg-secondary/90">
+        <Button size="sm" className="bg-secondary hover:bg-secondary/90" onClick={() => setRxOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           New Prescription
         </Button>
@@ -58,6 +61,7 @@ export default function PrescriptionsPage() {
           </Card>
         ))}
       </div>
+      <CreatePrescriptionDialog open={rxOpen} onOpenChange={setRxOpen} />
     </div>
   );
 }

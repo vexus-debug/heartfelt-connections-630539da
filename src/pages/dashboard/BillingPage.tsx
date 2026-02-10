@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, CreditCard, TrendingUp, AlertCircle } from "lucide-react";
 import { patients } from "@/data/mockDashboardData";
+import { CreateInvoiceDialog } from "@/components/dashboard/CreateInvoiceDialog";
 
 const invoices = [
   { id: "INV-2026-042", patient: "Adewale Johnson", treatment: "Root Canal", amount: 80000, paid: 80000, date: "2026-02-10", status: "paid" },
@@ -24,6 +26,7 @@ function formatCurrency(amount: number) {
 }
 
 export default function BillingPage() {
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
   const totalOutstanding = patients.reduce((sum, p) => sum + p.balance, 0);
 
   return (
@@ -33,7 +36,7 @@ export default function BillingPage() {
           <h1 className="text-2xl font-bold">Billing & Payments</h1>
           <p className="text-sm text-muted-foreground">Manage invoices and track payments</p>
         </div>
-        <Button size="sm" className="bg-secondary hover:bg-secondary/90">
+        <Button size="sm" className="bg-secondary hover:bg-secondary/90" onClick={() => setInvoiceOpen(true)}>
           <FileText className="mr-2 h-4 w-4" />
           Create Invoice
         </Button>
@@ -115,6 +118,7 @@ export default function BillingPage() {
           </div>
         </CardContent>
       </Card>
+      <CreateInvoiceDialog open={invoiceOpen} onOpenChange={setInvoiceOpen} />
     </div>
   );
 }
