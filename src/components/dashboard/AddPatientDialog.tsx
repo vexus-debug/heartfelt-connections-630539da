@@ -1,17 +1,14 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "@/hooks/use-toast";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
@@ -19,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
+import { useCreatePatient } from "@/hooks/usePatients";
 
 const patientSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required").max(50),
@@ -30,7 +28,6 @@ const patientSchema = z.object({
   address: z.string().trim().max(200).optional(),
   emergencyName: z.string().trim().max(100).optional(),
   emergencyPhone: z.string().trim().max(20).optional(),
-  emergencyRelationship: z.string().trim().max(50).optional(),
   medicalHistory: z.string().trim().max(1000).optional(),
   referralSource: z.string().optional(),
 });
@@ -43,22 +40,39 @@ interface AddPatientDialogProps {
 }
 
 export function AddPatientDialog({ open, onOpenChange }: AddPatientDialogProps) {
+  const createPatient = useCreatePatient();
+
   const form = useForm<PatientForm>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
       firstName: "", lastName: "", phone: "", email: "", address: "",
-      emergencyName: "", emergencyPhone: "", emergencyRelationship: "",
+      emergencyName: "", emergencyPhone: "",
       medicalHistory: "", referralSource: "",
     },
   });
 
   function onSubmit(data: PatientForm) {
-    toast({
-      title: "Patient registered",
-      description: `${data.firstName} ${data.lastName} has been added successfully.`,
-    });
-    form.reset();
-    onOpenChange(false);
+    createPatient.mutate(
+      {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone: data.phone,
+        email: data.email || "",
+        gender: data.gender,
+        date_of_birth: format(data.dateOfBirth, "yyyy-MM-dd"),
+        address: data.address || "",
+        emergency_contact_name: data.emergencyName || "",
+        emergency_contact_phone: data.emergencyPhone || "",
+        medical_history: data.medicalHistory || "",
+        referral_source: data.referralSource || "",
+      },
+      {
+        onSuccess: () => {
+          form.reset();
+          onOpenChange(false);
+        },
+      }
+    );
   }
 
   return (
@@ -156,7 +170,7 @@ export function AddPatientDialog({ open, onOpenChange }: AddPatientDialogProps) 
             {/* Emergency Contact */}
             <div>
               <h4 className="text-sm font-medium mb-3">Emergency Contact</h4>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <FormField control={form.control} name="emergencyName" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
@@ -167,12 +181,6 @@ export function AddPatientDialog({ open, onOpenChange }: AddPatientDialogProps) 
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl><Input placeholder="0801-000-0000" {...field} /></FormControl>
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="emergencyRelationship" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Relationship</FormLabel>
-                    <FormControl><Input placeholder="Spouse, Parent..." {...field} /></FormControl>
                   </FormItem>
                 )} />
               </div>
@@ -212,7 +220,9 @@ export function AddPatientDialog({ open, onOpenChange }: AddPatientDialogProps) 
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90">Register Patient</Button>
+              <Button type="submit" className="bg-secondary hover:bg-secondary/90" disabled={createPatient.isPending}>
+                {createPatient.isPending ? "Registering..." : "Register Patient"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

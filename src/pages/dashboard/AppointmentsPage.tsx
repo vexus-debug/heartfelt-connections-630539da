@@ -5,10 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarPlus, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
-import { appointmentsByDate } from "@/data/mockDashboardData";
 import { addDays, subDays, format, startOfWeek, addWeeks, subWeeks, isSameDay } from "date-fns";
 import { BookAppointmentDialog } from "@/components/dashboard/BookAppointmentDialog";
 import { cn } from "@/lib/utils";
+import { useAppointmentsByDate } from "@/hooks/useAppointments";
 
 const chairs = ["Chair 1", "Chair 2", "Chair 3"];
 const timeSlots = ["09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM"];
@@ -21,21 +21,25 @@ const statusColors: Record<string, string> = {
 };
 
 export default function AppointmentsPage() {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 1, 10));
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [bookOpen, setBookOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"day" | "week">("day");
 
-  const dateKey = format(currentDate, "yyyy-MM-dd");
-  const displayAppointments = appointmentsByDate[dateKey] || [];
+  const { data: appointments = [], isLoading } = useAppointmentsByDate(currentDate);
 
-  // Week view helpers
+  // Map appointments to display format
+  const displayAppointments = appointments.map((a) => ({
+    id: a.id,
+    patientName: a.patients ? `${a.patients.first_name} ${a.patients.last_name}` : "Unknown",
+    dentist: a.staff?.full_name || "Unknown",
+    time: a.appointment_time,
+    chair: a.chair || "",
+    treatment: a.treatments?.name || "N/A",
+    status: a.status,
+  }));
+
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-
-  const getWeekAppointments = (day: Date) => {
-    const key = format(day, "yyyy-MM-dd");
-    return appointmentsByDate[key] || [];
-  };
 
   return (
     <div className="space-y-6">
@@ -72,10 +76,7 @@ export default function AppointmentsPage() {
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setCurrentDate(viewMode === "day" ? addDays(currentDate, 1) : addWeeks(currentDate, 1))}>
                     <ChevronRight className="h-4 w-4" />
                   </Button>
-
-                  <Button variant="outline" size="sm" className="text-xs" onClick={() => setCurrentDate(new Date(2026, 1, 10))}>Today</Button>
-
-                  {/* Date Picker */}
+                  <Button variant="outline" size="sm" className="text-xs" onClick={() => setCurrentDate(new Date())}>Today</Button>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button variant="outline" size="sm" className="text-xs">
@@ -84,17 +85,9 @@ export default function AppointmentsPage() {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={currentDate}
-                        onSelect={(d) => d && setCurrentDate(d)}
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
+                      <Calendar mode="single" selected={currentDate} onSelect={(d) => d && setCurrentDate(d)} initialFocus className="p-3 pointer-events-auto" />
                     </PopoverContent>
                   </Popover>
-
-                  {/* Day/Week toggle */}
                   <div className="flex border rounded-md overflow-hidden">
                     <button className={cn("px-2.5 py-1 text-xs", viewMode === "day" ? "bg-secondary text-secondary-foreground" : "bg-muted/50 hover:bg-muted")} onClick={() => setViewMode("day")}>Day</button>
                     <button className={cn("px-2.5 py-1 text-xs", viewMode === "week" ? "bg-secondary text-secondary-foreground" : "bg-muted/50 hover:bg-muted")} onClick={() => setViewMode("week")}>Week</button>
@@ -111,8 +104,9 @@ export default function AppointmentsPage() {
               </div>
             </CardHeader>
             <CardContent className="p-0 overflow-x-auto">
-              {viewMode === "day" ? (
-                /* Day View */
+              {isLoading ? (
+                <p className="text-sm text-muted-foreground py-10 text-center">Loading appointments...</p>
+              ) : viewMode === "day" ? (
                 displayAppointments.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-10 text-center">No appointments scheduled for this day.</p>
                 ) : (
@@ -136,7 +130,7 @@ export default function AppointmentsPage() {
                               return (
                                 <td key={chair} className="py-1 px-2">
                                   {apt ? (
-                                    <div className={`rounded-md border p-2 text-xs ${statusColors[apt.status]}`}>
+                                    <div className={`rounded-md border p-2 text-xs ${statusColors[apt.status] || ""}`}>
                                       <p className="font-medium truncate">{apt.patientName}</p>
                                       <p className="opacity-75 truncate">{apt.treatment}</p>
                                       <p className="opacity-60 text-[10px]">{apt.dentist}</p>
@@ -152,49 +146,24 @@ export default function AppointmentsPage() {
                   </table>
                 )
               ) : (
-                /* Week View */
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-muted/30">
-                      {weekDays.map((day) => {
-                        const isCurrentDay = isSameDay(day, new Date(2026, 1, 10));
-                        return (
-                          <th
-                            key={day.toISOString()}
-                            className={cn("py-2 px-2 text-center font-medium text-muted-foreground cursor-pointer hover:bg-muted/50", isCurrentDay && "bg-secondary/10 text-secondary")}
-                            onClick={() => { setCurrentDate(day); setViewMode("day"); }}
-                          >
-                            <div className="text-[10px] uppercase">{format(day, "EEE")}</div>
-                            <div className="text-sm">{format(day, "d")}</div>
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      {weekDays.map((day) => {
-                        const dayApts = getWeekAppointments(day);
-                        return (
-                          <td key={day.toISOString()} className="py-2 px-1 align-top border-r last:border-r-0 min-w-[120px]">
-                            {dayApts.length === 0 ? (
-                              <p className="text-[10px] text-muted-foreground text-center py-4">No appts</p>
-                            ) : (
-                              <div className="space-y-1">
-                                {dayApts.map((apt) => (
-                                  <div key={apt.id} className={`rounded border p-1.5 text-[10px] ${statusColors[apt.status]}`}>
-                                    <p className="font-medium truncate">{apt.patientName}</p>
-                                    <p className="opacity-75">{apt.time}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  </tbody>
-                </table>
+                <div className="p-4 text-sm text-muted-foreground text-center">
+                  Week view — select a day to see appointments
+                  <div className="grid grid-cols-7 gap-2 mt-4">
+                    {weekDays.map((day) => {
+                      const isToday = isSameDay(day, new Date());
+                      return (
+                        <button
+                          key={day.toISOString()}
+                          className={cn("p-3 rounded-lg border text-center hover:bg-muted/50 cursor-pointer", isToday && "bg-secondary/10 border-secondary")}
+                          onClick={() => { setCurrentDate(day); setViewMode("day"); }}
+                        >
+                          <div className="text-[10px] uppercase text-muted-foreground">{format(day, "EEE")}</div>
+                          <div className="text-lg font-medium">{format(day, "d")}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -203,7 +172,9 @@ export default function AppointmentsPage() {
         <TabsContent value="list" className="mt-4">
           <Card>
             <CardContent className="p-0">
-              {displayAppointments.length === 0 ? (
+              {isLoading ? (
+                <p className="text-sm text-muted-foreground py-10 text-center">Loading...</p>
+              ) : displayAppointments.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-10 text-center">No appointments scheduled for this day.</p>
               ) : (
                 <table className="w-full text-sm">
@@ -226,7 +197,7 @@ export default function AppointmentsPage() {
                         <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{apt.chair}</td>
                         <td className="py-2.5 px-4">{apt.treatment}</td>
                         <td className="py-2.5 px-4">
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${statusColors[apt.status].split(" ").slice(0, 2).join(" ")}`}>
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${(statusColors[apt.status] || "").split(" ").slice(0, 2).join(" ")}`}>
                             {apt.status.replace("-", " ")}
                           </span>
                         </td>
