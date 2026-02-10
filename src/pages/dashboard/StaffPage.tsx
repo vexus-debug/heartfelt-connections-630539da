@@ -1,7 +1,13 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useStaff } from "@/hooks/useStaff";
+import { Button } from "@/components/ui/button";
+import { Plus, Pencil } from "lucide-react";
+import { useStaff, type StaffMember } from "@/hooks/useStaff";
+import { useAuth } from "@/hooks/useAuth";
+import { AddStaffDialog } from "@/components/dashboard/AddStaffDialog";
+import { EditStaffDialog } from "@/components/dashboard/EditStaffDialog";
 
 const roleColors: Record<string, string> = {
   dentist: "bg-blue-100 text-blue-700",
@@ -13,12 +19,24 @@ const roleColors: Record<string, string> = {
 
 export default function StaffPage() {
   const { data: staff = [], isLoading } = useStaff();
+  const { roles } = useAuth();
+  const isAdmin = roles.includes("admin");
+
+  const [addOpen, setAddOpen] = useState(false);
+  const [editStaff, setEditStaff] = useState<StaffMember | null>(null);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Staff Management</h1>
-        <p className="text-sm text-muted-foreground">{staff.length} team members</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Staff Management</h1>
+          <p className="text-sm text-muted-foreground">{staff.length} team members</p>
+        </div>
+        {isAdmin && (
+          <Button size="sm" className="bg-secondary hover:bg-secondary/90" onClick={() => setAddOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add Staff
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
@@ -47,12 +65,20 @@ export default function StaffPage() {
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">{member.phone}</p>
                   </div>
+                  {isAdmin && (
+                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setEditStaff(member)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      <AddStaffDialog open={addOpen} onOpenChange={setAddOpen} />
+      <EditStaffDialog staff={editStaff} open={!!editStaff} onOpenChange={(o) => !o && setEditStaff(null)} />
     </div>
   );
 }

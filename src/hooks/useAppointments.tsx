@@ -63,3 +63,21 @@ export function useCreateAppointment() {
     },
   });
 }
+
+export function useUpdateAppointment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; status?: string; appointment_time?: string; appointment_date?: string; chair?: string; staff_id?: string; notes?: string }) => {
+      const { data, error } = await supabase.from("appointments").update(updates).eq("id", id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      toast({ title: "Appointment updated" });
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+}

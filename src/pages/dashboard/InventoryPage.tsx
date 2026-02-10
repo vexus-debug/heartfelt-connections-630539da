@@ -5,9 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { AlertTriangle, Plus, Loader2 } from "lucide-react";
+import { AlertTriangle, Plus, Loader2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useInventory, useAddInventoryItem, useUpdateInventoryStock } from "@/hooks/useInventory";
+import { useInventory, useAddInventoryItem, useUpdateInventoryStock, useDeleteInventoryItem } from "@/hooks/useInventory";
+import { EditInventoryDialog } from "@/components/dashboard/EditInventoryDialog";
+import { useAuth } from "@/hooks/useAuth";
+import type { InventoryItem } from "@/hooks/useInventory";
 
 const categories = ["Consumables", "Materials", "Medication", "Instruments", "General"];
 
@@ -15,10 +18,14 @@ export default function InventoryPage() {
   const { data: inventory = [], isLoading } = useInventory();
   const addItem = useAddInventoryItem();
   const updateStock = useUpdateInventoryStock();
+  const deleteItem = useDeleteInventoryItem();
+  const { roles } = useAuth();
+  const isAdmin = roles.includes("admin");
 
   const [addOpen, setAddOpen] = useState(false);
   const [restockId, setRestockId] = useState<string | null>(null);
   const [restockQty, setRestockQty] = useState("");
+  const [editItem, setEditItem] = useState<InventoryItem | null>(null);
 
   // Add item form state
   const [newName, setNewName] = useState("");
@@ -67,6 +74,15 @@ export default function InventoryPage() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteItem.mutateAsync(id);
+      toast({ title: "Item deleted" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -110,7 +126,7 @@ export default function InventoryPage() {
                     <th className="py-2.5 px-4 text-left font-medium text-muted-foreground hidden md:table-cell">Min</th>
                     <th className="py-2.5 px-4 text-left font-medium text-muted-foreground hidden md:table-cell">Supplier</th>
                     <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Status</th>
-                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Action</th>
+                    <th className="py-2.5 px-4 text-left font-medium text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,9 +145,19 @@ export default function InventoryPage() {
                           </span>
                         </td>
                         <td className="py-2.5 px-4">
-                          <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setRestockId(item.id); setRestockQty(""); }}>
-                            Restock
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => { setRestockId(item.id); setRestockQty(""); }}>
+                              Restock
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditItem(item)}>
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            {isAdmin && (
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={() => handleDelete(item.id)}>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -207,6 +233,9 @@ export default function InventoryPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Item Dialog */}
+      <EditInventoryDialog item={editItem} open={!!editItem} onOpenChange={(o) => !o && setEditItem(null)} />
     </div>
   );
 }

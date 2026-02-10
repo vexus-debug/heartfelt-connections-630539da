@@ -179,17 +179,19 @@ export function DashboardSidebar() {
 
       <SidebarFooter className="border-t p-3">
         <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8 shrink-0">
-            <AvatarImage src={profile?.avatar_url || ""} />
-            <AvatarFallback className="bg-secondary/20 text-secondary text-xs">{initials}</AvatarFallback>
-          </Avatar>
+          <button onClick={() => navigate("/dashboard/profile")} className="shrink-0" title="My Profile">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={profile?.avatar_url || ""} />
+              <AvatarFallback className="bg-secondary/20 text-secondary text-xs">{initials}</AvatarFallback>
+            </Avatar>
+          </button>
           {!collapsed && (
-            <div className="flex flex-col overflow-hidden flex-1">
+            <button onClick={() => navigate("/dashboard/profile")} className="flex flex-col overflow-hidden flex-1 text-left hover:opacity-80 transition-opacity">
               <span className="text-sm font-medium truncate">{displayName}</span>
               <Badge variant="outline" className="w-fit text-[10px] px-1.5 py-0 mt-0.5">
                 {getRoleLabel(primaryRole)}
               </Badge>
-            </div>
+            </button>
           )}
           {!collapsed && (
             <button

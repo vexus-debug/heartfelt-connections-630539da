@@ -111,6 +111,42 @@ export type Database = {
           },
         ]
       }
+      clinic_settings: {
+        Row: {
+          address: string | null
+          clinic_name: string
+          closing_time: string | null
+          email: string | null
+          id: string
+          opening_time: string | null
+          phone: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          clinic_name?: string
+          closing_time?: string | null
+          email?: string | null
+          id?: string
+          opening_time?: string | null
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          clinic_name?: string
+          closing_time?: string | null
+          email?: string | null
+          id?: string
+          opening_time?: string | null
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       dental_chart_entries: {
         Row: {
           created_at: string
@@ -374,6 +410,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_preferences: {
+        Row: {
+          appointment_reminders: boolean
+          id: string
+          lab_completion_alerts: boolean
+          low_stock_alerts: boolean
+          payment_alerts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_reminders?: boolean
+          id?: string
+          lab_completion_alerts?: boolean
+          low_stock_alerts?: boolean
+          payment_alerts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_reminders?: boolean
+          id?: string
+          lab_completion_alerts?: boolean
+          low_stock_alerts?: boolean
+          payment_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message?: string
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       patients: {
         Row: {

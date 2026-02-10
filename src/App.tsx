@@ -48,6 +48,7 @@ import InventoryPage from "./pages/dashboard/InventoryPage";
 import NotificationsPage from "./pages/dashboard/NotificationsPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
 import PatientProfilePage from "./pages/dashboard/PatientProfilePage";
+import MyProfilePage from "./pages/dashboard/MyProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,7 @@ const App = () => (
             <Route path="/dashboard/inventory" element={<ProtectedDashboard><InventoryPage /></ProtectedDashboard>} />
             <Route path="/dashboard/notifications" element={<ProtectedDashboard><NotificationsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/settings" element={<ProtectedDashboard><SettingsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/profile" element={<ProtectedDashboard><MyProfilePage /></ProtectedDashboard>} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />

@@ -7,8 +7,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarPlus, ChevronLeft, ChevronRight, CalendarIcon } from "lucide-react";
 import { addDays, subDays, format, startOfWeek, addWeeks, subWeeks, isSameDay } from "date-fns";
 import { BookAppointmentDialog } from "@/components/dashboard/BookAppointmentDialog";
+import { AppointmentDetailDialog } from "@/components/dashboard/AppointmentDetailDialog";
 import { cn } from "@/lib/utils";
-import { useAppointmentsByDate } from "@/hooks/useAppointments";
+import { useAppointmentsByDate, type AppointmentRow } from "@/hooks/useAppointments";
 
 const chairs = ["Chair 1", "Chair 2", "Chair 3"];
 const timeSlots = ["09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM", "04:00 PM"];
@@ -24,18 +25,16 @@ export default function AppointmentsPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [bookOpen, setBookOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"day" | "week">("day");
+  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentRow | null>(null);
 
   const { data: appointments = [], isLoading } = useAppointmentsByDate(currentDate);
 
-  // Map appointments to display format
   const displayAppointments = appointments.map((a) => ({
-    id: a.id,
+    ...a,
     patientName: a.patients ? `${a.patients.first_name} ${a.patients.last_name}` : "Unknown",
     dentist: a.staff?.full_name || "Unknown",
     time: a.appointment_time,
-    chair: a.chair || "",
     treatment: a.treatments?.name || "N/A",
-    status: a.status,
   }));
 
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
@@ -130,7 +129,10 @@ export default function AppointmentsPage() {
                               return (
                                 <td key={chair} className="py-1 px-2">
                                   {apt ? (
-                                    <div className={`rounded-md border p-2 text-xs ${statusColors[apt.status] || ""}`}>
+                                    <div
+                                      className={`rounded-md border p-2 text-xs cursor-pointer hover:shadow-md transition-shadow ${statusColors[apt.status] || ""}`}
+                                      onClick={() => setSelectedAppointment(apt)}
+                                    >
                                       <p className="font-medium truncate">{apt.patientName}</p>
                                       <p className="opacity-75 truncate">{apt.treatment}</p>
                                       <p className="opacity-60 text-[10px]">{apt.dentist}</p>
@@ -190,7 +192,7 @@ export default function AppointmentsPage() {
                   </thead>
                   <tbody>
                     {displayAppointments.map((apt) => (
-                      <tr key={apt.id} className="border-b last:border-0 hover:bg-muted/20">
+                      <tr key={apt.id} className="border-b last:border-0 hover:bg-muted/20 cursor-pointer" onClick={() => setSelectedAppointment(apt)}>
                         <td className="py-2.5 px-4 font-mono text-xs">{apt.time}</td>
                         <td className="py-2.5 px-4 font-medium">{apt.patientName}</td>
                         <td className="py-2.5 px-4 hidden md:table-cell text-muted-foreground">{apt.dentist}</td>
@@ -212,6 +214,7 @@ export default function AppointmentsPage() {
       </Tabs>
 
       <BookAppointmentDialog open={bookOpen} onOpenChange={setBookOpen} />
+      <AppointmentDetailDialog appointment={selectedAppointment} open={!!selectedAppointment} onOpenChange={(o) => !o && setSelectedAppointment(null)} />
     </div>
   );
 }
