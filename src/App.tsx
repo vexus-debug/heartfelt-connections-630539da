@@ -43,6 +43,7 @@ import StaffPage from "./pages/dashboard/StaffPage";
 import InventoryPage from "./pages/dashboard/InventoryPage";
 import NotificationsPage from "./pages/dashboard/NotificationsPage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
+import PatientProfilePage from "./pages/dashboard/PatientProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const App = () => (
           {/* Dashboard Routes */}
           <Route path="/dashboard" element={<DashboardLayout><DashboardHome /></DashboardLayout>} />
           <Route path="/dashboard/patients" element={<DashboardLayout><PatientsPage /></DashboardLayout>} />
+          <Route path="/dashboard/patients/:patientId" element={<DashboardLayout><PatientProfilePage /></DashboardLayout>} />
           <Route path="/dashboard/appointments" element={<DashboardLayout><AppointmentsPage /></DashboardLayout>} />
           <Route path="/dashboard/dental-charts" element={<DashboardLayout><DentalChartsPage /></DashboardLayout>} />
           <Route path="/dashboard/treatments" element={<DashboardLayout><TreatmentsPage /></DashboardLayout>} />
