@@ -1,60 +1,80 @@
 
 
-## Phase 3: Billing, Invoices & Inventory
+## Phase 4: Live Dashboard, Dental Charts, Patient Profile & Reports
 
-This phase connects the Billing and Inventory pages to real Supabase data, replacing all hardcoded mock data with persistent database-backed functionality.
+This final phase replaces all remaining mock/hardcoded data with real Supabase queries, and adds the missing database tables.
 
 ---
 
-### 1. Disable Email Confirmation for Login
-- Update Supabase Auth settings to allow login without email confirmation, so you can sign in with your email immediately
+### 4A. New Database Tables
 
-### 2. Create Database Tables
+**Treatment Plans & Procedures**
+- `treatment_plans` — tracks multi-step treatment plans per patient (name, status, total cost, paid amount, start/end dates)
+- `treatment_plan_procedures` — individual steps within a plan (procedure name, status done/pending, date completed)
 
-**Invoices Table**
-- Links to a patient, with fields for invoice date, status (paid/pending/partial), discount percentage, payment method, total amount, and amount paid
-- Auto-generates a human-readable invoice number (e.g., INV-2026-001)
+**Dental Chart Entries**
+- `dental_chart_entries` — records per-tooth data for each patient (tooth number, procedure performed, status like filling/crown/cavity/extraction, date, notes, dentist who performed it)
 
-**Invoice Items Table**
-- Each invoice can have multiple line items
-- Each item links to a treatment, with quantity, unit price, and line total
+**Activity Log**
+- `activity_log` — auto-tracks clinic events like new patients, completed appointments, payments received, prescriptions created — used to power the dashboard's "Recent Activity" feed
 
-**Payments Table**
-- Tracks individual payments against an invoice over time (supports partial payments)
-- Fields: amount, payment method, date, and optional reference number
+All tables will have RLS policies matching the existing security model (authenticated staff can read, role-based write access).
 
-**Inventory Table**
-- Tracks clinic supplies: name, category, current quantity, minimum stock threshold, unit, supplier name, and last restocked date
+---
 
-### 3. Security (Row-Level Security)
-- All tables will have RLS enabled
-- All authenticated staff can read invoices, invoice items, payments, and inventory
-- Admin, dentist, receptionist, and accountant roles can create/update invoices and record payments
-- Only admins can delete invoices
-- Admin and accountant roles can manage inventory (add items, update stock)
+### 4B. Dashboard Home — Live Stats & Data
 
-### 4. Connect Billing Page to Database
-- **Create Invoice dialog** → inserts into invoices + invoice_items tables, with patient and treatment dropdowns pulling from real Supabase data
-- **Billing page stats** (Collected Today, Outstanding Balance, Overdue Invoices) → live queries from invoices table
-- **Recent Invoices list** → queries invoices joined with patient names, sorted by date
-- **Invoice Detail dialog** → shows real line items and payment history from the database
-- **Record Payment** → inserts into payments table and updates invoice paid amount/status
+Replace all hardcoded numbers with real-time Supabase queries:
 
-### 5. Connect Inventory Page to Database
-- **Inventory list** → queries from inventory table instead of mock data
-- **Low Stock Alert** → computed from real stock levels vs. minimum thresholds
-- **Add ability to update stock** → admin/accountant can adjust quantities and add new inventory items
+- **Total Patients** — `COUNT(*)` from patients table
+- **Today's Appointments** — count of appointments for today's date
+- **Pending Payments** — count of invoices with status "pending" or "partial"
+- **Monthly Revenue** — sum of payments received this month
+- **Weekly Appointments Chart** — aggregated appointment counts for the current week
+- **Revenue Chart** — aggregated monthly payment totals for the last 6 months
+- **Today's Schedule Table** — real appointments for today, joined with patient names, staff names, and treatment names
+- **Recent Activity Feed** — latest entries from the activity_log table
+- **Welcome message** — show the logged-in user's actual name instead of hardcoded "Dr. Okonkwo"
 
-### 6. Create Reusable Data Hooks
-- `useInvoices()` — fetch invoices with patient info, create new invoices with line items
-- `usePayments()` — fetch payment history for an invoice, record new payments
-- `useInventory()` — fetch inventory items, update stock levels, add new items
+---
 
-### What You'll Be Able to Do After This Phase
-- Create real invoices linked to patients and treatments that persist in the database
-- View invoice details with actual line items and totals
-- Record partial or full payments against invoices with payment history tracking
-- See live billing stats (today's collections, outstanding balances, overdue count)
-- Track clinic inventory with real stock levels and low-stock alerts
-- Update inventory quantities as supplies are used or restocked
+### 4C. Patient Profile Page — Real Data Across All Tabs
+
+Replace mock patient detail data with live queries by patient ID:
+
+- **Overview Tab** — patient record from `patients` table (personal info, contact, emergency contact, medical history, allergies)
+- **Dental History Tab** — appointments for this patient joined with treatment and staff names, ordered by date
+- **Treatment Plans Tab** — from `treatment_plans` + `treatment_plan_procedures` tables
+- **Billing Tab** — invoices for this patient from `invoices` table with payment status
+- **Prescriptions Tab** — from `prescriptions` + `prescription_medications` tables for this patient
+
+---
+
+### 4D. Dental Charts Page — Database-Backed Tooth Records
+
+- Patient selector will query from the real `patients` table
+- Tooth chart data will come from `dental_chart_entries` table filtered by patient
+- "Add Procedure" dialog will INSERT into `dental_chart_entries`
+- Procedure history per tooth will query from the same table
+
+---
+
+### 4E. Reports Page — Live Analytics
+
+Replace hardcoded chart data with real aggregated queries:
+
+- **Revenue Trend** — monthly payment sums for the last 6 months
+- **Treatment Distribution** — count of appointments grouped by treatment category
+- **Weekly Appointment Trends** — appointment counts grouped by day of week
+- **Dentist Performance** — appointments and revenue per staff member this month
+
+---
+
+### What You'll See When Done
+
+- Dashboard shows real, up-to-date clinic numbers the moment you log in
+- Patient profiles display complete real history across all tabs
+- Dental charts persist tooth-by-tooth records in the database
+- Reports reflect actual clinic performance data
+- The mock data files (`mockDashboardData.ts`, `mockPatientDetails.ts`) can be safely removed
 
