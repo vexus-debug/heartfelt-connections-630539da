@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FlaskConical, Plus } from "lucide-react";
 import { labOrders } from "@/data/mockDashboardData";
+import { CreateLabOrderDialog } from "@/components/dashboard/CreateLabOrderDialog";
 
 const statusStyles: Record<string, string> = {
   sent: "bg-blue-100 text-blue-700",
@@ -10,6 +12,7 @@ const statusStyles: Record<string, string> = {
 };
 
 export default function LabWorkPage() {
+  const [labOpen, setLabOpen] = useState(false);
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -17,7 +20,7 @@ export default function LabWorkPage() {
           <h1 className="text-2xl font-bold">Lab Work</h1>
           <p className="text-sm text-muted-foreground">Track dental lab orders and results</p>
         </div>
-        <Button size="sm" className="bg-secondary hover:bg-secondary/90">
+        <Button size="sm" className="bg-secondary hover:bg-secondary/90" onClick={() => setLabOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           New Lab Order
         </Button>
@@ -56,6 +59,7 @@ export default function LabWorkPage() {
           );
         })}
       </div>
+      <CreateLabOrderDialog open={labOpen} onOpenChange={setLabOpen} />
     </div>
   );
 }
