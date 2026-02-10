@@ -25,10 +25,11 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 const navGroups = [
   {
@@ -68,6 +69,21 @@ export function DashboardSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const navigate = useNavigate();
+  const { profile, user, signOut } = useAuth();
+
+  const displayName = profile?.full_name || user?.email?.split("@")[0] || "Staff";
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r bg-card">
@@ -93,11 +109,7 @@ export function DashboardSidebar() {
                   const active = location.pathname === item.url;
                   return (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={active}
-                        tooltip={item.title}
-                      >
+                      <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
                         <NavLink
                           to={item.url}
                           className="flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
@@ -155,17 +167,21 @@ export function DashboardSidebar() {
       <SidebarFooter className="border-t p-3">
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8 shrink-0">
-            <AvatarImage src="" />
-            <AvatarFallback className="bg-secondary/20 text-secondary text-xs">EO</AvatarFallback>
+            <AvatarImage src={profile?.avatar_url || ""} />
+            <AvatarFallback className="bg-secondary/20 text-secondary text-xs">{initials}</AvatarFallback>
           </Avatar>
           {!collapsed && (
             <div className="flex flex-col overflow-hidden flex-1">
-              <span className="text-sm font-medium truncate">Dr. Okonkwo</span>
-              <span className="text-[10px] text-muted-foreground">Admin</span>
+              <span className="text-sm font-medium truncate">{displayName}</span>
+              <span className="text-[10px] text-muted-foreground">{user?.email}</span>
             </div>
           )}
           {!collapsed && (
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
+            <button
+              onClick={handleSignOut}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              title="Sign out"
+            >
               <LogOut className="h-4 w-4" />
             </button>
           )}
