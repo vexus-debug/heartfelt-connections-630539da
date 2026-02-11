@@ -998,6 +998,68 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_allocation_rules: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          percentage: number
+          role_title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          percentage?: number
+          role_title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          percentage?: number
+          role_title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      staff_revenue_allocations: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          payment_id: string
+          percentage: number
+          role_title: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_id: string
+          percentage: number
+          role_title: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_id?: string
+          percentage?: number
+          role_title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_revenue_allocations_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       treatment_plan_procedures: {
         Row: {
           completed_date: string | null

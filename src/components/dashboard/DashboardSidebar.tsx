@@ -61,6 +61,7 @@ const navGroups = [
     items: [
       { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
       { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
+      { title: "Revenue Allocation", url: "/dashboard/revenue-allocation", icon: DollarSign },
     ],
   },
   {
