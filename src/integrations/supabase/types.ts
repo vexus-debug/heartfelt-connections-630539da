@@ -620,6 +620,103 @@ export type Database = {
           },
         ]
       }
+      message_attachments: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_label: string
+          entity_type: string
+          id: string
+          message_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_label?: string
+          entity_type: string
+          id?: string
+          message_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_label?: string
+          entity_type?: string
+          id?: string
+          message_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_recipients: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          read: boolean
+          read_at: string | null
+          recipient_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          read?: boolean
+          read_at?: string | null
+          recipient_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          read?: boolean
+          read_at?: string | null
+          recipient_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_recipients_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          broadcast_role: string | null
+          content: string
+          created_at: string
+          id: string
+          is_broadcast: boolean
+          sender_id: string
+        }
+        Insert: {
+          broadcast_role?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_broadcast?: boolean
+          sender_id: string
+        }
+        Update: {
+          broadcast_role?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_broadcast?: boolean
+          sender_id?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           appointment_reminders: boolean
