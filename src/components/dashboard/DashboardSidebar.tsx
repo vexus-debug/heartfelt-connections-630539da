@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
@@ -87,7 +88,7 @@ const navGroups = [
 ];
 
 export function DashboardSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
@@ -96,6 +97,13 @@ export function DashboardSidebar() {
   const { data: unreadMsgCount = 0 } = useUnreadMessageCount();
   useRealtimeNotifications();
   useRealtimeMessages();
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [location.pathname, isMobile, setOpenMobile]);
 
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "Staff";
   const initials = displayName
