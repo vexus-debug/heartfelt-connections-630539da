@@ -1,74 +1,101 @@
 
 
-## 🎨 Dashboard Premium Redesign — "Vista Pro"
+# Revenue Allocation Rules — Implementation Plan
 
-Transform the admin area from a basic functional layout into a sleek, sophisticated web application that feels like a premium SaaS product (think Linear, Vercel Dashboard, or Stripe).
+## Overview
+A new Admin-only finance section within the dashboard that automatically splits every recorded payment into predefined allocation categories, tracks excess payments in a "War Chest," and provides a clean summary view of all allocations.
 
 ---
 
-### 1. **Elevated Visual Foundation**
-- Add subtle gradient backgrounds with glassmorphism effects to the main content area and sidebar
-- Introduce a refined color palette with deeper contrast, softer shadows, and layered depth (shadow-sm → shadow-lg with colored tints)
-- Apply smooth micro-animations on page transitions using Framer Motion (fade/slide-in for cards and sections)
-- Add a subtle dot-grid or noise texture pattern to the background for visual richness
+## 1. New Database Tables
 
-### 2. **Redesigned Sidebar**
-- Glass-effect sidebar with a blurred, semi-transparent background
-- Sleek icon animations on hover (subtle scale + color shift)
-- Active route indicator with an animated pill/highlight that slides between items
-- Collapsible groups with smooth accordion transitions
-- User profile section at the bottom with a polished avatar card and role badge with a glow effect
+### `revenue_allocation_rules`
+Stores the current allocation percentages (editable by Admin). Only one active rule set at a time.
+- Categories: Direct Costs, Base Operations, Volume Bonus Pool, Clinical Savings, Investors, Tithe
+- Each with a percentage value
+- Validation: percentages must total 100%
+- `is_active` toggle (Admin can enable/disable the feature)
+- Timestamps for audit trail
 
-### 3. **Premium Stat Cards (Dashboard Home)**
-- Replace flat cards with gradient-accented cards featuring subtle border glow effects
-- Add animated number counters that tick up when the page loads
-- Sparkline mini-charts inside each stat card showing trend direction
-- Trend indicators with colored arrows and percentage badges
-- Hover state with a lift effect and enhanced shadow
+### `revenue_allocations`
+Stores the calculated split for every payment recorded.
+- Links to the `payments` table
+- One row per category per payment (e.g., 6 rows per payment)
+- Stores: category name, percentage used, calculated amount
+- Immutable once created (historical records never change)
 
-### 4. **Modern Data Tables**
-- Replace plain HTML tables with styled, rounded table rows with alternating subtle backgrounds
-- Add row hover effects with a left-border accent color reveal
-- Status badges with dot indicators and pill-style design with soft colored backgrounds
-- Avatar/initials circles next to patient names in the table
-- Smooth skeleton loading states instead of plain "Loading..." text
-- Empty states with illustrated icons and helpful call-to-action buttons
+### `war_chest_entries`
+Tracks excess payments (amount paid above the invoice's service total).
+- Links to the `payments` table
+- Stores the excess amount
+- Running total queryable via SUM
 
-### 5. **Enhanced Charts & Data Visualization**
-- Custom-styled Recharts with gradient fills, rounded bars, and smooth area curves
-- Animated chart entry on scroll/load
-- Interactive tooltips with card-style popups (rounded, shadowed, themed)
-- Time-range selector pills above charts (Today, 7D, 30D, 90D)
-- Add a subtle grid pattern behind charts
+### RLS Policies
+- All three tables: read/write restricted to Admin role only
+- Uses existing `has_role()` security definer function
 
-### 6. **Polished Header Bar**
-- Frosted glass header with blur backdrop
-- Refined search bar with keyboard shortcut hint badge (⌘K style)
-- Notification bell with animated badge pulse
-- Breadcrumb navigation showing current location
-- Clean user dropdown with smooth transitions
+---
 
-### 7. **Activity Feed & Schedule Upgrades**
-- Timeline-style activity feed with connected dots and lines
-- Color-coded event type icons with soft background circles
-- "Today's Schedule" as a visual timeline/kanban strip instead of a plain table
-- Appointment cards with patient avatar, status dot, and time badge
+## 2. Automatic Allocation Logic
 
-### 8. **Quick Actions & Empty States**
-- Quick action cards with icon illustrations, subtle hover animations, and gradient borders
-- Beautiful empty states with vector illustrations and actionable CTAs
-- Loading skeletons that match the exact layout of the content they replace
+### Database Trigger on `payments` table
+When a new payment is inserted:
+1. Fetch the active allocation rules
+2. Calculate each category's share of the payment amount
+3. Insert rows into `revenue_allocations`
+4. Check if the payment causes the invoice's `amount_paid` to exceed the `total_amount` — if so, calculate the excess and insert into `war_chest_entries`
+5. If allocation rules are disabled, skip allocation (payment still records normally)
 
-### 9. **Page-Level Polish Across All Dashboard Pages**
-- Consistent page header pattern with title, description, breadcrumbs, and primary action button
-- Patients page: avatar list with search highlighting, card/grid view toggle
-- Appointments page: polished calendar grid with colored time blocks
-- Billing page: invoice cards with status ribbons and payment progress bars
-- Settings page: organized settings panels with clean toggle sections
-- All pages: smooth fade-in animations on mount
+This ensures:
+- Calculations are instant and automatic
+- Errors in allocation never block payment recording (wrapped in exception handling)
+- Rule changes only affect future payments
 
-### 10. **Dark Mode Refinement**
-- Ensure dark mode looks equally premium with proper contrast
-- Glowing accent colors in dark mode for buttons and active states
-- Adjusted shadows and borders for dark backgrounds
+---
+
+## 3. Dashboard UI — "Revenue Allocation" Page
+
+### Location
+- New sidebar menu item under a "Finance" section, visible only to Admin users
+- Single page at `/dashboard/revenue-allocation`
+
+### Summary Cards (Top Row)
+- **Total Revenue** (all-time sum of payments)
+- **Revenue This Month**
+- **War Chest Balance** (running total of excess payments)
+
+### Allocation Rules Card
+- Displays current percentages in an editable table
+- Edit mode with inline number inputs
+- Real-time validation: total must equal 100%
+- Save button (disabled if total ≠ 100%)
+- Toggle switch to enable/disable the allocation system
+
+### Allocation Breakdown Card
+- Table showing each category with:
+  - Category name
+  - Percentage
+  - All-time allocated amount
+  - This month's allocated amount
+- Clean, professional styling with currency formatting (₦)
+
+### Historical Allocations
+- Scrollable table of recent payment allocations
+- Columns: Date, Payment Reference, Total Amount, and per-category breakdown
+- Read-only view
+- Filterable by date range
+
+---
+
+## 4. Access Control
+- Sidebar item hidden for non-Admin users (using existing role-based sidebar filtering)
+- Route protected via existing `ProtectedRoute` + `roleAccess` config
+- Database-level RLS ensures no data leakage even if UI is bypassed
+
+---
+
+## 5. Data Accuracy
+- All monetary values pulled live from Supabase (no mock data)
+- Allocation calculations happen at the database level via triggers for consistency
+- React Query used for real-time data fetching with automatic cache invalidation
 
