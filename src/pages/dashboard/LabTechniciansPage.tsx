@@ -3,6 +3,16 @@ import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 import { useLabCases } from "@/hooks/useLabCases";
 import { useStaff } from "@/hooks/useStaff";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { EmptyState } from "@/components/dashboard/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { motion } from "framer-motion";
+
+const stagger = {
+  container: { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } },
+  item: { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } },
+};
 
 export default function LabTechniciansPage() {
   const { data: cases = [], isLoading: casesLoading } = useLabCases();
@@ -10,7 +20,6 @@ export default function LabTechniciansPage() {
 
   const isLoading = casesLoading || staffLoading;
 
-  // Filter lab technicians from staff (role = 'lab_technician' or assigned to lab cases)
   const technicianIds = new Set(
     cases
       .filter((c) => c.assigned_technician_id)
@@ -36,97 +45,61 @@ export default function LabTechniciansPage() {
     };
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary border-t-transparent" />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Lab Technicians</h1>
-        <p className="text-sm text-muted-foreground">
-          View technician workload and assignments
-        </p>
-      </div>
+      <PageHeader title="Lab Technicians" description="View technician workload and assignments" />
 
-      {technicians.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-            <Users className="h-10 w-10 text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground">
-              No lab technicians found. Add staff with the "lab_technician" role
-              to see them here.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
+      {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="glass-card"><CardContent className="p-5 space-y-3"><Skeleton className="h-4 w-32" /><div className="grid grid-cols-2 gap-2">{Array.from({ length: 4 }).map((_, j) => <Skeleton key={j} className="h-16 rounded-lg" />)}</div></CardContent></Card>
+          ))}
+        </div>
+      ) : technicians.length === 0 ? (
+        <EmptyState icon={Users} title="No lab technicians" description='Add staff with the "lab_technician" role to see them here.' />
+      ) : (
+        <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" variants={stagger.container} initial="hidden" animate="visible">
           {technicians.map((tech) => {
             const workload = getWorkload(tech.id);
+            const initials = tech.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2);
             return (
-              <Card key={tech.id}>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm">
-                      {tech.full_name}
-                    </CardTitle>
-                    <Badge
-                      variant={
-                        tech.status === "active" ? "default" : "secondary"
-                      }
-                      className="text-[10px]"
-                    >
-                      {tech.status}
-                    </Badge>
-                  </div>
-                  {tech.specialty && (
-                    <p className="text-xs text-muted-foreground">
-                      {tech.specialty}
-                    </p>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-2 text-center">
-                    <div className="p-2 rounded-md bg-muted/50">
-                      <p className="text-lg font-bold">{workload.total}</p>
-                      <p className="text-[10px] text-muted-foreground">
-                        Active
-                      </p>
+              <motion.div key={tech.id} variants={stagger.item}>
+                <Card className="glass-card hover:shadow-lg hover:shadow-secondary/5 transition-all duration-300 group hover:border-secondary/20">
+                  <CardHeader className="pb-2 border-b border-border/30">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9 ring-2 ring-border/30">
+                        <AvatarFallback className="bg-secondary/10 text-secondary text-xs font-semibold">{initials}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-sm group-hover:text-secondary transition-colors">{tech.full_name}</CardTitle>
+                        {tech.specialty && <p className="text-xs text-muted-foreground">{tech.specialty}</p>}
+                      </div>
+                      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${tech.status === "active" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${tech.status === "active" ? "bg-emerald-500" : "bg-muted-foreground/50"}`} />
+                        {tech.status}
+                      </span>
                     </div>
-                    <div className="p-2 rounded-md bg-muted/50">
-                      <p className="text-lg font-bold text-blue-600">
-                        {workload.inProgress}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        In Progress
-                      </p>
+                  </CardHeader>
+                  <CardContent className="pt-3">
+                    <div className="grid grid-cols-2 gap-2 text-center">
+                      {[
+                        { label: "Active", value: workload.total, color: "text-foreground" },
+                        { label: "In Progress", value: workload.inProgress, color: "text-blue-600 dark:text-blue-400" },
+                        { label: "Pending", value: workload.pending, color: "text-amber-600 dark:text-amber-400" },
+                        { label: "Urgent", value: workload.urgent, color: "text-destructive" },
+                      ].map((stat) => (
+                        <div key={stat.label} className="p-2.5 rounded-lg bg-muted/30 border border-border/20">
+                          <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
+                          <p className="text-[10px] text-muted-foreground font-medium">{stat.label}</p>
+                        </div>
+                      ))}
                     </div>
-                    <div className="p-2 rounded-md bg-muted/50">
-                      <p className="text-lg font-bold text-amber-600">
-                        {workload.pending}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        Pending
-                      </p>
-                    </div>
-                    <div className="p-2 rounded-md bg-muted/50">
-                      <p className="text-lg font-bold text-destructive">
-                        {workload.urgent}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground">
-                        Urgent
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   );
