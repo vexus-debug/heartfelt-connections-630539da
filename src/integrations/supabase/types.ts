@@ -462,6 +462,8 @@ export type Database = {
           is_urgent: boolean
           lab_fee: number
           patient_id: string
+          registered_by: string | null
+          registered_by_name: string | null
           sent_date: string | null
           status: string
           tooth_number: number | null
@@ -484,6 +486,8 @@ export type Database = {
           is_urgent?: boolean
           lab_fee?: number
           patient_id: string
+          registered_by?: string | null
+          registered_by_name?: string | null
           sent_date?: string | null
           status?: string
           tooth_number?: number | null
@@ -506,6 +510,8 @@ export type Database = {
           is_urgent?: boolean
           lab_fee?: number
           patient_id?: string
+          registered_by?: string | null
+          registered_by_name?: string | null
           sent_date?: string | null
           status?: string
           tooth_number?: number | null
