@@ -31,6 +31,11 @@ import {
   DollarSign,
   Wrench,
   MessageSquare,
+  Star,
+  Receipt,
+  Shield,
+  FileCheck,
+  FolderOpen,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
@@ -49,6 +54,7 @@ const navGroups = [
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
       { title: "Patients", url: "/dashboard/patients", icon: Users },
       { title: "Appointments", url: "/dashboard/appointments", icon: CalendarDays },
+      { title: "Reviews", url: "/dashboard/reviews", icon: Star },
     ],
   },
   {
@@ -63,6 +69,7 @@ const navGroups = [
     label: "Finance",
     items: [
       { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
+      { title: "Expenses", url: "/dashboard/expenses", icon: Receipt },
       { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
       { title: "Revenue Allocation", url: "/dashboard/revenue-allocation", icon: DollarSign },
     ],
@@ -73,6 +80,14 @@ const navGroups = [
       { title: "Lab Work", url: "/dashboard/lab-work", icon: FlaskConical },
       { title: "Staff", url: "/dashboard/staff", icon: UserCog },
       { title: "Inventory", url: "/dashboard/inventory", icon: Package },
+    ],
+  },
+  {
+    label: "Compliance",
+    items: [
+      { title: "Consent Forms", url: "/dashboard/consent-forms", icon: FileCheck },
+      { title: "Documents", url: "/dashboard/documents", icon: FolderOpen },
+      { title: "Audit Log", url: "/dashboard/audit-log", icon: Shield },
     ],
   },
   {

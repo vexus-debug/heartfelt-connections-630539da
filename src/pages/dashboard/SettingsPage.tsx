@@ -7,10 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Trash2 } from "lucide-react";
 import { useClinicSettings, useUpdateClinicSettings } from "@/hooks/useClinicSettings";
 import { useNotificationPreferences, useUpsertNotificationPreferences } from "@/hooks/useNotificationPreferences";
 import { useAllUsersWithRoles, useAssignRole, useRemoveRole } from "@/hooks/useUserRoles";
+import { useClinicChairs, useCreateClinicChair, useUpdateClinicChair, useDeleteClinicChair } from "@/hooks/useClinicChairs";
 import { useAuth } from "@/hooks/useAuth";
 import { getRoleLabel } from "@/config/roleAccess";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -49,6 +50,14 @@ export default function SettingsPage() {
   const [addRoleUserId, setAddRoleUserId] = useState<string | null>(null);
   const [newRole, setNewRole] = useState<string>("");
 
+  // Chairs
+  const { data: chairs = [] } = useClinicChairs();
+  const createChair = useCreateClinicChair();
+  const updateChair = useUpdateClinicChair();
+  const deleteChair = useDeleteClinicChair();
+  const [newChairName, setNewChairName] = useState("");
+  const [newChairRoom, setNewChairRoom] = useState("");
+
   const handleAssignRole = () => {
     if (!addRoleUserId || !newRole) return;
     assignRole.mutate({ user_id: addRoleUserId, role: newRole as any });
@@ -73,6 +82,7 @@ export default function SettingsPage() {
             <TabsTrigger value="clinic">Clinic Profile</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             {isAdmin && <TabsTrigger value="roles">Roles & Access</TabsTrigger>}
+            {isAdmin && <TabsTrigger value="chairs">Chairs</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="clinic" className="mt-4">
@@ -197,6 +207,52 @@ export default function SettingsPage() {
                         </div>
                       ))
                     )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
+          {isAdmin && (
+            <TabsContent value="chairs" className="mt-4">
+              <Card className="glass-card">
+                <CardHeader className="border-b border-border/30">
+                  <CardTitle className="text-base">Chair / Operatory Management</CardTitle>
+                  <CardDescription>Configure clinic chairs and rooms</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-4">
+                  <div className="flex gap-3 items-end">
+                    <div className="space-y-1 flex-1">
+                      <Label className="text-xs">Chair Name</Label>
+                      <Input placeholder="e.g. Chair 4" value={newChairName} onChange={e => setNewChairName(e.target.value)} className="bg-muted/30" />
+                    </div>
+                    <div className="space-y-1 flex-1">
+                      <Label className="text-xs">Room</Label>
+                      <Input placeholder="e.g. Room C" value={newChairRoom} onChange={e => setNewChairRoom(e.target.value)} className="bg-muted/30" />
+                    </div>
+                    <Button className="bg-secondary hover:bg-secondary/90" disabled={!newChairName || createChair.isPending} onClick={() => {
+                      createChair.mutate({ name: newChairName, room: newChairRoom }, {
+                        onSuccess: () => { setNewChairName(""); setNewChairRoom(""); },
+                      });
+                    }}>
+                      <Plus className="mr-1 h-4 w-4" /> Add
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {chairs.map((chair: any) => (
+                      <div key={chair.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/50">
+                        <div>
+                          <p className="text-sm font-medium">{chair.name}</p>
+                          <p className="text-xs text-muted-foreground">{chair.room || "No room"}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={chair.status === "active" ? "default" : "secondary"} className="text-[10px]">{chair.status}</Badge>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => deleteChair.mutate(chair.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>

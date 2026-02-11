@@ -26,6 +26,12 @@ export const PAGE_ROLE_ACCESS: Record<string, AppRole[]> = {
   "/dashboard/profile": ["admin", "dentist", "receptionist", "hygienist", "assistant", "accountant"],
   "/dashboard/tutorials": ["admin", "dentist", "receptionist", "hygienist", "assistant", "accountant"],
   "/dashboard/messages": ["admin", "dentist", "receptionist", "hygienist", "assistant", "accountant", "lab_technician"],
+  // New feature pages
+  "/dashboard/reviews": ["admin", "receptionist"],
+  "/dashboard/expenses": ["admin", "accountant"],
+  "/dashboard/audit-log": ["admin"],
+  "/dashboard/consent-forms": ["admin", "dentist"],
+  "/dashboard/documents": ["admin"],
 };
 
 // Check if user has access to a given path
