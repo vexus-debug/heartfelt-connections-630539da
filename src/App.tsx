@@ -57,6 +57,11 @@ import MyProfilePage from "./pages/dashboard/MyProfilePage";
 import TutorialsPage from "./pages/dashboard/TutorialsPage";
 import RevenueAllocationPage from "./pages/dashboard/RevenueAllocationPage";
 import MessagesPage from "./pages/dashboard/MessagesPage";
+import ReviewsPage from "./pages/dashboard/ReviewsPage";
+import ExpensesPage from "./pages/dashboard/ExpensesPage";
+import AuditLogPage from "./pages/dashboard/AuditLogPage";
+import ConsentFormsPage from "./pages/dashboard/ConsentFormsPage";
+import DocumentsPage from "./pages/dashboard/DocumentsPage";
 
 const queryClient = new QueryClient();
 
@@ -127,7 +132,11 @@ const App = () => (
             <Route path="/dashboard/tutorials" element={<ProtectedDashboard><TutorialsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/revenue-allocation" element={<ProtectedDashboard><RevenueAllocationPage /></ProtectedDashboard>} />
             <Route path="/dashboard/messages" element={<ProtectedDashboard><MessagesPage /></ProtectedDashboard>} />
-            
+            <Route path="/dashboard/reviews" element={<ProtectedDashboard><ReviewsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/expenses" element={<ProtectedDashboard><ExpensesPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/audit-log" element={<ProtectedDashboard><AuditLogPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/consent-forms" element={<ProtectedDashboard><ConsentFormsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/documents" element={<ProtectedDashboard><DocumentsPage /></ProtectedDashboard>} />
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>

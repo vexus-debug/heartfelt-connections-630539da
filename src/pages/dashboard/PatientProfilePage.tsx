@@ -1,15 +1,25 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Phone, Mail, AlertTriangle, User, FileText, Pencil } from "lucide-react";
+import { ArrowLeft, Phone, Mail, AlertTriangle, User, FileText, Pencil, Camera, Plus, Upload } from "lucide-react";
 import {
   usePatientDetail, usePatientVisits, usePatientTreatmentPlans, usePatientInvoices, usePatientPrescriptions,
 } from "@/hooks/usePatientProfile";
+import { useClinicalNotes, useCreateClinicalNote } from "@/hooks/useClinicalNotes";
+import { usePatientImages, useUploadPatientImage } from "@/hooks/usePatientImages";
+import { usePatientConsentForms } from "@/hooks/useConsentForms";
+import { usePatientDocuments, useUploadPatientDocument } from "@/hooks/useDocuments";
 import { EditPatientDialog } from "@/components/dashboard/EditPatientDialog";
+import { useAuth } from "@/hooks/useAuth";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const statusStyles: Record<string, string> = {
   paid: "bg-emerald-100 text-emerald-700",
@@ -24,13 +34,33 @@ function formatCurrency(amount: number) {
 export default function PatientProfilePage() {
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
+  const { user, roles } = useAuth();
   const [editOpen, setEditOpen] = useState(false);
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [docDialogOpen, setDocDialogOpen] = useState(false);
+  const [noteForm, setNoteForm] = useState({ subjective: "", objective: "", assessment: "", plan: "" });
+  const [imageForm, setImageForm] = useState({ imageType: "x-ray", toothNumber: "", description: "" });
+  const [docForm, setDocForm] = useState({ title: "", category: "other", notes: "" });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedDocFile, setSelectedDocFile] = useState<File | null>(null);
+
+  const canViewClinical = roles.some(r => ["admin", "dentist", "hygienist"].includes(r));
+  const canEditClinical = roles.some(r => ["admin", "dentist", "hygienist"].includes(r));
 
   const { data: patient, isLoading } = usePatientDetail(patientId);
   const { data: visits = [] } = usePatientVisits(patientId);
   const { data: plans = [] } = usePatientTreatmentPlans(patientId);
   const { data: invoices = [] } = usePatientInvoices(patientId);
   const { data: prescriptions = [] } = usePatientPrescriptions(patientId);
+  const { data: clinicalNotes = [] } = useClinicalNotes(patientId);
+  const { data: images = [] } = usePatientImages(patientId);
+  const { data: consentForms = [] } = usePatientConsentForms(patientId);
+  const { data: documents = [] } = usePatientDocuments(patientId);
+
+  const createNote = useCreateClinicalNote();
+  const uploadImage = useUploadPatientImage();
+  const uploadDoc = useUploadPatientDocument();
 
   if (isLoading) {
     return <div className="flex items-center justify-center py-20"><p className="text-muted-foreground">Loading...</p></div>;
@@ -84,6 +114,10 @@ export default function PatientProfilePage() {
           <TabsTrigger value="plans">Treatment Plans</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
           <TabsTrigger value="prescriptions">Prescriptions</TabsTrigger>
+          {canViewClinical && <TabsTrigger value="notes">Clinical Notes</TabsTrigger>}
+          {canViewClinical && <TabsTrigger value="images">Images</TabsTrigger>}
+          <TabsTrigger value="consents">Consents</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
 
         {/* Overview */}
@@ -285,9 +319,204 @@ export default function PatientProfilePage() {
             </Card>
           ))}
         </TabsContent>
+
+        {/* Clinical Notes */}
+        {canViewClinical && (
+          <TabsContent value="notes" className="mt-4 space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-medium">SOAP Notes</h3>
+              {canEditClinical && (
+                <Button size="sm" variant="outline" onClick={() => setNoteDialogOpen(true)}>
+                  <Plus className="mr-1 h-3 w-3" /> Add Note
+                </Button>
+              )}
+            </div>
+            {clinicalNotes.length === 0 ? (
+              <Card><CardContent className="py-10 text-center text-sm text-muted-foreground">No clinical notes found.</CardContent></Card>
+            ) : clinicalNotes.map((note: any) => (
+              <Card key={note.id}>
+                <CardContent className="py-4 space-y-2">
+                  <p className="text-xs text-muted-foreground">{new Date(note.created_at).toLocaleDateString()}</p>
+                  {note.subjective && <div><span className="text-xs font-semibold text-muted-foreground">S: </span><span className="text-sm">{note.subjective}</span></div>}
+                  {note.objective && <div><span className="text-xs font-semibold text-muted-foreground">O: </span><span className="text-sm">{note.objective}</span></div>}
+                  {note.assessment && <div><span className="text-xs font-semibold text-muted-foreground">A: </span><span className="text-sm">{note.assessment}</span></div>}
+                  {note.plan && <div><span className="text-xs font-semibold text-muted-foreground">P: </span><span className="text-sm">{note.plan}</span></div>}
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+        )}
+
+        {/* Images */}
+        {canViewClinical && (
+          <TabsContent value="images" className="mt-4 space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-medium">X-Rays & Photos</h3>
+              {canEditClinical && (
+                <Button size="sm" variant="outline" onClick={() => setImageDialogOpen(true)}>
+                  <Camera className="mr-1 h-3 w-3" /> Upload Image
+                </Button>
+              )}
+            </div>
+            {images.length === 0 ? (
+              <Card><CardContent className="py-10 text-center text-sm text-muted-foreground">No images uploaded.</CardContent></Card>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {images.map((img: any) => (
+                  <Card key={img.id} className="overflow-hidden">
+                    <div className="aspect-square bg-muted">
+                      <img src={img.image_url} alt={img.description || "Patient image"} className="w-full h-full object-cover" />
+                    </div>
+                    <CardContent className="p-2">
+                      <Badge variant="outline" className="text-[10px] capitalize">{img.image_type}</Badge>
+                      {img.description && <p className="text-xs text-muted-foreground mt-1 truncate">{img.description}</p>}
+                      <p className="text-[10px] text-muted-foreground">{img.date_taken}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        )}
+
+        {/* Consent Forms */}
+        <TabsContent value="consents" className="mt-4 space-y-3">
+          {consentForms.length === 0 ? (
+            <Card><CardContent className="py-10 text-center text-sm text-muted-foreground">No consent forms found.</CardContent></Card>
+          ) : consentForms.map((cf: any) => (
+            <Card key={cf.id}>
+              <CardContent className="py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">{cf.title}</p>
+                  <p className="text-xs text-muted-foreground">{new Date(cf.created_at).toLocaleDateString()}</p>
+                </div>
+                <Badge className={cf.status === "signed" ? "bg-emerald-100 text-emerald-700" : cf.status === "pending" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}>
+                  {cf.status}
+                </Badge>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+
+        {/* Documents */}
+        <TabsContent value="documents" className="mt-4 space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-medium">Patient Documents</h3>
+            <Button size="sm" variant="outline" onClick={() => setDocDialogOpen(true)}>
+              <Upload className="mr-1 h-3 w-3" /> Upload
+            </Button>
+          </div>
+          {documents.length === 0 ? (
+            <Card><CardContent className="py-10 text-center text-sm text-muted-foreground">No documents uploaded.</CardContent></Card>
+          ) : documents.map((doc: any) => (
+            <Card key={doc.id}>
+              <CardContent className="py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">{doc.title}</p>
+                    <Badge variant="outline" className="text-[10px] capitalize mt-1">{doc.category}</Badge>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">{new Date(doc.created_at).toLocaleDateString()}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
       </Tabs>
 
       <EditPatientDialog patient={patient} open={editOpen} onOpenChange={setEditOpen} />
+
+      {/* Clinical Note Dialog */}
+      <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Add SOAP Note</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1"><Label className="text-xs">Subjective</Label><Textarea value={noteForm.subjective} onChange={e => setNoteForm(f => ({ ...f, subjective: e.target.value }))} rows={2} placeholder="Patient complaints, symptoms..." /></div>
+            <div className="space-y-1"><Label className="text-xs">Objective</Label><Textarea value={noteForm.objective} onChange={e => setNoteForm(f => ({ ...f, objective: e.target.value }))} rows={2} placeholder="Clinical findings, exam results..." /></div>
+            <div className="space-y-1"><Label className="text-xs">Assessment</Label><Textarea value={noteForm.assessment} onChange={e => setNoteForm(f => ({ ...f, assessment: e.target.value }))} rows={2} placeholder="Diagnosis, clinical impression..." /></div>
+            <div className="space-y-1"><Label className="text-xs">Plan</Label><Textarea value={noteForm.plan} onChange={e => setNoteForm(f => ({ ...f, plan: e.target.value }))} rows={2} placeholder="Treatment plan, follow-up..." /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>Cancel</Button>
+            <Button className="bg-secondary hover:bg-secondary/90" disabled={createNote.isPending} onClick={() => {
+              createNote.mutate({ patient_id: patientId!, ...noteForm, created_by: user?.id }, {
+                onSuccess: () => { setNoteDialogOpen(false); setNoteForm({ subjective: "", objective: "", assessment: "", plan: "" }); },
+              });
+            }}>{createNote.isPending ? "Saving..." : "Save Note"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Upload Dialog */}
+      <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Upload Patient Image</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1"><Label className="text-xs">File *</Label><Input type="file" accept="image/*" onChange={e => setSelectedFile(e.target.files?.[0] || null)} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Type</Label>
+                <Select value={imageForm.imageType} onValueChange={v => setImageForm(f => ({ ...f, imageType: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="x-ray">X-Ray</SelectItem>
+                    <SelectItem value="intra-oral">Intra-oral</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1"><Label className="text-xs">Tooth #</Label><Input type="number" value={imageForm.toothNumber} onChange={e => setImageForm(f => ({ ...f, toothNumber: e.target.value }))} /></div>
+            </div>
+            <div className="space-y-1"><Label className="text-xs">Description</Label><Input value={imageForm.description} onChange={e => setImageForm(f => ({ ...f, description: e.target.value }))} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImageDialogOpen(false)}>Cancel</Button>
+            <Button className="bg-secondary hover:bg-secondary/90" disabled={uploadImage.isPending || !selectedFile} onClick={() => {
+              if (!selectedFile || !patientId) return;
+              uploadImage.mutate({ file: selectedFile, patientId, imageType: imageForm.imageType, toothNumber: imageForm.toothNumber ? Number(imageForm.toothNumber) : undefined, description: imageForm.description, userId: user?.id }, {
+                onSuccess: () => { setImageDialogOpen(false); setSelectedFile(null); setImageForm({ imageType: "x-ray", toothNumber: "", description: "" }); },
+              });
+            }}>{uploadImage.isPending ? "Uploading..." : "Upload"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Document Upload Dialog */}
+      <Dialog open={docDialogOpen} onOpenChange={setDocDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Upload Patient Document</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1"><Label className="text-xs">File *</Label><Input type="file" onChange={e => setSelectedDocFile(e.target.files?.[0] || null)} /></div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1"><Label className="text-xs">Title *</Label><Input value={docForm.title} onChange={e => setDocForm(f => ({ ...f, title: e.target.value }))} /></div>
+              <div className="space-y-1">
+                <Label className="text-xs">Category</Label>
+                <Select value={docForm.category} onValueChange={v => setDocForm(f => ({ ...f, category: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="insurance">Insurance</SelectItem>
+                    <SelectItem value="referral">Referral</SelectItem>
+                    <SelectItem value="consent">Consent</SelectItem>
+                    <SelectItem value="lab">Lab</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1"><Label className="text-xs">Notes</Label><Input value={docForm.notes} onChange={e => setDocForm(f => ({ ...f, notes: e.target.value }))} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDocDialogOpen(false)}>Cancel</Button>
+            <Button className="bg-secondary hover:bg-secondary/90" disabled={uploadDoc.isPending || !selectedDocFile || !docForm.title} onClick={() => {
+              if (!selectedDocFile || !patientId) return;
+              uploadDoc.mutate({ file: selectedDocFile, patientId, title: docForm.title, category: docForm.category, notes: docForm.notes, userId: user?.id }, {
+                onSuccess: () => { setDocDialogOpen(false); setSelectedDocFile(null); setDocForm({ title: "", category: "other", notes: "" }); },
+              });
+            }}>{uploadDoc.isPending ? "Uploading..." : "Upload"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
