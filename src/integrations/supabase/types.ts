@@ -1337,6 +1337,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_message_recipient: {
+        Args: { _message_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_message_sender: {
+        Args: { _message_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
