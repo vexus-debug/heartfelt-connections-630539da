@@ -54,13 +54,14 @@
     --dental-mint: 165 40% 94%;
     --dental-cream: 40 30% 97%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 220 60% 20%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 174 40% 92%;
-    --sidebar-accent-foreground: 220 50% 15%;
-    --sidebar-border: 220 13% 91%;
+    /* Dashboard app tokens */
+    --sidebar-background: 220 55% 13%;
+    --sidebar-foreground: 210 30% 85%;
+    --sidebar-primary: 174 60% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 50% 18%;
+    --sidebar-accent-foreground: 174 50% 70%;
+    --sidebar-border: 220 45% 20%;
     --sidebar-ring: 174 60% 40%;
   }
 
