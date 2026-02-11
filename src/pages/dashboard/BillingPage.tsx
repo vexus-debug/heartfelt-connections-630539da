@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, CreditCard, TrendingUp, AlertCircle, Loader2, Receipt } from "lucide-react";
+import { FileText, CreditCard, TrendingUp, AlertCircle, Loader2, Receipt, CalendarRange } from "lucide-react";
 import { CreateInvoiceDialog } from "@/components/dashboard/CreateInvoiceDialog";
 import { InvoiceDetailDialog } from "@/components/dashboard/InvoiceDetailDialog";
+import { GenerateClientInvoiceDialog } from "@/components/dashboard/GenerateClientInvoiceDialog";
 import { useInvoices, useBillingStats, type InvoiceWithPatient } from "@/hooks/useInvoices";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { TableSkeleton } from "@/components/dashboard/TableSkeleton";
@@ -34,6 +35,7 @@ const stagger = {
 
 export default function BillingPage() {
   const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [statementOpen, setStatementOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithPatient | null>(null);
   const { data: invoices = [], isLoading } = useInvoices();
   const { data: stats } = useBillingStats();
@@ -67,10 +69,16 @@ export default function BillingPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Billing & Payments" description="Manage invoices and track payments">
-        <Button size="sm" className="bg-secondary hover:bg-secondary/90 shadow-lg shadow-secondary/20" onClick={() => setInvoiceOpen(true)}>
-          <FileText className="mr-2 h-4 w-4" />
-          Create Invoice
-        </Button>
+        <div className="flex gap-2 flex-wrap">
+          <Button size="sm" variant="outline" onClick={() => setStatementOpen(true)}>
+            <CalendarRange className="mr-2 h-4 w-4" />
+            Client Statement
+          </Button>
+          <Button size="sm" className="bg-secondary hover:bg-secondary/90 shadow-lg shadow-secondary/20" onClick={() => setInvoiceOpen(true)}>
+            <FileText className="mr-2 h-4 w-4" />
+            Create Invoice
+          </Button>
+        </div>
       </PageHeader>
 
       {/* Billing Stats */}
@@ -158,6 +166,7 @@ export default function BillingPage() {
 
       <CreateInvoiceDialog open={invoiceOpen} onOpenChange={setInvoiceOpen} />
       <InvoiceDetailDialog open={!!selectedInvoice} onOpenChange={(open) => !open && setSelectedInvoice(null)} invoice={selectedInvoice} />
+      <GenerateClientInvoiceDialog open={statementOpen} onOpenChange={setStatementOpen} />
     </div>
   );
 }

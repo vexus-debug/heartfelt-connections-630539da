@@ -86,9 +86,25 @@ export function useCreateLabCase() {
       due_date?: string;
       lab_fee?: number;
     }) => {
+      // Get current user's profile name to record who registered
+      const { data: { user } } = await supabase.auth.getUser();
+      let registeredByName = "Unknown";
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (profile?.full_name) registeredByName = profile.full_name;
+      }
+
       const { data, error } = await supabase
         .from("lab_cases")
-        .insert(labCase)
+        .insert({
+          ...labCase,
+          registered_by: user?.id,
+          registered_by_name: registeredByName,
+        })
         .select()
         .single();
       if (error) throw error;
