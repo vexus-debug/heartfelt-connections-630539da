@@ -29,6 +29,7 @@ import {
   ClipboardList,
   DollarSign,
   Wrench,
+  MessageSquare,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
@@ -36,7 +37,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPageAccess, getRoleLabel } from "@/config/roleAccess";
-import { useUnreadCount } from "@/hooks/useNotifications";
+import { useUnreadCount, useRealtimeNotifications } from "@/hooks/useNotifications";
+import { useUnreadMessageCount, useRealtimeMessages } from "@/hooks/useMessages";
 import { motion } from "framer-motion";
 
 const navGroups = [
@@ -91,6 +93,9 @@ export function DashboardSidebar() {
   const navigate = useNavigate();
   const { profile, user, roles, signOut } = useAuth();
   const { data: unreadCount = 0 } = useUnreadCount();
+  const { data: unreadMsgCount = 0 } = useUnreadMessageCount();
+  useRealtimeNotifications();
+  useRealtimeMessages();
 
   const displayName = profile?.full_name || user?.email?.split("@")[0] || "Staff";
   const initials = displayName
@@ -168,6 +173,25 @@ export function DashboardSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              {hasPageAccess(roles, "/dashboard/messages") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Messages">
+                    <NavLink
+                      to="/dashboard/messages"
+                      className="relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 hover:bg-accent/60 group"
+                      activeClassName="bg-secondary/10 text-secondary font-medium"
+                    >
+                      <MessageSquare className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+                      <span>Messages</span>
+                      {!collapsed && unreadMsgCount > 0 && (
+                        <Badge variant="destructive" className="ml-auto h-5 min-w-5 text-[10px] px-1.5 animate-pulse">
+                          {unreadMsgCount}
+                        </Badge>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
               {hasPageAccess(roles, "/dashboard/notifications") && (
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Notifications">

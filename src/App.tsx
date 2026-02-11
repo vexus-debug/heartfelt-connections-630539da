@@ -21,7 +21,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+// Signup removed — admin-only account creation
 
 // Service Pages
 import GeneralPreventive from "./pages/services/GeneralPreventive";
@@ -56,6 +56,7 @@ import PatientProfilePage from "./pages/dashboard/PatientProfilePage";
 import MyProfilePage from "./pages/dashboard/MyProfilePage";
 import TutorialsPage from "./pages/dashboard/TutorialsPage";
 import RevenueAllocationPage from "./pages/dashboard/RevenueAllocationPage";
+import MessagesPage from "./pages/dashboard/MessagesPage";
 
 const queryClient = new QueryClient();
 
@@ -82,7 +83,6 @@ const App = () => (
             <Route path="/book-appointment" element={<BookAppointment />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
             
             {/* Service Sub-Pages */}
             <Route path="/services/general-preventive" element={<GeneralPreventive />} />
@@ -126,6 +126,7 @@ const App = () => (
             <Route path="/dashboard/profile" element={<ProtectedDashboard><MyProfilePage /></ProtectedDashboard>} />
             <Route path="/dashboard/tutorials" element={<ProtectedDashboard><TutorialsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/revenue-allocation" element={<ProtectedDashboard><RevenueAllocationPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/messages" element={<ProtectedDashboard><MessagesPage /></ProtectedDashboard>} />
             
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />

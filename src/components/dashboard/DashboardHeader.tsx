@@ -13,6 +13,7 @@ import {
 import { Search, Bell, User, Settings, LogOut, ChevronDown, Command } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useUnreadCount } from "@/hooks/useNotifications";
 import { motion } from "framer-motion";
 
 const breadcrumbMap: Record<string, string> = {
@@ -36,10 +37,12 @@ const breadcrumbMap: Record<string, string> = {
   "/dashboard/lab/technicians": "Technicians",
   "/dashboard/lab/billing": "Lab Billing",
   "/dashboard/lab/settings": "Lab Settings",
+  "/dashboard/messages": "Messages",
 };
 
 export function DashboardHeader() {
   const { profile, user, signOut } = useAuth();
+  const { data: unreadCount = 0 } = useUnreadCount();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -95,13 +98,15 @@ export function DashboardHeader() {
         <Button variant="ghost" size="icon" className="relative" asChild>
           <Link to="/dashboard/notifications">
             <Bell className="h-4 w-4" />
-            <motion.span
-              className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            >
-              5
-            </motion.span>
+            {unreadCount > 0 && (
+              <motion.span
+                className="absolute -top-0.5 -right-0.5 h-4 min-w-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center px-0.5"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </motion.span>
+            )}
           </Link>
         </Button>
 
