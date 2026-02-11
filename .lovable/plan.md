@@ -1,48 +1,110 @@
 
 
-## Vista Dental Clinic — Messaging, Notifications & Security Upgrade
+## Vista Dental Clinic — Full Feature Expansion
 
-### 1. Remove Public Signup Access
-- Remove the "Don't have an account?" / Sign Up link from the Login page
-- Remove the `/signup` route entirely — only admins will create staff accounts from the Staff management page
-- This ensures no outsiders can self-register into the clinic system
+### 1. 📋 Treatment Plans
+- New **Treatment Plans** page under Clinical in the sidebar (visible to Admin, Dentist)
+- Create multi-step treatment plans for a patient with:
+  - Plan name, phases/steps (each with procedure, tooth, estimated cost, status)
+  - Total cost estimate auto-calculated from steps
+  - Patient consent tracking (pending → consented → declined) with consent date
+  - Progress tracking as individual steps are completed
+  - Link treatment plan steps to actual treatments when performed
+- Viewable from patient profile page as a dedicated tab
+- **Database**: `treatment_plans` table + `treatment_plan_steps` table
 
-### 2. Accurate Dashboard Notification Count + Sound
-- Display the real unread notification count (from the `notifications` table) as a badge on the sidebar bell icon and in the dashboard header
-- Play a subtle notification sound when a new notification arrives in real-time using Supabase Realtime subscriptions on the `notifications` table
-- The sound will only play for genuinely new notifications (not on initial page load)
+### 2. 📸 X-Ray / Image Management
+- New **Patient Images** tab on the patient profile page (visible to Admin, Dentist, Hygienist)
+- Upload dental X-rays and intra-oral photos to Supabase Storage (`patient-images` bucket)
+- Each image record stores: patient_id, image URL, image type (x-ray, intra-oral, other), tooth number (optional), description, date taken, uploaded by
+- Gallery view with lightbox for viewing full-size images
+- Filter by image type and date
+- **Database**: `patient_images` table + new storage bucket
 
-### 3. Inter-Role Chat Messaging System
+### 3. 📝 Clinical Notes / SOAP Notes
+- New **Clinical Notes** section within appointment details and patient profile
+- Structured SOAP format: Subjective, Objective, Assessment, Plan
+- Each note linked to an appointment and patient
+- Only Dentists and Hygienists can create/edit notes; Admin can view
+- Notes appear chronologically in patient profile under a "Clinical Notes" tab
+- **Database**: `clinical_notes` table (patient_id, appointment_id, subjective, objective, assessment, plan, created_by, created_at)
 
-**Database: New tables**
-- `messages` — stores each message (sender, content, timestamp, optional record references)
-- `message_recipients` — links a message to recipient users (supports 1-to-1 and role-broadcast), tracks read status
-- `message_attachments` — stores references to existing records (patient, invoice, treatment, lab case) attached to a message
+### 4. ⭐ Patient Reviews / Feedback
+- New **Reviews** page in the dashboard sidebar under General (visible to Admin, Receptionist)
+- After appointment completion, staff can record patient feedback: rating (1-5 stars), comments, service quality categories
+- Dashboard summary showing average rating, recent reviews, trends
+- Optional: link feedback to specific appointment and dentist
+- **Database**: `patient_reviews` table
 
-**Role-Based Send Permissions (enforced via RLS)**
-- Admin → can message all roles
-- Dentist → can message Admin & Receptionist
-- Receptionist → can message Admin, Dentist & Accountant
-- Accountant → can message Admin only
+### 5. 🪑 Chair / Operatory Management
+- New **Chairs** management section in Settings (Admin only can configure)
+- Define clinic chairs/operatories with name, status (active/inactive), and room/location
+- Enhanced **Appointments** page with a visual "Chair View" toggle:
+  - Timeline/grid view showing daily schedule by chair (rows = chairs, columns = time slots)
+  - Color-coded by appointment status
+  - Drag-friendly visual layout
+- Appointments already have a `chair` field — this will be connected to the new chairs table
+- **Database**: `clinic_chairs` table
 
-**Chat UI (new dashboard page: `/dashboard/messages`)**
-- Chat-style interface with a conversation list on the left and message thread on the right
-- "New Message" button with a dropdown to select a specific user or broadcast to a role
-- Messages show sender name, role badge, timestamp, and read status
-- Ability to attach references to existing records (patients, invoices, treatments, lab reports) via a searchable picker
-- Unread message count badge in the sidebar, with the same notification sound as other notifications
-- Real-time message delivery using Supabase Realtime
+### 6. 🔁 Recurring Appointments
+- New option when booking appointments: "Make recurring"
+- Configure recurrence: frequency (weekly, bi-weekly, monthly, every 3/6 months), number of occurrences or end date
+- Auto-generates future appointment slots based on recurrence rules
+- Recurring series linked together so editing/canceling can affect one or all
+- Visual indicator on recurring appointments in the calendar
+- **Database**: `recurring_appointment_rules` table + `series_id` field on appointments
 
-**Data Sharing Shortcuts**
-- From patient profile: "Share with Dentist" quick action sends patient info as a message
-- From treatment notes: "Share with Receptionist" for follow-up
-- From billing page: share invoice/billing info with relevant roles
+### 7. 🧾 Expense Tracking
+- New **Expenses** page in Finance section (visible to Admin, Accountant)
+- Track clinic expenses: vendor, category (supplies, rent, utilities, equipment, salaries, other), amount, date, payment method, receipt reference
+- Monthly expense summary with charts
+- Compare revenue vs expenses for profitability overview in Reports
+- **Database**: `expenses` table
 
-**Audit Trail**
-- All messages and attachments are stored with timestamps and sender info in the database
-- Messages cannot be deleted (append-only), providing a complete audit trail
+### 8. 📜 Consent Forms
+- New **Consent Forms** section accessible from patient profile and treatment plans
+- Pre-defined consent form templates (Admin can create/edit templates): general treatment consent, anesthesia consent, surgical consent, etc.
+- Generate consent form for a patient with auto-filled details
+- Track consent status: pending → signed → expired
+- Digital signature capture (name + date + checkbox acknowledgment)
+- Signed forms stored as records with timestamp and who witnessed
+- **Database**: `consent_form_templates` table + `patient_consent_forms` table
 
-### 4. Sidebar & Navigation Updates
-- Add "Messages" item to the dashboard sidebar with unread count badge
-- Update role access config to allow all clinic roles to access the messages page
+### 9. 🔐 Enhanced Audit Logs
+- Existing `activity_log` table already captures some events
+- Expand audit logging to cover:
+  - Patient record views and edits
+  - Invoice modifications
+  - Treatment updates
+  - Staff changes
+  - Settings changes
+- New **Audit Log** page in Compliance section (Admin only)
+- Searchable and filterable by event type, user, date range, entity
+- Shows who did what, when, and to which record
+
+### 10. 🗂️ Document Management
+- New **Documents** page in the sidebar under Compliance & Admin (visible to Admin)
+- Upload and manage clinic-wide documents: licenses, certificates, contracts, policies
+- Also per-patient documents accessible from patient profile (visible to Admin, Dentist, Receptionist)
+- Document categories: license, certificate, contract, policy, insurance, other
+- Files stored in Supabase Storage (`clinic-documents` bucket)
+- Track expiry dates for licenses/certificates with notifications when approaching expiry
+- **Database**: `clinic_documents` table + `patient_documents` table + new storage bucket
+
+### 11. Sidebar & Role Access Updates
+- **Clinical** section: Add "Treatment Plans" (Admin, Dentist)
+- **General** section: Add "Reviews" (Admin, Receptionist)
+- **Finance** section: Add "Expenses" (Admin, Accountant)
+- **Compliance** section (new group): Add "Audit Log" (Admin), "Documents" (Admin), "Consent Forms" (Admin, Dentist)
+- Chair management integrated into Settings
+- All existing role-based visibility rules preserved
+
+### 12. Patient Profile Enhancement
+- Add tabs to the patient profile page for:
+  - Treatment Plans
+  - X-Rays & Images
+  - Clinical Notes
+  - Consent Forms
+  - Documents
+- Each tab respects role-based access
 
