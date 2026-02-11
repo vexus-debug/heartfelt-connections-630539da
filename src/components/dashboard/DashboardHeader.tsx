@@ -62,7 +62,7 @@ export function DashboardHeader() {
   const currentPage = breadcrumbMap[location.pathname] || "Dashboard";
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b border-border/40 bg-card/70 backdrop-blur-xl px-4 lg:px-6">
+    <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b border-border/50 bg-card/80 backdrop-blur-xl px-4 lg:px-6 shadow-sm">
       <SidebarTrigger className="-ml-1" />
 
       {/* Breadcrumb */}
@@ -116,7 +116,7 @@ export function DashboardHeader() {
             <Button variant="ghost" className="flex items-center gap-2 px-2 hover:bg-accent/50">
               <Avatar className="h-7 w-7 ring-2 ring-border/50">
                 <AvatarImage src={profile?.avatar_url || ""} />
-                <AvatarFallback className="bg-secondary/20 text-secondary text-xs">{initials}</AvatarFallback>
+                <AvatarFallback className="bg-secondary/15 text-secondary text-xs">{initials}</AvatarFallback>
               </Avatar>
               <span className="hidden md:inline text-sm font-medium">{displayName}</span>
               <ChevronDown className="h-3 w-3 text-muted-foreground" />
