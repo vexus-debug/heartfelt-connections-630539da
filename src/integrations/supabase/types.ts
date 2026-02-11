@@ -897,68 +897,6 @@ export type Database = {
         }
         Relationships: []
       }
-      revenue_allocation_rules: {
-        Row: {
-          category: string
-          created_at: string
-          id: string
-          is_active: boolean
-          percentage: number
-          updated_at: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          percentage?: number
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          percentage?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      revenue_allocations: {
-        Row: {
-          amount: number
-          category: string
-          created_at: string
-          id: string
-          payment_id: string
-          percentage: number
-        }
-        Insert: {
-          amount?: number
-          category: string
-          created_at?: string
-          id?: string
-          payment_id: string
-          percentage: number
-        }
-        Update: {
-          amount?: number
-          category?: string
-          created_at?: string
-          id?: string
-          payment_id?: string
-          percentage?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "revenue_allocations_payment_id_fkey"
-            columns: ["payment_id"]
-            isOneToOne: false
-            referencedRelation: "payments"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       staff: {
         Row: {
           created_at: string
@@ -1130,35 +1068,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      war_chest_entries: {
-        Row: {
-          created_at: string
-          excess_amount: number
-          id: string
-          payment_id: string
-        }
-        Insert: {
-          created_at?: string
-          excess_amount?: number
-          id?: string
-          payment_id: string
-        }
-        Update: {
-          created_at?: string
-          excess_amount?: number
-          id?: string
-          payment_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "war_chest_entries_payment_id_fkey"
-            columns: ["payment_id"]
-            isOneToOne: false
-            referencedRelation: "payments"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {
