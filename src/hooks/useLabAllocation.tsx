@@ -7,7 +7,7 @@ export function useLabAllocationRules() {
     queryKey: ["lab-allocation-rules"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("lab_allocation_rules" as any)
+        .from("lab_allocation_rules")
         .select("*")
         .order("category");
       if (error) throw error;
@@ -22,7 +22,7 @@ export function useUpdateLabAllocationRules() {
     mutationFn: async (rules: { id: string; percentage: number }[]) => {
       for (const rule of rules) {
         const { error } = await supabase
-          .from("lab_allocation_rules" as any)
+          .from("lab_allocation_rules")
           .update({ percentage: rule.percentage })
           .eq("id", rule.id);
         if (error) throw error;
@@ -43,7 +43,7 @@ export function useLabRevenueSummary() {
     queryKey: ["lab-revenue-summary"],
     queryFn: async () => {
       const { data: allInvoices } = await supabase
-        .from("lab_invoices" as any)
+        .from("lab_invoices")
         .select("total_amount, amount_paid, status");
 
       const invoices = (allInvoices || []) as any[];
@@ -56,7 +56,7 @@ export function useLabRevenueSummary() {
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
       const { data: monthInvoices } = await supabase
-        .from("lab_invoices" as any)
+        .from("lab_invoices")
         .select("total_amount, amount_paid")
         .gte("invoice_date", startOfMonth.toISOString().split("T")[0]);
 
