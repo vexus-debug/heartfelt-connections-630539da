@@ -543,6 +543,33 @@ export type Database = {
           },
         ]
       }
+      lab_allocation_rules: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean
+          percentage: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          percentage?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          percentage?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lab_case_history: {
         Row: {
           changed_by: string | null
@@ -652,21 +679,29 @@ export type Database = {
         Row: {
           assigned_technician_id: string | null
           case_number: string
+          clinic_code: string | null
+          clinic_doctor_name: string | null
           completed_date: string | null
           created_at: string
           delivered_date: string | null
           delivery_method: string | null
           dentist_id: string
+          discount: number | null
           due_date: string | null
           id: string
           instructions: string | null
           is_paid: boolean
           is_urgent: boolean
+          job_description: string | null
+          job_instructions: string[] | null
           lab_fee: number
+          net_amount: number | null
           patient_id: string
           registered_by: string | null
           registered_by_name: string | null
+          remark: string | null
           sent_date: string | null
+          shade: string | null
           status: string
           tooth_number: number | null
           treatment_id: string | null
@@ -676,21 +711,29 @@ export type Database = {
         Insert: {
           assigned_technician_id?: string | null
           case_number?: string
+          clinic_code?: string | null
+          clinic_doctor_name?: string | null
           completed_date?: string | null
           created_at?: string
           delivered_date?: string | null
           delivery_method?: string | null
           dentist_id: string
+          discount?: number | null
           due_date?: string | null
           id?: string
           instructions?: string | null
           is_paid?: boolean
           is_urgent?: boolean
+          job_description?: string | null
+          job_instructions?: string[] | null
           lab_fee?: number
+          net_amount?: number | null
           patient_id: string
           registered_by?: string | null
           registered_by_name?: string | null
+          remark?: string | null
           sent_date?: string | null
+          shade?: string | null
           status?: string
           tooth_number?: number | null
           treatment_id?: string | null
@@ -700,21 +743,29 @@ export type Database = {
         Update: {
           assigned_technician_id?: string | null
           case_number?: string
+          clinic_code?: string | null
+          clinic_doctor_name?: string | null
           completed_date?: string | null
           created_at?: string
           delivered_date?: string | null
           delivery_method?: string | null
           dentist_id?: string
+          discount?: number | null
           due_date?: string | null
           id?: string
           instructions?: string | null
           is_paid?: boolean
           is_urgent?: boolean
+          job_description?: string | null
+          job_instructions?: string[] | null
           lab_fee?: number
+          net_amount?: number | null
           patient_id?: string
           registered_by?: string | null
           registered_by_name?: string | null
+          remark?: string | null
           sent_date?: string | null
+          shade?: string | null
           status?: string
           tooth_number?: number | null
           treatment_id?: string | null
@@ -748,6 +799,71 @@ export type Database = {
             columns: ["treatment_id"]
             isOneToOne: false
             referencedRelation: "treatments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_invoices: {
+        Row: {
+          amount_paid: number
+          clinic_code: string | null
+          clinic_doctor_name: string | null
+          created_at: string
+          created_by: string | null
+          discount: number
+          id: string
+          invoice_date: string
+          invoice_number: string
+          lab_case_id: string | null
+          notes: string | null
+          patient_name: string | null
+          status: string
+          subtotal: number
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          clinic_code?: string | null
+          clinic_doctor_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount?: number
+          id?: string
+          invoice_date?: string
+          invoice_number?: string
+          lab_case_id?: string | null
+          notes?: string | null
+          patient_name?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          clinic_code?: string | null
+          clinic_doctor_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount?: number
+          id?: string
+          invoice_date?: string
+          invoice_number?: string
+          lab_case_id?: string | null
+          notes?: string | null
+          patient_name?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_invoices_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "lab_cases"
             referencedColumns: ["id"]
           },
         ]
@@ -818,6 +934,41 @@ export type Database = {
             columns: ["treatment_id"]
             isOneToOne: false
             referencedRelation: "treatments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_revenue_allocations: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          id: string
+          lab_invoice_id: string
+          percentage: number
+        }
+        Insert: {
+          amount?: number
+          category: string
+          created_at?: string
+          id?: string
+          lab_invoice_id: string
+          percentage: number
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          id?: string
+          lab_invoice_id?: string
+          percentage?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_revenue_allocations_lab_invoice_id_fkey"
+            columns: ["lab_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "lab_invoices"
             referencedColumns: ["id"]
           },
         ]
@@ -1481,6 +1632,47 @@ export type Database = {
             columns: ["treatment_id"]
             isOneToOne: false
             referencedRelation: "treatments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registration_fees: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          patient_id: string
+          payment_date: string
+          payment_method: string | null
+          recorded_by: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          payment_date?: string
+          payment_method?: string | null
+          recorded_by?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          payment_date?: string
+          payment_method?: string | null
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_fees_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]
