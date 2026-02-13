@@ -90,7 +90,7 @@ export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogP
       cost: 0,
       discount: 0,
       isPaid: false,
-      remark: "",
+      remark: "none",
       instructions: "",
     },
   });
@@ -111,7 +111,7 @@ export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogP
         discount: data.discount,
         due_date: format(data.dueDate, "yyyy-MM-dd"),
         is_paid: data.isPaid,
-        remark: data.remark || "",
+        remark: data.remark === "none" ? "" : (data.remark || ""),
         instructions: data.instructions || "",
       },
       {
@@ -287,8 +287,8 @@ export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogP
                     <FormControl>
                       <SelectTrigger><SelectValue placeholder="Select remark" /></SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                     <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
                       {REMARK_OPTIONS.map((r) => (
                         <SelectItem key={r} value={r}>{r}</SelectItem>
                       ))}
