@@ -125,7 +125,7 @@ export function useCreateLabCase() {
           ...labCase,
           registered_by: user?.id,
           registered_by_name: registeredByName,
-        } as any)
+        })
         .select()
         .single();
       if (error) throw error;
@@ -172,7 +172,7 @@ export function useUpdateLabCase() {
     }) => {
       const { data, error } = await supabase
         .from("lab_cases")
-        .update(updates as any)
+        .update(updates)
         .eq("id", id)
         .select()
         .single();
