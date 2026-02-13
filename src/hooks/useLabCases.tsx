@@ -20,9 +20,21 @@ export interface LabCaseRow {
   delivered_date: string | null;
   delivery_method: string;
   lab_fee: number;
+  discount: number;
+  net_amount: number;
   is_paid: boolean;
   created_at: string;
   updated_at: string;
+  // New fields
+  clinic_code: string;
+  clinic_doctor_name: string;
+  job_instructions: string[];
+  job_description: string;
+  shade: string;
+  remark: string;
+  registered_by: string | null;
+  registered_by_name: string | null;
+  // Joins
   patients: { first_name: string; last_name: string } | null;
   dentist: { full_name: string } | null;
   technician: { full_name: string } | null;
@@ -61,11 +73,12 @@ export function useLabCaseStats() {
         new Date(c.due_date) < new Date() &&
         !["delivered", "ready"].includes(c.status)
     ).length,
-    unpaid: cases.filter((c) => !c.is_paid && c.lab_fee > 0).length,
+    unpaid: cases.filter((c) => !c.is_paid && Number(c.lab_fee) > 0).length,
     totalFees: cases.reduce((sum, c) => sum + Number(c.lab_fee), 0),
+    totalNet: cases.reduce((sum, c) => sum + Number(c.net_amount || 0), 0),
     paidFees: cases
       .filter((c) => c.is_paid)
-      .reduce((sum, c) => sum + Number(c.lab_fee), 0),
+      .reduce((sum, c) => sum + Number(c.net_amount || c.lab_fee), 0),
   };
 
   return { stats, cases, isLoading };
@@ -85,8 +98,16 @@ export function useCreateLabCase() {
       is_urgent?: boolean;
       due_date?: string;
       lab_fee?: number;
+      // New fields
+      clinic_code?: string;
+      clinic_doctor_name?: string;
+      job_instructions?: string[];
+      job_description?: string;
+      shade?: string;
+      discount?: number;
+      remark?: string;
+      is_paid?: boolean;
     }) => {
-      // Get current user's profile name to record who registered
       const { data: { user } } = await supabase.auth.getUser();
       let registeredByName = "Unknown";
       if (user) {
@@ -104,7 +125,7 @@ export function useCreateLabCase() {
           ...labCase,
           registered_by: user?.id,
           registered_by_name: registeredByName,
-        })
+        } as any)
         .select()
         .single();
       if (error) throw error;
@@ -140,11 +161,18 @@ export function useUpdateLabCase() {
       delivered_date?: string;
       delivery_method?: string;
       lab_fee?: number;
+      discount?: number;
       instructions?: string;
+      remark?: string;
+      shade?: string;
+      job_description?: string;
+      job_instructions?: string[];
+      clinic_code?: string;
+      clinic_doctor_name?: string;
     }) => {
       const { data, error } = await supabase
         .from("lab_cases")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();
