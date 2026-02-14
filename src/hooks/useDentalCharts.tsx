@@ -47,3 +47,56 @@ export function useCreateDentalChartEntry() {
     },
   });
 }
+
+export function useUpdateDentalChartEntry() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: {
+      id: string;
+      patient_id: string;
+      tooth_number?: number;
+      procedure?: string;
+      status?: string;
+      entry_date?: string;
+      notes?: string;
+      dentist_id?: string | null;
+    }) => {
+      const { data, error } = await supabase
+        .from("dental_chart_entries")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["dental-chart", data.patient_id] });
+      toast({ title: "Entry updated", description: `Updated tooth #${data.tooth_number}` });
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+}
+
+export function useDeleteDentalChartEntry() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, patient_id }: { id: string; patient_id: string }) => {
+      const { error } = await supabase
+        .from("dental_chart_entries")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+      return { id, patient_id };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["dental-chart", data.patient_id] });
+      toast({ title: "Entry deleted", description: "Procedure record removed" });
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    },
+  });
+}
