@@ -3,53 +3,92 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { usePatients } from "@/hooks/usePatients";
-import { useDentalChartEntries, useDeleteDentalChartEntry } from "@/hooks/useDentalCharts";
+import { useDentalChartEntries, useDeleteDentalChartEntry, useCreateDentalChartEntry, useUpdateDentalChartEntry } from "@/hooks/useDentalCharts";
 import { AddProcedureDialog } from "@/components/dashboard/AddProcedureDialog";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit2, Trash2, Calendar, User, FileText, ChevronDown, ChevronUp } from "lucide-react";
 
-type ToothStatus = "healthy" | "decayed" | "treated" | "missing" | "cavity" | "filling" | "crown" | "extraction" | "planned" | "root_canal" | "implant" | "bridge" | "veneer" | "sealant";
-
-const statusColors: Record<string, { bg: string; label: string }> = {
-  healthy:    { bg: "bg-emerald-100 border-emerald-300 text-emerald-800", label: "Healthy" },
-  decayed:    { bg: "bg-amber-100 border-amber-300 text-amber-800", label: "Decayed" },
-  cavity:     { bg: "bg-amber-100 border-amber-300 text-amber-800", label: "Decayed" },
-  treated:    { bg: "bg-indigo-100 border-indigo-300 text-indigo-800", label: "Treated" },
-  filling:    { bg: "bg-indigo-100 border-indigo-300 text-indigo-800", label: "Treated" },
-  crown:      { bg: "bg-indigo-100 border-indigo-300 text-indigo-800", label: "Treated" },
-  root_canal: { bg: "bg-indigo-100 border-indigo-300 text-indigo-800", label: "Treated" },
-  veneer:     { bg: "bg-indigo-100 border-indigo-300 text-indigo-800", label: "Treated" },
-  sealant:    { bg: "bg-indigo-100 border-indigo-300 text-indigo-800", label: "Treated" },
-  bridge:     { bg: "bg-indigo-100 border-indigo-300 text-indigo-800", label: "Treated" },
-  implant:    { bg: "bg-indigo-100 border-indigo-300 text-indigo-800", label: "Treated" },
-  missing:    { bg: "bg-red-100 border-red-300 text-red-800", label: "Missing" },
-  extraction: { bg: "bg-red-100 border-red-300 text-red-800", label: "Missing" },
-  planned:    { bg: "bg-violet-100 border-violet-300 text-violet-800", label: "Planned" },
-};
-
-const legendItems = [
-  { color: "bg-emerald-200", label: "Healthy" },
-  { color: "bg-amber-200", label: "Decayed" },
-  { color: "bg-indigo-200", label: "Treated" },
-  { color: "bg-red-200", label: "Missing" },
+const statusOptions = [
+  { value: "healthy", label: "Healthy", bg: "bg-emerald-200", border: "border-emerald-400", text: "text-emerald-900", dot: "bg-emerald-400" },
+  { value: "cavity", label: "Decayed", bg: "bg-amber-200", border: "border-amber-400", text: "text-amber-900", dot: "bg-amber-400" },
+  { value: "filling", label: "Treated", bg: "bg-indigo-200", border: "border-indigo-400", text: "text-indigo-900", dot: "bg-indigo-400" },
+  { value: "extraction", label: "Missing", bg: "bg-red-200", border: "border-red-400", text: "text-red-900", dot: "bg-red-400" },
 ];
 
-// Grid layout matching the reference image
+function getStatusStyle(status: string) {
+  if (["cavity", "decayed"].includes(status)) return statusOptions[1];
+  if (["filling", "crown", "root_canal", "veneer", "sealant", "bridge", "implant", "treated"].includes(status)) return statusOptions[2];
+  if (["extraction", "missing"].includes(status)) return statusOptions[3];
+  return statusOptions[0]; // healthy
+}
+
+// Grid rows matching FDI dental chart reference
 const upperRows = [
   [18, 17, 16, 15, 14, 13, 12],
   [11, 21, 22, 23, 24, 25, 26],
-  [null, null, 27, 28, null, null, null],
 ];
+const upperExtra = [27, 28];
 const lowerRows = [
   [48, 47, 46, 45, 44, 43, 42],
   [41, 31, 32, 33, 34, 35, 36],
-  [null, null, 37, 38, null, null, null],
 ];
+const lowerExtra = [37, 38];
 
-function getStatus(status: string): { bg: string; label: string } {
-  return statusColors[status] || statusColors.healthy;
+function ToothButton({
+  tooth,
+  status,
+  isSelected,
+  onSelect,
+  onSetStatus,
+}: {
+  tooth: number;
+  status: string;
+  isSelected: boolean;
+  onSelect: () => void;
+  onSetStatus: (status: string) => void;
+}) {
+  const style = getStatusStyle(status);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  return (
+    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+      <PopoverTrigger asChild>
+        <button
+          onClick={() => {
+            onSelect();
+            setPopoverOpen(true);
+          }}
+          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md border-2 flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
+            ${style.bg} ${style.border} ${style.text}
+            ${isSelected ? "ring-2 ring-primary ring-offset-1 scale-110 shadow-lg z-10" : "hover:scale-105 hover:shadow-sm"}`}
+        >
+          {tooth}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-44 p-2" side="top" align="center">
+        <p className="text-xs font-semibold text-muted-foreground mb-2 px-1">Tooth #{tooth} — Set Status</p>
+        <div className="grid grid-cols-2 gap-1.5">
+          {statusOptions.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => {
+                onSetStatus(opt.value);
+                setPopoverOpen(false);
+              }}
+              className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors hover:opacity-80
+                ${opt.bg} ${opt.border} border ${opt.text}`}
+            >
+              <span className={`w-2.5 h-2.5 rounded-full ${opt.dot}`} />
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 export default function DentalChartsPage() {
@@ -61,18 +100,21 @@ export default function DentalChartsPage() {
   const [showAllHistory, setShowAllHistory] = useState(false);
 
   const deleteEntry = useDeleteDentalChartEntry();
+  const createEntry = useCreateDentalChartEntry();
+  const updateEntry = useUpdateDentalChartEntry();
   const patientId = selectedPatientId || patients[0]?.id;
   const { data: entries = [] } = useDentalChartEntries(patientId);
 
   // Build per-tooth data
   const toothData: Record<number, {
-    status: ToothStatus;
+    status: string;
+    latestEntryId: string | null;
     history: { id: string; date: string; procedure: string; dentist: string; status: string; notes: string; dentist_id: string | null }[];
   }> = {};
 
   entries.forEach((e: any) => {
     if (!toothData[e.tooth_number]) {
-      toothData[e.tooth_number] = { status: e.status as ToothStatus, history: [] };
+      toothData[e.tooth_number] = { status: e.status, latestEntryId: e.id, history: [] };
     }
     toothData[e.tooth_number].history.push({
       id: e.id, date: e.entry_date, procedure: e.procedure,
@@ -82,7 +124,30 @@ export default function DentalChartsPage() {
   });
 
   const selectedData = selectedTooth ? toothData[selectedTooth] : null;
-  const patient = patients.find((p) => p.id === patientId);
+
+  const handleSetToothStatus = (tooth: number, newStatus: string) => {
+    if (!patientId) return;
+    const existing = toothData[tooth];
+    const statusLabel = statusOptions.find(s => s.value === newStatus)?.label || newStatus;
+
+    if (existing?.latestEntryId) {
+      // Update the latest entry's status
+      updateEntry.mutate({
+        id: existing.latestEntryId,
+        patient_id: patientId,
+        status: newStatus,
+      });
+    } else {
+      // Create a new entry for this tooth
+      createEntry.mutate({
+        patient_id: patientId,
+        tooth_number: tooth,
+        procedure: `Status set to ${statusLabel}`,
+        status: newStatus,
+        entry_date: new Date().toISOString().split("T")[0],
+      });
+    }
+  };
 
   const handleAddProcedure = () => { setEditEntry(null); setProcedureOpen(true); };
   const handleEditEntry = (entry: any) => {
@@ -95,26 +160,17 @@ export default function DentalChartsPage() {
     ? showAllHistory ? selectedData.history : selectedData.history.slice(0, 5)
     : [];
 
-  const renderToothGrid = (rows: (number | null)[][]) => (
-    <div className="flex flex-col items-center gap-1.5">
-      {rows.map((row, ri) => (
-        <div key={ri} className="flex justify-center gap-1.5">
-          {row.map((tooth, ci) =>
-            tooth === null ? (
-              <div key={`empty-${ri}-${ci}`} className="w-10 h-10 sm:w-12 sm:h-12" />
-            ) : (
-              <button
-                key={tooth}
-                onClick={() => setSelectedTooth(tooth)}
-                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md border-2 flex items-center justify-center text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer
-                  ${getStatus(toothData[tooth]?.status || "healthy").bg}
-                  ${selectedTooth === tooth ? "ring-2 ring-primary ring-offset-2 scale-110 shadow-md z-10" : "hover:scale-105 hover:shadow-sm"}`}
-              >
-                {tooth}
-              </button>
-            )
-          )}
-        </div>
+  const renderToothRow = (teeth: number[]) => (
+    <div className="flex justify-center gap-1.5">
+      {teeth.map((tooth) => (
+        <ToothButton
+          key={tooth}
+          tooth={tooth}
+          status={toothData[tooth]?.status || "healthy"}
+          isSelected={selectedTooth === tooth}
+          onSelect={() => setSelectedTooth(tooth)}
+          onSetStatus={(s) => handleSetToothStatus(tooth, s)}
+        />
       ))}
     </div>
   );
@@ -139,14 +195,11 @@ export default function DentalChartsPage() {
       {/* Dental Chart Card */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg font-bold">
-            Tooth Chart — Adult (FDI Notation)
-          </CardTitle>
-          {/* Legend */}
+          <CardTitle className="text-lg font-bold">Tooth Chart — Adult (FDI Notation)</CardTitle>
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-            {legendItems.map((item) => (
-              <div key={item.label} className="flex items-center gap-1.5">
-                <span className={`w-3 h-3 rounded-full ${item.color}`} />
+            {statusOptions.map((item) => (
+              <div key={item.value} className="flex items-center gap-1.5">
+                <span className={`w-3 h-3 rounded-full ${item.dot}`} />
                 <span className="text-xs text-muted-foreground font-medium">{item.label}</span>
               </div>
             ))}
@@ -156,16 +209,25 @@ export default function DentalChartsPage() {
           {/* Upper Jaw */}
           <div>
             <p className="text-center text-sm font-medium text-muted-foreground mb-3">Upper Jaw</p>
-            {renderToothGrid(upperRows)}
+            <div className="flex flex-col items-center gap-1.5">
+              {upperRows.map((row, i) => (
+                <div key={i}>{renderToothRow(row)}</div>
+              ))}
+              <div>{renderToothRow(upperExtra)}</div>
+            </div>
           </div>
 
-          {/* Divider */}
           <div className="border-t-2 border-dashed border-border/50" />
 
           {/* Lower Jaw */}
           <div>
             <p className="text-center text-sm font-medium text-muted-foreground mb-3">Lower Jaw</p>
-            {renderToothGrid(lowerRows)}
+            <div className="flex flex-col items-center gap-1.5">
+              {lowerRows.map((row, i) => (
+                <div key={i}>{renderToothRow(row)}</div>
+              ))}
+              <div>{renderToothRow(lowerExtra)}</div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -185,7 +247,7 @@ export default function DentalChartsPage() {
                   <div>
                     <CardTitle className="text-base">Tooth #{selectedTooth}</CardTitle>
                     <Badge variant="secondary" className="mt-1 text-[10px] capitalize">
-                      {getStatus(selectedData?.status || "healthy").label}
+                      {getStatusStyle(selectedData?.status || "healthy").label}
                     </Badge>
                   </div>
                   <Button size="sm" onClick={handleAddProcedure} className="gap-1">
@@ -205,7 +267,7 @@ export default function DentalChartsPage() {
                       <Calendar className="h-3 w-3" /> History ({selectedData.history.length})
                     </h4>
                     <div className="space-y-2">
-                      {displayedHistory.map((h, i) => (
+                      {displayedHistory.map((h) => (
                         <div key={h.id} className="group flex items-start gap-3 text-xs bg-muted/30 rounded-lg p-3 border border-border/20 hover:border-border/40 transition-colors">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
