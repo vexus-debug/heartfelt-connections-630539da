@@ -8,16 +8,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, Mail, MapPin, Clock, Calendar, CheckCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Calendar, CheckCircle, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const services = [
-  "General & Preventive Dentistry",
-  "Cosmetic Dentistry",
-  "Orthodontics",
-  "Restorative & Prosthodontics",
+  "Braces, Routine Check-up & Consultation",
   "Dental Implants",
-  "Oral Surgery",
-  "Gum Treatment & Root Canal",
+  "Gum Treatment",
+  "Tooth Whitening",
+  "Veneers (Cosmetic Dentistry)",
+  "Scaling & Polishing",
+  "Root Canal Treatment",
 ];
 
 const BookAppointment = () => {
@@ -33,14 +34,76 @@ const BookAppointment = () => {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate form submission
-    setIsSubmitted(true);
-    toast({
-      title: "Appointment Request Sent!",
-      description: "We'll contact you shortly to confirm your appointment.",
-    });
+    setIsSubmitting(true);
+    try {
+      const [firstName, ...lastParts] = formData.name.trim().split(" ");
+      const lastName = lastParts.join(" ") || "-";
+
+      // Check if patient exists by phone, otherwise create
+      const { data: existing } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("phone", formData.phone)
+        .maybeSingle();
+
+      let patientId: string;
+      if (existing) {
+        patientId = existing.id;
+      } else {
+        const { data: newPatient, error: patErr } = await supabase
+          .from("patients")
+          .insert({
+            first_name: firstName,
+            last_name: lastName,
+            phone: formData.phone,
+            email: formData.email || null,
+          })
+          .select("id")
+          .single();
+        if (patErr) throw patErr;
+        patientId = newPatient.id;
+      }
+
+      // Get a dentist to assign
+      const { data: dentists } = await supabase
+        .from("staff")
+        .select("id")
+        .eq("role", "dentist")
+        .eq("status", "active")
+        .limit(1);
+      const staffId = dentists?.[0]?.id;
+      if (!staffId) throw new Error("No dentist available. Please call us to book.");
+
+      // Create the appointment
+      const { error: apptErr } = await supabase.from("appointments").insert({
+        patient_id: patientId,
+        staff_id: staffId,
+        appointment_date: formData.date || new Date().toISOString().split("T")[0],
+        appointment_time: formData.time || "09:00 AM",
+        notes: `Service: ${formData.service}. ${formData.message}`.trim(),
+        status: "pending",
+        is_walk_in: false,
+      });
+      if (apptErr) throw apptErr;
+
+      setIsSubmitted(true);
+      toast({
+        title: "Appointment Booked!",
+        description: "Your appointment has been recorded. We'll contact you to confirm.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Booking Failed",
+        description: err.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -249,9 +312,9 @@ const BookAppointment = () => {
                         onChange={handleChange}
                       />
                     </div>
-                    <Button type="submit" size="lg" className="w-full bg-secondary hover:bg-secondary/90">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      Request Appointment
+                    <Button type="submit" size="lg" className="w-full bg-secondary hover:bg-secondary/90" disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Calendar className="mr-2 h-4 w-4" />}
+                      {isSubmitting ? "Booking..." : "Book Appointment"}
                     </Button>
                   </form>
                 </CardContent>
