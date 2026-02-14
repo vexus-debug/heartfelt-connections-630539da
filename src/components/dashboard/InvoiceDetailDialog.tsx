@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
-import { Printer, CreditCard, Loader2, Mail, MessageCircle, Building2, Phone, MapPin, Globe } from "lucide-react";
-import { useInvoiceItems } from "@/hooks/useInvoices";
+import { Printer, CreditCard, Loader2, Mail, MessageCircle, Building2, Phone, MapPin, Globe, Pencil, X, Save, Plus, Trash2 } from "lucide-react";
+import { useInvoiceItems, useUpdateInvoice } from "@/hooks/useInvoices";
 import { usePayments, useRecordPayment } from "@/hooks/usePayments";
 import { useClinicSettings } from "@/hooks/useClinicSettings";
 import type { InvoiceWithPatient } from "@/hooks/useInvoices";
@@ -139,15 +140,61 @@ export function InvoiceDetailDialog({ open, onOpenChange, invoice }: InvoiceDeta
   const [showPayment, setShowPayment] = useState(false);
   const [payAmount, setPayAmount] = useState("");
   const [payMethod, setPayMethod] = useState("cash");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDiscount, setEditDiscount] = useState(0);
+  const [editNotes, setEditNotes] = useState("");
+  const [editItems, setEditItems] = useState<{ id?: string; treatment_id: string | null; description: string; quantity: number; unit_price: number; line_total: number }[]>([]);
 
   const { data: lineItems = [], isLoading: itemsLoading } = useInvoiceItems(invoice?.id ?? null);
   const { data: payments = [], isLoading: paymentsLoading } = usePayments(invoice?.id ?? null);
   const recordPayment = useRecordPayment();
+  const updateInvoice = useUpdateInvoice();
   const { data: clinic } = useClinicSettings();
 
   if (!invoice) return null;
 
   const balance = invoice.total_amount - invoice.amount_paid;
+
+  const startEditing = () => {
+    setEditDiscount(invoice.discount_percent);
+    setEditNotes(invoice.notes || "");
+    setEditItems(lineItems.map(li => ({ id: li.id, treatment_id: li.treatment_id, description: li.description, quantity: li.quantity, unit_price: li.unit_price, line_total: li.line_total })));
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      await updateInvoice.mutateAsync({
+        id: invoice.id,
+        discount_percent: editDiscount,
+        notes: editNotes,
+        line_items: editItems,
+      });
+      toast({ title: "Invoice updated" });
+      setIsEditing(false);
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const updateEditItem = (index: number, field: string, value: any) => {
+    setEditItems(prev => {
+      const updated = [...prev];
+      (updated[index] as any)[field] = value;
+      if (field === "quantity" || field === "unit_price") {
+        updated[index].line_total = updated[index].quantity * updated[index].unit_price;
+      }
+      return updated;
+    });
+  };
+
+  const addEditItem = () => {
+    setEditItems(prev => [...prev, { treatment_id: null, description: "", quantity: 1, unit_price: 0, line_total: 0 }]);
+  };
+
+  const removeEditItem = (index: number) => {
+    setEditItems(prev => prev.filter((_, i) => i !== index));
+  };
 
   const statusStyles: Record<string, string> = {
     paid: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400",
@@ -277,6 +324,29 @@ export function InvoiceDetailDialog({ open, onOpenChange, invoice }: InvoiceDeta
             <h4 className="font-semibold mb-2 text-foreground">Items</h4>
             {itemsLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
+            ) : isEditing ? (
+              <div className="space-y-2">
+                {editItems.map((item, idx) => (
+                  <div key={idx} className="flex gap-2 items-center">
+                    <Input className="flex-1 text-xs" placeholder="Description" value={item.description} onChange={(e) => updateEditItem(idx, "description", e.target.value)} />
+                    <Input className="w-16 text-xs" type="number" placeholder="Qty" value={item.quantity} onChange={(e) => updateEditItem(idx, "quantity", parseInt(e.target.value) || 0)} />
+                    <Input className="w-24 text-xs" type="number" placeholder="Price" value={item.unit_price} onChange={(e) => updateEditItem(idx, "unit_price", parseFloat(e.target.value) || 0)} />
+                    <span className="text-xs font-semibold w-20 text-right">{formatCurrency(item.line_total)}</span>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => removeEditItem(idx)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={addEditItem} className="text-xs"><Plus className="mr-1 h-3 w-3" />Add Item</Button>
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs w-24">Discount %</Label>
+                    <Input className="w-20 text-xs" type="number" value={editDiscount} onChange={(e) => setEditDiscount(parseFloat(e.target.value) || 0)} />
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Label className="text-xs w-24 pt-2">Notes</Label>
+                    <Textarea className="text-xs flex-1" rows={2} value={editNotes} onChange={(e) => setEditNotes(e.target.value)} />
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="rounded-lg border overflow-hidden">
                 <table className="w-full text-xs">
@@ -385,19 +455,35 @@ export function InvoiceDetailDialog({ open, onOpenChange, invoice }: InvoiceDeta
         </div>
 
         <DialogFooter className="flex-row gap-2 flex-wrap pt-4 border-t">
-          <Button variant="outline" size="sm" onClick={handlePrint}>
-            <Printer className="mr-1.5 h-3.5 w-3.5" />Print
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleEmail}>
-            <Mail className="mr-1.5 h-3.5 w-3.5" />Email
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleWhatsApp}>
-            <MessageCircle className="mr-1.5 h-3.5 w-3.5" />WhatsApp
-          </Button>
-          {balance > 0 && (
-            <Button size="sm" onClick={() => setShowPayment(!showPayment)} className="bg-secondary hover:bg-secondary/90">
-              <CreditCard className="mr-1.5 h-3.5 w-3.5" />Record Payment
-            </Button>
+          {isEditing ? (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(false)}>
+                <X className="mr-1.5 h-3.5 w-3.5" />Cancel
+              </Button>
+              <Button size="sm" onClick={handleSaveEdit} className="bg-secondary hover:bg-secondary/90" disabled={updateInvoice.isPending}>
+                <Save className="mr-1.5 h-3.5 w-3.5" />{updateInvoice.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" onClick={startEditing}>
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />Edit
+              </Button>
+              <Button variant="outline" size="sm" onClick={handlePrint}>
+                <Printer className="mr-1.5 h-3.5 w-3.5" />Print
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleEmail}>
+                <Mail className="mr-1.5 h-3.5 w-3.5" />Email
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleWhatsApp}>
+                <MessageCircle className="mr-1.5 h-3.5 w-3.5" />WhatsApp
+              </Button>
+              {balance > 0 && (
+                <Button size="sm" onClick={() => setShowPayment(!showPayment)} className="bg-secondary hover:bg-secondary/90">
+                  <CreditCard className="mr-1.5 h-3.5 w-3.5" />Record Payment
+                </Button>
+              )}
+            </>
           )}
         </DialogFooter>
       </DialogContent>

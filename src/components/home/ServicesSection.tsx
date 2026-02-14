@@ -20,46 +20,46 @@ import heroSmile from "@/assets/hero-smile.jpg";
 
 const services = [
   {
-    icon: Stethoscope,
-    title: "General & Preventive",
-    description: "Routine check-ups, scaling, polishing, and fluoride treatments",
-    href: "/services/general-preventive",
-    image: dentistPatient,
-  },
-  {
-    icon: Sparkles,
-    title: "Cosmetic Dentistry",
-    description: "Teeth whitening, veneers, and fashion braces",
-    href: "/services/cosmetic",
-    image: teethWhitening,
-  },
-  {
     icon: Smile,
-    title: "Orthodontics",
-    description: "Braces and retainers for perfect alignment",
+    title: "Braces & Routine Check-up",
+    description: "Orthodontic braces, routine dental check-ups, and professional consultations",
     href: "/services/orthodontics",
     image: orthodontics,
   },
   {
-    icon: Crown,
-    title: "Restorative Care",
-    description: "Crowns, bridges, and dentures for damaged teeth",
-    href: "/services/restorative",
-    image: clinicInterior,
-  },
-  {
     icon: Syringe,
     title: "Dental Implants",
-    description: "Permanent, natural-looking tooth replacements",
+    description: "Permanent, natural-looking tooth replacements using advanced implant technology",
     href: "/services/implants",
     image: dentalTechnology,
   },
   {
     icon: Heart,
     title: "Gum Treatment",
-    description: "Periodontal care and root canal therapy",
+    description: "Comprehensive periodontal care for healthy gums and oral wellness",
     href: "/services/periodontics",
     image: heroSmile,
+  },
+  {
+    icon: Sparkles,
+    title: "Tooth Whitening",
+    description: "Professional teeth whitening for a brighter, more confident smile",
+    href: "/services/cosmetic",
+    image: teethWhitening,
+  },
+  {
+    icon: Crown,
+    title: "Veneers",
+    description: "Custom cosmetic veneers for a flawless, natural-looking smile",
+    href: "/services/cosmetic",
+    image: clinicInterior,
+  },
+  {
+    icon: Stethoscope,
+    title: "Scaling & Polishing",
+    description: "Deep cleaning and polishing to remove plaque and tartar buildup",
+    href: "/services/general-preventive",
+    image: dentistPatient,
   },
 ];
 
