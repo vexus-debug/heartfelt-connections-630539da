@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FileText, Search, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { Plus, FileText, Search, CheckCircle, Clock, AlertCircle, Upload } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { useAllConsentForms, useConsentFormTemplates, useCreateConsentFormTemplate, useCreatePatientConsentForm, useSignConsentForm } from "@/hooks/useConsentForms";
 import { usePatients } from "@/hooks/usePatients";
@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const statusIcons: Record<string, any> = {
   pending: Clock,
@@ -41,8 +43,12 @@ export default function ConsentFormsPage() {
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [signDialogOpen, setSignDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState("");
   const [signerName, setSignerName] = useState("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadFormId, setUploadFormId] = useState("");
 
   const [templateForm, setTemplateForm] = useState({ title: "", content: "", category: "general" });
   const [consentForm, setConsentForm] = useState({ patientId: "", templateId: "", title: "", content: "" });
@@ -77,6 +83,53 @@ export default function ConsentFormsPage() {
     signForm.mutate({ id: selectedFormId, signer_name: signerName, witnessed_by: user?.id }, {
       onSuccess: () => { setSignDialogOpen(false); setSignerName(""); },
     });
+  };
+
+  const openUploadScan = (formId: string) => {
+    setUploadFormId(formId);
+    setUploadFile(null);
+    setUploadDialogOpen(true);
+  };
+
+  const handleUploadScan = async () => {
+    if (!uploadFile || !uploadFormId) return;
+    setUploading(true);
+
+    // Find the patient_id from the form
+    const form = forms.find((f: any) => f.id === uploadFormId);
+    const patientId = form?.patient_id;
+
+    const fileExt = uploadFile.name.split(".").pop();
+    const filePath = `consent-scans/${uploadFormId}/${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("clinic-documents")
+      .upload(filePath, uploadFile);
+
+    if (uploadError) {
+      toast({ title: "Upload failed", description: uploadError.message, variant: "destructive" });
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("clinic-documents").getPublicUrl(filePath);
+
+    // Save as a patient document linked to consent
+    if (patientId) {
+      await supabase.from("patient_documents").insert({
+        patient_id: patientId,
+        title: `Consent Scan — ${form?.title || "Untitled"}`,
+        category: "consent",
+        file_url: urlData.publicUrl,
+        uploaded_by: user?.id,
+        notes: `Scanned consent form for: ${form?.title}`,
+      });
+    }
+
+    toast({ title: "Consent scan uploaded" });
+    setUploading(false);
+    setUploadDialogOpen(false);
+    setUploadFile(null);
   };
 
   const filtered = forms.filter((f: any) => {
@@ -136,6 +189,9 @@ export default function ConsentFormsPage() {
                         <Badge className={`text-[10px] ${statusColors[f.status] || ""}`}>
                           <StatusIcon className="h-3 w-3 mr-1" />{f.status}
                         </Badge>
+                        <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => openUploadScan(f.id)} title="Upload scanned consent">
+                          <Upload className="h-3 w-3 mr-1" /> Scan
+                        </Button>
                         {f.status === "pending" && (
                           <Button size="sm" variant="outline" className="text-xs h-7" onClick={() => { setSelectedFormId(f.id); setSignDialogOpen(true); }}>
                             Sign
@@ -238,6 +294,26 @@ export default function ConsentFormsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setSignDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSign} className="bg-secondary hover:bg-secondary/90" disabled={signForm.isPending || !signerName}>{signForm.isPending ? "Signing..." : "Sign"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Consent Scan Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Upload Consent Scan</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Picture / Scan *</Label>
+              <Input type="file" accept="image/*,.pdf" onChange={e => setUploadFile(e.target.files?.[0] || null)} />
+            </div>
+            <p className="text-xs text-muted-foreground">Upload a scanned or photographed copy of the signed consent form.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleUploadScan} className="bg-secondary hover:bg-secondary/90" disabled={uploading || !uploadFile}>
+              {uploading ? "Uploading..." : "Upload"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

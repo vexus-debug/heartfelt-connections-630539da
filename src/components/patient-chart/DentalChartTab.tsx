@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Plus, Pencil } from "lucide-react";
 import { useDentalChartEntries, useCreateDentalChartEntry } from "@/hooks/useDentalCharts";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -36,6 +37,7 @@ export function DentalChartTab({ patientId, canEdit }: DentalChartTabProps) {
   const createEntry = useCreateDentalChartEntry();
   const [selectedTooth, setSelectedTooth] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<any>(null);
   const [form, setForm] = useState({ condition: "Healthy", procedure: "", notes: "" });
 
   // Build tooth status map from latest entries
@@ -48,6 +50,7 @@ export function DentalChartTab({ patientId, canEdit }: DentalChartTabProps) {
 
   const handleToothClick = (tooth: number) => {
     if (!canEdit) return;
+    setEditingEntry(null);
     setSelectedTooth(tooth);
     const existing = toothMap.get(tooth);
     setForm({
@@ -58,18 +61,37 @@ export function DentalChartTab({ patientId, canEdit }: DentalChartTabProps) {
     setDialogOpen(true);
   };
 
+  const openAddNew = () => {
+    setEditingEntry(null);
+    setSelectedTooth(null);
+    setForm({ condition: "Healthy", procedure: "", notes: "" });
+    setDialogOpen(true);
+  };
+
+  const openEditEntry = (entry: any) => {
+    setEditingEntry(entry);
+    setSelectedTooth(entry.tooth_number);
+    setForm({
+      condition: entry.status || "Healthy",
+      procedure: entry.procedure || "",
+      notes: entry.notes || "",
+    });
+    setDialogOpen(true);
+  };
+
   const handleSave = () => {
-    if (!selectedTooth) return;
+    const toothNum = editingEntry ? editingEntry.tooth_number : selectedTooth;
+    if (!toothNum && !selectedTooth) return;
     createEntry.mutate({
       patient_id: patientId,
-      tooth_number: selectedTooth,
+      tooth_number: toothNum || selectedTooth!,
       status: form.condition,
       procedure: form.procedure || form.condition,
       entry_date: new Date().toISOString().split("T")[0],
       notes: form.notes,
       dentist_id: undefined,
     }, {
-      onSuccess: () => { setDialogOpen(false); setSelectedTooth(null); },
+      onSuccess: () => { setDialogOpen(false); setSelectedTooth(null); setEditingEntry(null); },
     });
   };
 
@@ -97,13 +119,18 @@ export function DentalChartTab({ patientId, canEdit }: DentalChartTabProps) {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-sm font-medium">Dental Chart (FDI Notation)</h3>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           {CONDITIONS.map((c) => (
             <div key={c} className="flex items-center gap-1.5">
               <div className={`w-2.5 h-2.5 rounded-full ${conditionColors[c]}`} />
               <span className="text-[10px] text-muted-foreground">{c}</span>
             </div>
           ))}
+          {canEdit && (
+            <Button size="sm" variant="outline" onClick={openAddNew}>
+              <Plus className="mr-1 h-3 w-3" /> Add Entry
+            </Button>
+          )}
         </div>
       </div>
 
@@ -146,7 +173,7 @@ export function DentalChartTab({ patientId, canEdit }: DentalChartTabProps) {
             <h4 className="text-xs font-medium text-muted-foreground mb-3">Recent Entries</h4>
             <div className="space-y-2">
               {entries.slice(0, 10).map((e: any) => (
-                <div key={e.id} className="flex items-center justify-between text-sm">
+                <div key={e.id} className="flex items-center justify-between text-sm group">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-[10px] font-mono">#{e.tooth_number}</Badge>
                     <span>{e.procedure}</span>
@@ -154,6 +181,11 @@ export function DentalChartTab({ patientId, canEdit }: DentalChartTabProps) {
                   <div className="flex items-center gap-2">
                     <Badge className={`text-[10px] ${conditionColors[e.status] || ""} text-white`}>{e.status}</Badge>
                     <span className="text-xs text-muted-foreground">{e.entry_date}</span>
+                    {canEdit && (
+                      <Button size="icon" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => openEditEntry(e)}>
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -165,8 +197,14 @@ export function DentalChartTab({ patientId, canEdit }: DentalChartTabProps) {
       {/* Tooth Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Tooth #{selectedTooth}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingEntry ? `Edit Entry — Tooth #${selectedTooth}` : selectedTooth ? `Tooth #${selectedTooth}` : "New Dental Entry"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
+            {!selectedTooth && !editingEntry && (
+              <div className="space-y-1">
+                <Label className="text-xs">Tooth Number *</Label>
+                <Input type="number" min={11} max={48} placeholder="e.g. 21" onChange={(e) => setSelectedTooth(Number(e.target.value) || null)} />
+              </div>
+            )}
             <div className="space-y-1">
               <Label className="text-xs">Condition</Label>
               <Select value={form.condition} onValueChange={(v) => setForm(f => ({ ...f, condition: v }))}>
@@ -192,8 +230,8 @@ export function DentalChartTab({ patientId, canEdit }: DentalChartTabProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-secondary hover:bg-secondary/90" disabled={createEntry.isPending} onClick={handleSave}>
-              {createEntry.isPending ? "Saving..." : "Save"}
+            <Button className="bg-secondary hover:bg-secondary/90" disabled={createEntry.isPending || (!selectedTooth && !editingEntry)} onClick={handleSave}>
+              {createEntry.isPending ? "Saving..." : editingEntry ? "Update" : "Save"}
             </Button>
           </DialogFooter>
         </DialogContent>
