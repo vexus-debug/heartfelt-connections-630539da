@@ -25,6 +25,7 @@ const invoiceSchema = z.object({
   lineItems: z.array(z.object({
     treatmentId: z.string().min(1, "Select a treatment"),
     quantity: z.coerce.number().min(1, "Min 1"),
+    unitPriceOverride: z.coerce.number().min(0).optional(),
   })).min(1, "Add at least one item"),
   discount: z.coerce.number().min(0).max(100).optional(),
   paymentMethod: z.string().min(1, "Select payment method"),
@@ -51,7 +52,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
     resolver: zodResolver(invoiceSchema),
     defaultValues: {
       patientId: "",
-      lineItems: [{ treatmentId: "", quantity: 1 }],
+      lineItems: [{ treatmentId: "", quantity: 1, unitPriceOverride: undefined }],
       discount: 0,
       paymentMethod: "",
       amountPaid: 0,
@@ -68,7 +69,10 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
 
   const subtotal = watchedItems.reduce((sum, item) => {
     const treatment = treatments.find((t) => t.id === item.treatmentId);
-    return sum + (Number(treatment?.price) || 0) * (item.quantity || 0);
+    const price = item.unitPriceOverride !== undefined && item.unitPriceOverride !== null && String(item.unitPriceOverride) !== ""
+      ? Number(item.unitPriceOverride)
+      : (Number(treatment?.price) || 0);
+    return sum + price * (item.quantity || 0);
   }, 0);
 
   const discountAmount = (subtotal * watchedDiscount) / 100;
@@ -80,7 +84,10 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
 
     const lineItemsData = data.lineItems.map((li) => {
       const treatment = treatments.find((t) => t.id === li.treatmentId);
-      const unitPrice = Number(treatment?.price) || 0;
+      const catalogPrice = Number(treatment?.price) || 0;
+      const unitPrice = li.unitPriceOverride !== undefined && li.unitPriceOverride !== null && String(li.unitPriceOverride) !== ""
+        ? Number(li.unitPriceOverride)
+        : catalogPrice;
       return {
         treatment_id: li.treatmentId,
         description: treatment?.name || "",
@@ -145,45 +152,69 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                 const selectedTreatment = treatments.find(
                   (t) => t.id === watchedItems[index]?.treatmentId
                 );
-                const lineTotal = (Number(selectedTreatment?.price) || 0) * (watchedItems[index]?.quantity || 0);
+                const catalogPrice = Number(selectedTreatment?.price) || 0;
+                const overridePrice = watchedItems[index]?.unitPriceOverride;
+                const effectivePrice = overridePrice !== undefined && overridePrice !== null && String(overridePrice) !== ""
+                  ? Number(overridePrice)
+                  : catalogPrice;
+                const lineTotal = effectivePrice * (watchedItems[index]?.quantity || 0);
+                const hasDiscount = overridePrice !== undefined && overridePrice !== null && String(overridePrice) !== "" && Number(overridePrice) < catalogPrice;
 
                 return (
-                  <div key={field.id} className="flex items-end gap-2">
-                    <FormField control={form.control} name={`lineItems.${index}.treatmentId`} render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <Select onValueChange={field.onChange} value={field.value}>
+                  <div key={field.id} className="space-y-1">
+                    <div className="flex items-end gap-2">
+                      <FormField control={form.control} name={`lineItems.${index}.treatmentId`} render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <Select onValueChange={(v) => {
+                            field.onChange(v);
+                            // Reset price override when treatment changes
+                            form.setValue(`lineItems.${index}.unitPriceOverride`, undefined);
+                          }} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger><SelectValue placeholder="Select treatment" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {treatments.map((t) => (
+                                <SelectItem key={t.id} value={t.id}>
+                                  {t.name} — {formatCurrency(Number(t.price))}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name={`lineItems.${index}.quantity`} render={({ field }) => (
+                        <FormItem className="w-20">
                           <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Select treatment" /></SelectTrigger>
+                            <Input type="number" min={1} placeholder="Qty" {...field} />
                           </FormControl>
-                          <SelectContent>
-                            {treatments.map((t) => (
-                              <SelectItem key={t.id} value={t.id}>
-                                {t.name} — {formatCurrency(Number(t.price))}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <FormField control={form.control} name={`lineItems.${index}.quantity`} render={({ field }) => (
-                      <FormItem className="w-20">
-                        <FormControl>
-                          <Input type="number" min={1} placeholder="Qty" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                    <span className="text-sm font-medium w-24 text-right pb-2">{formatCurrency(lineTotal)}</span>
-                    {fields.length > 1 && (
-                      <Button type="button" variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => remove(index)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name={`lineItems.${index}.unitPriceOverride`} render={({ field }) => (
+                        <FormItem className="w-28">
+                          <FormControl>
+                            <Input type="number" min={0} placeholder={`₦${catalogPrice.toLocaleString()}`} {...field} value={field.value ?? ""} />
+                          </FormControl>
+                        </FormItem>
+                      )} />
+                      <span className="text-sm font-medium w-24 text-right pb-2">{formatCurrency(lineTotal)}</span>
+                      {fields.length > 1 && (
+                        <Button type="button" variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => remove(index)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                    {hasDiscount && (
+                      <p className="text-[10px] text-emerald-600 ml-1">
+                        Item discount: {formatCurrency(catalogPrice - Number(overridePrice))} off (catalog: {formatCurrency(catalogPrice)})
+                      </p>
                     )}
                   </div>
                 );
               })}
-              <Button type="button" variant="outline" size="sm" onClick={() => append({ treatmentId: "", quantity: 1 })}>
+              <Button type="button" variant="outline" size="sm" onClick={() => append({ treatmentId: "", quantity: 1, unitPriceOverride: undefined })}>
                 <Plus className="mr-1 h-3.5 w-3.5" /> Add Item
               </Button>
               {form.formState.errors.lineItems?.message && (
