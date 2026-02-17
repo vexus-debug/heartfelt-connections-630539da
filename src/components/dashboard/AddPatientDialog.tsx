@@ -22,12 +22,12 @@ const patientSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required").max(50),
   lastName: z.string().trim().min(1, "Last name is required").max(50),
   phone: z.string().trim().min(7, "Phone number is required").max(20),
-  email: z.string().trim().email("Invalid email").max(100).or(z.literal("")),
+  email: z.string().trim().min(1, "Email is required").email("Invalid email").max(100),
   gender: z.enum(["Male", "Female"]),
   dateOfBirth: z.date({ required_error: "Date of birth is required" }),
-  address: z.string().trim().max(200).optional(),
-  emergencyName: z.string().trim().max(100).optional(),
-  emergencyPhone: z.string().trim().max(20).optional(),
+  address: z.string().trim().min(1, "Address is required").max(200),
+  emergencyName: z.string().trim().min(1, "Emergency contact name is required").max(100),
+  emergencyPhone: z.string().trim().min(7, "Emergency contact phone is required").max(20),
   medicalHistory: z.string().trim().max(1000).optional(),
   referralSource: z.string().optional(),
 });
@@ -112,7 +112,7 @@ export function AddPatientDialog({ open, onOpenChange }: AddPatientDialogProps) 
                 )} />
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email *</FormLabel>
                     <FormControl><Input placeholder="email@example.com" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -159,7 +159,7 @@ export function AddPatientDialog({ open, onOpenChange }: AddPatientDialogProps) 
               <div className="mt-3">
                 <FormField control={form.control} name="address" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>Address *</FormLabel>
                     <FormControl><Input placeholder="12 Adeniyi Jones Ave, Ikeja, Lagos" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -173,14 +173,16 @@ export function AddPatientDialog({ open, onOpenChange }: AddPatientDialogProps) 
               <div className="grid gap-3 sm:grid-cols-2">
                 <FormField control={form.control} name="emergencyName" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Name *</FormLabel>
                     <FormControl><Input placeholder="Full name" {...field} /></FormControl>
+                    <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="emergencyPhone" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                    <FormLabel>Phone *</FormLabel>
                     <FormControl><Input placeholder="0801-000-0000" {...field} /></FormControl>
+                    <FormMessage />
                   </FormItem>
                 )} />
               </div>
