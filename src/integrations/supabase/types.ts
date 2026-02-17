@@ -1249,6 +1249,7 @@ export type Database = {
       }
       patient_images: {
         Row: {
+          clinical_note_id: string | null
           created_at: string
           date_taken: string | null
           description: string | null
@@ -1260,6 +1261,7 @@ export type Database = {
           uploaded_by: string | null
         }
         Insert: {
+          clinical_note_id?: string | null
           created_at?: string
           date_taken?: string | null
           description?: string | null
@@ -1271,6 +1273,7 @@ export type Database = {
           uploaded_by?: string | null
         }
         Update: {
+          clinical_note_id?: string | null
           created_at?: string
           date_taken?: string | null
           description?: string | null
@@ -1282,6 +1285,13 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "patient_images_clinical_note_id_fkey"
+            columns: ["clinical_note_id"]
+            isOneToOne: false
+            referencedRelation: "clinical_notes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "patient_images_patient_id_fkey"
             columns: ["patient_id"]

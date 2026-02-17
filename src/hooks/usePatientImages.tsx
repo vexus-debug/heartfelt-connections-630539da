@@ -21,13 +21,14 @@ export function usePatientImages(patientId?: string) {
 export function useUploadPatientImage() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ file, patientId, imageType, toothNumber, description, userId }: {
+    mutationFn: async ({ file, patientId, imageType, toothNumber, description, userId, clinicalNoteId }: {
       file: File;
       patientId: string;
       imageType: string;
       toothNumber?: number;
       description?: string;
       userId?: string;
+      clinicalNoteId?: string;
     }) => {
       const ext = file.name.split(".").pop();
       const path = `${patientId}/${Date.now()}.${ext}`;
@@ -43,7 +44,8 @@ export function useUploadPatientImage() {
         tooth_number: toothNumber || null,
         description: description || "",
         uploaded_by: userId || null,
-      }).select().single();
+        clinical_note_id: clinicalNoteId || null,
+      } as any).select().single();
       if (error) throw error;
       return data;
     },
