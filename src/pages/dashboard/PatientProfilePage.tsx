@@ -33,6 +33,9 @@ export default function PatientProfilePage() {
   const canEditClinical = roles.some(r => ["admin", "dentist", "hygienist"].includes(r));
   const canEditPatient = roles.some(r => ["admin", "dentist", "receptionist", "assistant", "hygienist"].includes(r));
 
+  // Dentists cannot see contact PII
+  const isDentistOnly = roles.includes("dentist") && !roles.includes("admin") && !roles.includes("receptionist");
+
   const { data: patient, isLoading } = usePatientDetail(patientId);
   const { data: visits = [] } = usePatientVisits(patientId);
   const { data: plans = [] } = usePatientTreatmentPlans(patientId);
@@ -79,16 +82,20 @@ export default function PatientProfilePage() {
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground mt-0.5">
             <span>{patient.gender} · {patient.date_of_birth || "DOB N/A"}</span>
-            <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{patient.phone}</span>
+            {!isDentistOnly && (
+              <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{patient.phone}</span>
+            )}
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <a href={`https://wa.me/${patient.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="mr-1 h-3.5 w-3.5 text-emerald-600" /> WhatsApp
-            </a>
-          </Button>
+          {!isDentistOnly && (
+            <Button variant="outline" size="sm" asChild>
+              <a href={`https://wa.me/${patient.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="mr-1 h-3.5 w-3.5 text-emerald-600" /> WhatsApp
+              </a>
+            </Button>
+          )}
           {canEditPatient && (
             <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
               <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
@@ -112,7 +119,7 @@ export default function PatientProfilePage() {
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
-          <OverviewTab patient={patient} outstandingBalance={outstandingBalance} />
+          <OverviewTab patient={patient} outstandingBalance={outstandingBalance} roles={roles} />
         </TabsContent>
 
         <TabsContent value="complaints" className="mt-4">
@@ -146,7 +153,7 @@ export default function PatientProfilePage() {
         </TabsContent>
 
         <TabsContent value="prescription" className="mt-4">
-          <PrescriptionTab prescriptions={prescriptions} />
+          <PrescriptionTab prescriptions={prescriptions} patientId={patientId!} canEdit={canEditClinical} userId={user?.id} />
         </TabsContent>
 
         <TabsContent value="lab-work" className="mt-4">

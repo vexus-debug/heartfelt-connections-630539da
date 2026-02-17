@@ -5,14 +5,18 @@ import { User, Phone, Mail, AlertTriangle, FileText } from "lucide-react";
 interface OverviewTabProps {
   patient: any;
   outstandingBalance: number;
+  roles?: string[];
 }
 
 function formatCurrency(amount: number) {
   return `₦${amount.toLocaleString()}`;
 }
 
-export function OverviewTab({ patient, outstandingBalance }: OverviewTabProps) {
+export function OverviewTab({ patient, outstandingBalance, roles = [] }: OverviewTabProps) {
   const allergies = patient.allergies ? patient.allergies.split(",").map((a: string) => a.trim()).filter(Boolean) : [];
+
+  // Dentists cannot see contact PII — only admins and receptionists can
+  const isDentistOnly = roles.includes("dentist") && !roles.includes("admin") && !roles.includes("receptionist");
 
   return (
     <div className="space-y-4">
@@ -45,13 +49,19 @@ export function OverviewTab({ patient, outstandingBalance }: OverviewTabProps) {
             <CardTitle className="text-sm flex items-center gap-2"><Phone className="h-4 w-4" /> Contact & Emergency</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
-            <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-muted-foreground" />{patient.phone}</div>
-            <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground" />{patient.email || "N/A"}</div>
-            <div className="border-t pt-3 mt-3">
-              <p className="text-xs text-muted-foreground mb-1">Emergency Contact</p>
-              <p className="font-medium">{patient.emergency_contact_name || "N/A"}</p>
-              <p className="text-muted-foreground">{patient.emergency_contact_phone || "N/A"}</p>
-            </div>
+            {isDentistOnly ? (
+              <p className="text-xs text-muted-foreground italic">Contact details are restricted to admin and receptionist roles.</p>
+            ) : (
+              <>
+                <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-muted-foreground" />{patient.phone}</div>
+                <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground" />{patient.email || "N/A"}</div>
+                <div className="border-t pt-3 mt-3">
+                  <p className="text-xs text-muted-foreground mb-1">Emergency Contact</p>
+                  <p className="font-medium">{patient.emergency_contact_name || "N/A"}</p>
+                  <p className="text-muted-foreground">{patient.emergency_contact_phone || "N/A"}</p>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
