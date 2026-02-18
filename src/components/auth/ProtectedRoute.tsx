@@ -37,8 +37,17 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
+  // Lab-technician-only users should always land on /dashboard/lab
+  const isLabTechOnly =
+    roles.length > 0 && roles.every((r) => r === "lab_technician");
+
+  if (isLabTechOnly && location.pathname === "/dashboard") {
+    return <Navigate to="/dashboard/lab" replace />;
+  }
+
   if (!hasAccess) {
-    return <Navigate to="/dashboard" replace />;
+    // Lab technicians redirected to their own home instead of generic dashboard
+    return <Navigate to={isLabTechOnly ? "/dashboard/lab" : "/dashboard"} replace />;
   }
 
   return <>{children}</>;

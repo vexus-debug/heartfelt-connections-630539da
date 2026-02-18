@@ -4,7 +4,7 @@ type AppRole = Database["public"]["Enums"]["app_role"];
 
 // Maps each dashboard path to the roles that can access it
 export const PAGE_ROLE_ACCESS: Record<string, AppRole[]> = {
-  "/dashboard": ["admin", "dentist", "receptionist", "hygienist", "assistant", "accountant", "lab_technician"],
+  "/dashboard": ["admin", "dentist", "receptionist", "hygienist", "assistant", "accountant"],
   "/dashboard/patients": ["admin", "dentist", "receptionist", "hygienist", "assistant"],
   "/dashboard/appointments": ["admin", "dentist", "receptionist", "hygienist", "assistant"],
   "/dashboard/dental-charts": ["admin", "dentist", "hygienist"],

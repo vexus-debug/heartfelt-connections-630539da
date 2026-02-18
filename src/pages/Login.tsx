@@ -21,12 +21,20 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
-    } else {
-      navigate("/dashboard");
+    } else if (data.user) {
+      // Check role to determine landing page
+      const { data: rolesData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id);
+
+      const roles = (rolesData ?? []).map((r: any) => r.role);
+      const isLabOnly = roles.every((r: string) => r === "lab_technician") && roles.length > 0;
+      navigate(isLabOnly ? "/dashboard/lab" : "/dashboard");
     }
     setLoading(false);
   };
