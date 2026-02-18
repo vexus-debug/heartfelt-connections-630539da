@@ -151,6 +151,14 @@ const Header = () => {
           </NavLink>
 
           <NavLink
+            to="/shop"
+            className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+            activeClassName="bg-accent text-accent-foreground"
+          >
+            Shop
+          </NavLink>
+
+          <NavLink
             to="/contact"
             className="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
             activeClassName="bg-accent text-accent-foreground"
@@ -239,6 +247,13 @@ const Header = () => {
                   className="text-lg font-medium hover:text-secondary transition-colors"
                 >
                   Gallery
+                </Link>
+                <Link
+                  to="/shop"
+                  onClick={() => setIsOpen(false)}
+                  className="text-lg font-medium hover:text-secondary transition-colors"
+                >
+                  Shop
                 </Link>
                 <Link
                   to="/contact"

@@ -36,6 +36,8 @@ import {
   Shield,
   FileCheck,
   FolderOpen,
+  ShoppingBag,
+  ShoppingCart,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
@@ -98,6 +100,13 @@ const navGroups = [
       { title: "Technicians", url: "/dashboard/lab/technicians", icon: Users },
       { title: "Lab Billing", url: "/dashboard/lab/billing", icon: DollarSign },
       { title: "Lab Settings", url: "/dashboard/lab/settings", icon: Wrench },
+    ],
+  },
+  {
+    label: "Shop",
+    items: [
+      { title: "Products", url: "/dashboard/shop/products", icon: ShoppingBag },
+      { title: "Orders", url: "/dashboard/shop/orders", icon: ShoppingCart },
     ],
   },
 ];
