@@ -21,6 +21,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Shop from "./pages/Shop";
 // Signup removed — admin-only account creation
 
 // Service Pages
@@ -62,6 +63,8 @@ import ExpensesPage from "./pages/dashboard/ExpensesPage";
 import AuditLogPage from "./pages/dashboard/AuditLogPage";
 import ConsentFormsPage from "./pages/dashboard/ConsentFormsPage";
 import DocumentsPage from "./pages/dashboard/DocumentsPage";
+import ShopProductsPage from "./pages/dashboard/ShopProductsPage";
+import ShopOrdersPage from "./pages/dashboard/ShopOrdersPage";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +91,7 @@ const App = () => (
             <Route path="/book-appointment" element={<BookAppointment />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/shop" element={<Shop />} />
             
             {/* Service Sub-Pages */}
             <Route path="/services/general-preventive" element={<GeneralPreventive />} />
@@ -137,6 +141,8 @@ const App = () => (
             <Route path="/dashboard/audit-log" element={<ProtectedDashboard><AuditLogPage /></ProtectedDashboard>} />
             <Route path="/dashboard/consent-forms" element={<ProtectedDashboard><ConsentFormsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/documents" element={<ProtectedDashboard><DocumentsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/shop/products" element={<ProtectedDashboard><ShopProductsPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/shop/orders" element={<ProtectedDashboard><ShopOrdersPage /></ProtectedDashboard>} />
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
