@@ -12,8 +12,7 @@ const Footer = () => {
             <div className="flex items-center gap-2">
               <img src={logo} alt="Vista Dental Care" className="h-12 w-12 rounded-full object-cover" />
               <div className="flex flex-col">
-                <span className="text-lg font-bold">Vista Dental</span>
-                <span className="text-xs text-primary-foreground/70">Care</span>
+              <span className="text-lg font-bold">Vista Dental Care</span>
               </div>
             </div>
             <p className="text-sm text-primary-foreground/80">
@@ -157,9 +156,11 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-secondary shrink-0" />
-                <span className="text-primary-foreground/80">
-                  Mon - Sat: 9:00 AM - 6:00 PM
-                </span>
+              <div className="text-primary-foreground/80 space-y-0.5">
+                  <div>Mon – Fri: 9:00 AM – 6:00 PM</div>
+                  <div>Saturday: 9:00 AM – 6:00 PM</div>
+                  <div>Sunday: Closed</div>
+                </div>
               </li>
             </ul>
           </div>

@@ -150,7 +150,7 @@ const Orthodontics = () => {
       <ServiceHero
         title="Orthodontics"
         subtitle="Straighten Your Smile"
-        description="Achieve the perfectly aligned smile you've always wanted. Our orthodontic treatments correct crooked teeth, bite issues, and spacing problems for both children and adults. With modern braces options and experienced care, your journey to a straighter smile starts here."
+        description="Looking for orthodontic treatment in Abuja? Vista Dental Care corrects crooked teeth, bite issues, and spacing problems for both children and adults. With modern braces options and experienced care, your journey to a straighter smile starts here."
         image={orthodonticsImage}
         icon={Smile}
         iconColor="bg-purple-600"
@@ -162,7 +162,7 @@ const Orthodontics = () => {
         subtitle="The Science of Straight Teeth"
         content={[
           "Orthodontic treatment uses gentle, constant pressure to gradually move teeth into their correct positions. Braces apply this pressure through brackets attached to teeth and connected by wires.",
-          "At Vista Dental Care, we offer traditional metal braces and ceramic braces. Each option works effectively to straighten teeth, correct bite issues, and create a harmonious smile.",
+          "At Vista Dental Care in Abuja, we offer traditional metal braces and ceramic braces. Each option works effectively to straighten teeth, correct bite issues, and create a harmonious smile.",
           "Treatment is highly customized to your needs. We use detailed planning and regular adjustments to ensure your teeth move safely and efficiently toward their ideal positions.",
         ]}
         highlights={[
@@ -214,8 +214,8 @@ const Orthodontics = () => {
       />
 
       <ServiceCTA
-        title="Ready for a Straighter Smile?"
-        description="Book your orthodontic consultation today. We'll assess your needs and explain all your options for achieving the smile you deserve."
+        title="Ready for a Straighter Smile in Abuja?"
+        description="Schedule your orthodontic consultation at Vista Dental Care. We'll assess your needs and explain all your options for achieving the smile you deserve."
         primaryButtonText="Book Consultation"
       />
     </Layout>

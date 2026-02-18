@@ -150,7 +150,7 @@ const Periodontics = () => {
       <ServiceHero
         title="Gum Treatment & Root Canal"
         subtitle="Saving Teeth & Restoring Health"
-        description="Don't let gum disease or tooth infection threaten your smile. Our specialized treatments address problems at their source, eliminating infection, restoring gum health, and saving teeth that might otherwise be lost. Experience relief and renewed oral health with our expert care."
+        description="Looking for gum treatment or root canal therapy in Abuja? Vista Dental Care's specialized treatments address problems at their source — eliminating infection, restoring gum health, and saving teeth that might otherwise be lost."
         image={dentistPatientImage}
         icon={Heart}
         iconColor="bg-green-600"
@@ -214,8 +214,8 @@ const Periodontics = () => {
       />
 
       <ServiceCTA
-        title="Concerned About Your Gums or Tooth Pain?"
-        description="Don't wait for problems to worsen. Book an evaluation today and let us help you find relief and protect your natural teeth."
+        title="Concerned About Gum Disease or Tooth Pain in Abuja?"
+        description="Don't wait for problems to worsen. Schedule an evaluation at Vista Dental Care and let us help you find relief and protect your natural teeth."
         primaryButtonText="Book Evaluation"
       />
     </Layout>

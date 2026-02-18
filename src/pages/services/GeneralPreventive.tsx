@@ -154,7 +154,7 @@ const GeneralPreventive = () => {
       <ServiceHero
         title="General & Preventive Dentistry"
         subtitle="Foundation of Oral Health"
-        description="Your journey to a healthy smile starts here. Our comprehensive preventive care helps you maintain optimal oral health, catch problems early, and avoid costly treatments down the road. Regular check-ups are the best investment in your dental health."
+        description="Looking for a trusted dental clinic in Abuja for routine check-ups? Vista Dental Care's comprehensive preventive care helps you maintain optimal oral health, catch problems early, and avoid costly treatments. Regular check-ups are your best investment."
         image={clinicImage}
         icon={Stethoscope}
         iconColor="bg-blue-600"
@@ -218,8 +218,8 @@ const GeneralPreventive = () => {
       />
 
       <ServiceCTA
-        title="Ready to Prioritize Your Oral Health?"
-        description="Schedule your comprehensive dental check-up today. Early prevention is the best protection for your smile."
+        title="Ready to Prioritize Your Oral Health in Abuja?"
+        description="Schedule your comprehensive dental check-up at Vista Dental Care. Early prevention is the best protection for your smile — start your treatment today."
         primaryButtonText="Book Check-up"
       />
     </Layout>

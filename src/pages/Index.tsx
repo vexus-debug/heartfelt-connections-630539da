@@ -21,11 +21,11 @@ const Index = () => {
       {/* About Preview - Trust Builder with animated counters */}
       <AboutPreviewSection />
 
-      {/* NEW: Why Choose Us - Feature cards with hover effects */}
-      <WhyChooseUsSection />
-
       {/* Services - Interactive showcase with stock images */}
       <ServicesSection />
+
+      {/* NEW: Why Choose Us - Feature cards with hover effects */}
+      <WhyChooseUsSection />
 
       {/* NEW: Treatment Process - Animated timeline */}
       <TreatmentProcessSection />

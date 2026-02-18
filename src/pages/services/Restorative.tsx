@@ -150,7 +150,7 @@ const Restorative = () => {
       <ServiceHero
         title="Restorative & Prosthodontics"
         subtitle="Rebuild Your Smile"
-        description="Restore damaged or missing teeth to their full function and beauty. Our restorative treatments—including crowns, bridges, and dentures—are designed to give you back your confident smile. Using quality materials and precise techniques, we create restorations that look natural and last for years."
+        description="Looking for restorative dentistry in Abuja? Vista Dental Care's crowns, bridges, and dentures are designed to give you back your confident smile. Quality materials, precise techniques, and natural-looking results that last for years."
         image={dentistPatientImage}
         icon={Crown}
         iconColor="bg-amber-600"
@@ -214,8 +214,8 @@ const Restorative = () => {
       />
 
       <ServiceCTA
-        title="Ready to Restore Your Smile?"
-        description="Don't let damaged or missing teeth hold you back. Book a consultation to explore your restoration options and reclaim your confident smile."
+        title="Ready to Restore Your Smile in Abuja?"
+        description="Don't let damaged or missing teeth hold you back. Start your treatment today — book a consultation at Vista Dental Care to explore your restoration options."
         primaryButtonText="Book Consultation"
       />
     </Layout>

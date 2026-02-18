@@ -63,9 +63,9 @@ export function AboutPreviewSection() {
               animate={isInView ? { opacity: 1 } : {}}
               transition={{ delay: 0.2 }}
             >
-              Vista Dental Care is a modern, patient-focused dental clinic located in Gaduwa, Abuja. 
+              Vista Dental Care is a modern, patient-focused dental clinic in Gaduwa, Abuja, Nigeria. 
               We offer comprehensive dental services for individuals and families, using advanced 
-              dental technology in a comfortable and welcoming environment.
+              technology in a comfortable and welcoming environment.
             </motion.p>
 
             {/* Mission Quote */}
