@@ -1,27 +1,39 @@
 import { useParams, Link } from "react-router-dom";
 import { useProducts } from "@/hooks/useProducts";
+import { useClinicSettings } from "@/hooks/useClinicSettings";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MessageCircle, Package, ShieldCheck, Truck, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
-const CLINIC_WHATSAPP = "2348000000000"; // Replace with actual clinic WhatsApp
+const formatWhatsAppNumber = (phone: string | null | undefined): string => {
+  if (!phone) return "";
+  // Strip all non-digit characters
+  const digits = phone.replace(/\D/g, "");
+  // Nigerian numbers: if starts with 0, replace with country code 234
+  if (digits.startsWith("0")) return "234" + digits.slice(1);
+  // If already has country code (234...) keep as is
+  return digits;
+};
 
 const ProductDetail = () => {
   const { productId } = useParams<{ productId: string }>();
   const { products, isLoading } = useProducts();
+  const { data: clinicSettings } = useClinicSettings();
 
   const product = products.find((p) => p.id === productId);
 
   const handleWhatsAppOrder = () => {
     if (!product) return;
+    const whatsappNumber = formatWhatsAppNumber(clinicSettings?.phone);
+    if (!whatsappNumber) return;
     const message = encodeURIComponent(
       `Hi! I'd like to order:\n\n` +
       `*${product.name}*\n` +
       `Price: ₦${product.price.toLocaleString()}\n\n` +
       `Please confirm availability. Thank you!`
     );
-    window.open(`https://wa.me/${CLINIC_WHATSAPP}?text=${message}`, "_blank");
+    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
   };
 
   if (isLoading) {
