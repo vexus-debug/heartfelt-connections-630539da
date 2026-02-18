@@ -22,6 +22,7 @@ import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Shop from "./pages/Shop";
+import ProductDetail from "./pages/ProductDetail";
 // Signup removed — admin-only account creation
 
 // Service Pages
@@ -92,6 +93,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/shop" element={<Shop />} />
+            <Route path="/shop/:productId" element={<ProductDetail />} />
             
             {/* Service Sub-Pages */}
             <Route path="/services/general-preventive" element={<GeneralPreventive />} />

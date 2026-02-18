@@ -32,6 +32,7 @@ const ShopProductsPage = () => {
   const [category, setCategory] = useState("general");
   const [imageUrl, setImageUrl] = useState("");
   const [inStock, setInStock] = useState(true);
+  const [stockQuantity, setStockQuantity] = useState("0");
 
   const resetForm = () => {
     setName("");
@@ -40,6 +41,7 @@ const ShopProductsPage = () => {
     setCategory("general");
     setImageUrl("");
     setInStock(true);
+    setStockQuantity("0");
     setEditingProduct(null);
   };
 
@@ -56,6 +58,7 @@ const ShopProductsPage = () => {
     setCategory(product.category || "general");
     setImageUrl(product.image_url || "");
     setInStock(product.in_stock);
+    setStockQuantity((product.stock_quantity || 0).toString());
     setDialogOpen(true);
   };
 
@@ -90,6 +93,7 @@ const ShopProductsPage = () => {
       category,
       image_url: imageUrl,
       in_stock: inStock,
+      stock_quantity: parseInt(stockQuantity) || 0,
     };
 
     if (editingProduct) {
@@ -143,6 +147,7 @@ const ShopProductsPage = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Price</TableHead>
+                    <TableHead>Stock</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -162,6 +167,7 @@ const ShopProductsPage = () => {
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell><Badge variant="secondary">{product.category}</Badge></TableCell>
                       <TableCell>₦{product.price.toLocaleString()}</TableCell>
+                      <TableCell>{product.stock_quantity ?? 0}</TableCell>
                       <TableCell>
                         <Badge variant={product.in_stock ? "default" : "destructive"}>
                           {product.in_stock ? "In Stock" : "Out of Stock"}
@@ -228,6 +234,10 @@ const ShopProductsPage = () => {
                 <Label>Category</Label>
                 <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="general" />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Stock Quantity</Label>
+              <Input type="number" value={stockQuantity} onChange={(e) => setStockQuantity(e.target.value)} placeholder="0" min="0" />
             </div>
             <div className="space-y-2">
               <Label>Product Image</Label>
