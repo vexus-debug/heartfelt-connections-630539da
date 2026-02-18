@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { usePatients } from "@/hooks/usePatients";
@@ -12,17 +13,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit2, Trash2, Calendar, User, FileText, ChevronDown, ChevronUp } from "lucide-react";
 
 const statusOptions = [
-  { value: "healthy", label: "Healthy", bg: "bg-emerald-200", border: "border-emerald-400", text: "text-emerald-900", dot: "bg-emerald-400" },
-  { value: "cavity", label: "Decayed", bg: "bg-amber-200", border: "border-amber-400", text: "text-amber-900", dot: "bg-amber-400" },
-  { value: "filling", label: "Treated", bg: "bg-indigo-200", border: "border-indigo-400", text: "text-indigo-900", dot: "bg-indigo-400" },
-  { value: "extraction", label: "Missing", bg: "bg-red-200", border: "border-red-400", text: "text-red-900", dot: "bg-red-400" },
+  { value: "healthy",    label: "Healthy",    bg: "bg-emerald-200", border: "border-emerald-400", text: "text-emerald-900", dot: "bg-emerald-400" },
+  { value: "cavity",     label: "Decayed",    bg: "bg-amber-200",   border: "border-amber-400",   text: "text-amber-900",   dot: "bg-amber-400"   },
+  { value: "filling",    label: "Treated",    bg: "bg-indigo-200",  border: "border-indigo-400",  text: "text-indigo-900",  dot: "bg-indigo-400"  },
+  { value: "extraction", label: "Missing",    bg: "bg-red-200",     border: "border-red-400",     text: "text-red-900",     dot: "bg-red-400"     },
+  { value: "crown",      label: "Crowned",    bg: "bg-yellow-200",  border: "border-yellow-500",  text: "text-yellow-900",  dot: "bg-yellow-500"  },
+  { value: "impacted",   label: "Impacted",   bg: "bg-orange-200",  border: "border-orange-500",  text: "text-orange-900",  dot: "bg-orange-500"  },
+  { value: "rotated",    label: "Rotated",    bg: "bg-pink-200",    border: "border-pink-400",    text: "text-pink-900",    dot: "bg-pink-400"    },
+  { value: "fractured",  label: "Fractured",  bg: "bg-rose-200",    border: "border-rose-500",    text: "text-rose-900",    dot: "bg-rose-500"    },
+  { value: "sensitive",  label: "Sensitive",  bg: "bg-sky-200",     border: "border-sky-400",     text: "text-sky-900",     dot: "bg-sky-400"     },
+  { value: "bridge",     label: "Bridge",     bg: "bg-violet-200",  border: "border-violet-400",  text: "text-violet-900",  dot: "bg-violet-400"  },
+  { value: "veneer",     label: "Veneer",     bg: "bg-purple-200",  border: "border-purple-400",  text: "text-purple-900",  dot: "bg-purple-400"  },
+  { value: "root_canal", label: "Root Canal", bg: "bg-teal-200",    border: "border-teal-500",    text: "text-teal-900",    dot: "bg-teal-500"    },
+  { value: "implant",    label: "Implant",    bg: "bg-cyan-200",    border: "border-cyan-500",    text: "text-cyan-900",    dot: "bg-cyan-500"    },
+  { value: "erupting",   label: "Erupting",   bg: "bg-lime-200",    border: "border-lime-500",    text: "text-lime-900",    dot: "bg-lime-500"    },
+  { value: "other",      label: "Other",      bg: "bg-slate-200",   border: "border-slate-400",   text: "text-slate-900",   dot: "bg-slate-400"   },
 ];
 
 function getStatusStyle(status: string) {
-  if (["cavity", "decayed"].includes(status)) return statusOptions[1];
-  if (["filling", "crown", "root_canal", "veneer", "sealant", "bridge", "implant", "treated"].includes(status)) return statusOptions[2];
-  if (["extraction", "missing"].includes(status)) return statusOptions[3];
-  return statusOptions[0]; // healthy
+  return statusOptions.find(s => s.value === status) ?? statusOptions[0];
 }
 
 // Grid rows matching FDI dental chart reference
@@ -48,19 +57,17 @@ function ToothButton({
   status: string;
   isSelected: boolean;
   onSelect: () => void;
-  onSetStatus: (status: string) => void;
+  onSetStatus: (status: string, customLabel?: string) => void;
 }) {
   const style = getStatusStyle(status);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const [customLabel, setCustomLabel] = useState("");
 
   return (
     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
       <PopoverTrigger asChild>
         <button
-          onClick={() => {
-            onSelect();
-            setPopoverOpen(true);
-          }}
+          onClick={() => { onSelect(); setPopoverOpen(true); }}
           className={`w-10 h-10 sm:w-12 sm:h-12 rounded-md border-2 flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer
             ${style.bg} ${style.border} ${style.text}
             ${isSelected ? "ring-2 ring-primary ring-offset-1 scale-110 shadow-lg z-10" : "hover:scale-105 hover:shadow-sm"}`}
@@ -68,23 +75,40 @@ function ToothButton({
           {tooth}
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-44 p-2" side="top" align="center">
+      <PopoverContent className="w-52 p-2" side="top" align="center">
         <p className="text-xs font-semibold text-muted-foreground mb-2 px-1">Tooth #{tooth} — Set Status</p>
-        <div className="grid grid-cols-2 gap-1.5">
-          {statusOptions.map((opt) => (
+        <div className="grid grid-cols-2 gap-1.5 max-h-56 overflow-y-auto pr-0.5">
+          {statusOptions.filter(o => o.value !== "other").map((opt) => (
             <button
               key={opt.value}
-              onClick={() => {
-                onSetStatus(opt.value);
-                setPopoverOpen(false);
-              }}
+              onClick={() => { onSetStatus(opt.value); setPopoverOpen(false); }}
               className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors hover:opacity-80
                 ${opt.bg} ${opt.border} border ${opt.text}`}
             >
-              <span className={`w-2.5 h-2.5 rounded-full ${opt.dot}`} />
+              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${opt.dot}`} />
               {opt.label}
             </button>
           ))}
+        </div>
+        {/* Other / Custom */}
+        <div className="mt-2 border-t pt-2">
+          <p className="text-[10px] text-muted-foreground mb-1 font-medium">Other (custom)</p>
+          <div className="flex gap-1">
+            <Input
+              value={customLabel}
+              onChange={e => setCustomLabel(e.target.value)}
+              placeholder="e.g. Abscess"
+              className="h-7 text-xs"
+            />
+            <Button
+              size="sm"
+              className="h-7 px-2 text-xs"
+              disabled={!customLabel.trim()}
+              onClick={() => { onSetStatus("other", customLabel.trim()); setCustomLabel(""); setPopoverOpen(false); }}
+            >
+              Set
+            </Button>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
@@ -125,20 +149,19 @@ export default function DentalChartsPage() {
 
   const selectedData = selectedTooth ? toothData[selectedTooth] : null;
 
-  const handleSetToothStatus = (tooth: number, newStatus: string) => {
+  const handleSetToothStatus = (tooth: number, newStatus: string, customLabel?: string) => {
     if (!patientId) return;
     const existing = toothData[tooth];
-    const statusLabel = statusOptions.find(s => s.value === newStatus)?.label || newStatus;
+    const statusLabel = customLabel || statusOptions.find(s => s.value === newStatus)?.label || newStatus;
 
     if (existing?.latestEntryId) {
-      // Update the latest entry's status
       updateEntry.mutate({
         id: existing.latestEntryId,
         patient_id: patientId,
         status: newStatus,
-      });
+        procedure: customLabel ? `Status set to ${customLabel}` : undefined,
+      } as any);
     } else {
-      // Create a new entry for this tooth
       createEntry.mutate({
         patient_id: patientId,
         tooth_number: tooth,
@@ -169,7 +192,7 @@ export default function DentalChartsPage() {
           status={toothData[tooth]?.status || "healthy"}
           isSelected={selectedTooth === tooth}
           onSelect={() => setSelectedTooth(tooth)}
-          onSetStatus={(s) => handleSetToothStatus(tooth, s)}
+          onSetStatus={(s, custom) => handleSetToothStatus(tooth, s, custom)}
         />
       ))}
     </div>
@@ -196,7 +219,7 @@ export default function DentalChartsPage() {
       <Card>
         <CardHeader className="pb-4">
           <CardTitle className="text-lg font-bold">Tooth Chart — Adult (FDI Notation)</CardTitle>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+          <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-2">
             {statusOptions.map((item) => (
               <div key={item.value} className="flex items-center gap-1.5">
                 <span className={`w-3 h-3 rounded-full ${item.dot}`} />
