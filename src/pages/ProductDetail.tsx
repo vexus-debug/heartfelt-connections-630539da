@@ -3,16 +3,14 @@ import { useProducts } from "@/hooks/useProducts";
 import { useClinicSettings } from "@/hooks/useClinicSettings";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MessageCircle, Package, ShieldCheck, Truck, Clock } from "lucide-react";
+import { MessageCircle, Package, ShieldCheck, Truck, Clock, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import { Layout } from "@/components/layout";
 
 const formatWhatsAppNumber = (phone: string | null | undefined): string => {
   if (!phone) return "";
-  // Strip all non-digit characters
   const digits = phone.replace(/\D/g, "");
-  // Nigerian numbers: if starts with 0, replace with country code 234
   if (digits.startsWith("0")) return "234" + digits.slice(1);
-  // If already has country code (234...) keep as is
   return digits;
 };
 
@@ -38,23 +36,27 @@ const ProductDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="h-10 w-10 rounded-full border-2 border-secondary border-t-transparent animate-spin" />
-      </div>
+      <Layout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full border-2 border-secondary border-t-transparent animate-spin" />
+        </div>
+      </Layout>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-        <Package className="h-16 w-16 text-muted-foreground/40" />
-        <h1 className="text-xl font-semibold text-foreground">Product not found</h1>
-        <Button asChild variant="outline">
-          <Link to="/shop">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Shop
-          </Link>
-        </Button>
-      </div>
+      <Layout>
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          <div className="w-20 h-20 rounded-full bg-accent flex items-center justify-center">
+            <Package className="h-10 w-10 text-secondary/50" />
+          </div>
+          <h1 className="text-xl font-semibold text-foreground">Product not found</h1>
+          <Button asChild variant="outline">
+            <Link to="/shop">← Back to Shop</Link>
+          </Button>
+        </div>
+      </Layout>
     );
   }
 
@@ -63,161 +65,194 @@ const ProductDetail = () => {
     .slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto flex h-16 items-center px-4">
-          <Link
-            to="/shop"
-            className="flex items-center gap-2 text-foreground font-medium hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Shop
-          </Link>
+    <Layout>
+      {/* Breadcrumb */}
+      <div className="bg-muted/50 border-b border-border">
+        <div className="container mx-auto px-4 py-3">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Link to="/" className="hover:text-secondary transition-colors">Home</Link>
+            <span>/</span>
+            <Link to="/shop" className="hover:text-secondary transition-colors">Shop</Link>
+            <span>/</span>
+            <span className="text-foreground font-medium line-clamp-1">{product.name}</span>
+          </nav>
         </div>
-      </header>
+      </div>
 
       {/* Product Section */}
-      <section className="container mx-auto px-4 py-8 lg:py-16">
-        <div className="grid gap-10 lg:grid-cols-2">
-          {/* Image */}
-          <motion.div
-            className="relative overflow-hidden rounded-3xl bg-muted aspect-square"
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            {product.image_url ? (
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center">
-                <Package className="h-24 w-24 text-muted-foreground/20" />
-              </div>
-            )}
-            {product.category && (
-              <Badge
-                variant="secondary"
-                className="absolute top-4 left-4 backdrop-blur-sm bg-background/70"
-              >
-                {product.category}
-              </Badge>
-            )}
-          </motion.div>
-
-          {/* Details */}
-          <motion.div
-            className="flex flex-col justify-center"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-              {product.name}
-            </h1>
-
-            <p className="mt-4 text-3xl font-bold text-secondary">
-              ₦{product.price.toLocaleString()}
-            </p>
-
-            {product.description && (
-              <p className="mt-6 text-muted-foreground leading-relaxed text-lg">
-                {product.description}
-              </p>
-            )}
-
-            {/* Stock info */}
-            <div className="mt-6">
-              {product.in_stock ? (
-                <Badge className="bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary/20">
-                  {product.stock_quantity > 0
-                    ? `${product.stock_quantity} in stock`
-                    : "In Stock"}
-                </Badge>
-              ) : (
-                <Badge variant="destructive">Out of Stock</Badge>
-              )}
-            </div>
-
-            {/* CTA */}
-            <Button
-              size="lg"
-              className="mt-8 gap-3 h-14 text-base rounded-2xl bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white shadow-lg"
-              onClick={handleWhatsAppOrder}
-              disabled={!product.in_stock}
+      <section className="bg-background">
+        <div className="container mx-auto px-4 py-10 lg:py-16">
+          <div className="grid gap-10 lg:grid-cols-2">
+            {/* Image */}
+            <motion.div
+              className="relative overflow-hidden rounded-3xl bg-muted aspect-square shadow-xl"
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              <MessageCircle className="h-5 w-5" />
-              Order via WhatsApp
-            </Button>
-
-            {/* Trust signals */}
-            <div className="mt-10 grid grid-cols-3 gap-4">
-              {[
-                { icon: ShieldCheck, label: "Quality Guaranteed" },
-                { icon: Truck, label: "Fast Delivery" },
-                { icon: Clock, label: "Quick Response" },
-              ].map(({ icon: Icon, label }) => (
-                <div
-                  key={label}
-                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/50 text-center"
-                >
-                  <Icon className="h-5 w-5 text-secondary" />
-                  <span className="text-xs text-muted-foreground font-medium">{label}</span>
+              {product.image_url ? (
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-accent/30">
+                  <Package className="h-24 w-24 text-secondary/20" />
                 </div>
-              ))}
-            </div>
-          </motion.div>
+              )}
+              {/* decorative corner accent */}
+              <div className="absolute top-0 left-0 w-24 h-24 bg-gradient-to-br from-secondary/20 to-transparent rounded-br-3xl" />
+
+              {product.category && (
+                <Badge className="absolute top-4 left-4 bg-primary/80 text-primary-foreground backdrop-blur-sm border-0">
+                  {product.category}
+                </Badge>
+              )}
+            </motion.div>
+
+            {/* Details */}
+            <motion.div
+              className="flex flex-col justify-center"
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+            >
+              {/* Category label */}
+              {product.category && (
+                <span className="inline-block text-xs font-semibold uppercase tracking-widest text-secondary mb-3">
+                  {product.category}
+                </span>
+              )}
+
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+                {product.name}
+              </h1>
+
+              {/* Price */}
+              <div className="mt-5 flex items-baseline gap-3">
+                <p className="text-4xl font-bold text-secondary">
+                  ₦{product.price.toLocaleString()}
+                </p>
+              </div>
+
+              {/* Stock info */}
+              <div className="mt-4">
+                {product.in_stock ? (
+                  <Badge className="bg-secondary/10 text-secondary border-secondary/20 hover:bg-secondary/20">
+                    {product.stock_quantity > 0
+                      ? `${product.stock_quantity} in stock`
+                      : "In Stock"}
+                  </Badge>
+                ) : (
+                  <Badge variant="destructive">Out of Stock</Badge>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="my-6 h-px bg-border" />
+
+              {product.description && (
+                <p className="text-muted-foreground leading-relaxed text-base">
+                  {product.description}
+                </p>
+              )}
+
+              {/* CTA */}
+              <Button
+                size="lg"
+                className="mt-8 gap-3 h-14 text-base rounded-2xl bg-secondary hover:bg-secondary/90 text-secondary-foreground shadow-lg"
+                onClick={handleWhatsAppOrder}
+                disabled={!product.in_stock}
+              >
+                <MessageCircle className="h-5 w-5" />
+                Order via WhatsApp
+              </Button>
+
+              {/* Trust signals */}
+              <div className="mt-8 grid grid-cols-3 gap-3">
+                {[
+                  { icon: ShieldCheck, label: "Quality Guaranteed" },
+                  { icon: Truck, label: "Fast Delivery" },
+                  { icon: Clock, label: "Quick Response" },
+                ].map(({ icon: Icon, label }) => (
+                  <div
+                    key={label}
+                    className="flex flex-col items-center gap-2 p-3 rounded-xl bg-accent text-center"
+                  >
+                    <Icon className="h-5 w-5 text-secondary" />
+                    <span className="text-xs text-muted-foreground font-medium">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <section className="container mx-auto px-4 pb-20">
-          <h2 className="text-2xl font-bold text-foreground mb-6">
-            You may also like
-          </h2>
-          <div className="grid gap-5 grid-cols-2 md:grid-cols-4">
-            {relatedProducts.map((rp, i) => (
-              <motion.div
-                key={rp.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Link to={`/shop/${rp.id}`} className="group block">
-                  <div className="overflow-hidden rounded-2xl bg-card border border-border transition-all duration-500 hover:shadow-lg hover:-translate-y-1">
-                    <div className="aspect-square overflow-hidden bg-muted">
-                      {rp.image_url ? (
-                        <img
-                          src={rp.image_url}
-                          alt={rp.name}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center">
-                          <Package className="h-10 w-10 text-muted-foreground/30" />
-                        </div>
-                      )}
+        <section className="bg-muted/30 border-t border-border">
+          <div className="container mx-auto px-4 py-14">
+            <div className="flex items-center gap-3 mb-8">
+              <Star className="h-5 w-5 text-secondary fill-secondary" />
+              <h2 className="text-2xl font-bold text-foreground">You may also like</h2>
+            </div>
+            <div className="grid gap-5 grid-cols-2 md:grid-cols-4">
+              {relatedProducts.map((rp, i) => (
+                <motion.div
+                  key={rp.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <Link to={`/shop/${rp.id}`} className="group block">
+                    <div className="overflow-hidden rounded-2xl bg-card border border-border transition-all duration-500 hover:shadow-lg hover:-translate-y-1">
+                      <div className="aspect-square overflow-hidden bg-muted relative">
+                        {rp.image_url ? (
+                          <img
+                            src={rp.image_url}
+                            alt={rp.name}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center bg-accent/30">
+                            <Package className="h-10 w-10 text-secondary/30" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </div>
+                      <div className="p-3">
+                        <h3 className="font-medium text-foreground text-sm line-clamp-1 group-hover:text-secondary transition-colors">
+                          {rp.name}
+                        </h3>
+                        <p className="mt-1 text-secondary font-bold">
+                          ₦{rp.price.toLocaleString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="p-3">
-                      <h3 className="font-medium text-foreground text-sm line-clamp-1">
-                        {rp.name}
-                      </h3>
-                      <p className="mt-1 text-secondary font-bold">
-                        ₦{rp.price.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
       )}
-    </div>
+
+      {/* Bottom CTA */}
+      <section className="bg-primary text-primary-foreground py-12">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold mb-2">Not sure what you need?</h2>
+          <p className="text-primary-foreground/80 mb-6">Our team is ready to guide you to the right products.</p>
+          <Link
+            to="/contact"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary text-secondary-foreground font-semibold hover:bg-secondary/90 transition-colors shadow-lg"
+          >
+            Contact Us
+          </Link>
+        </div>
+      </section>
+    </Layout>
   );
 };
 
