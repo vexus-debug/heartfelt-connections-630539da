@@ -19,6 +19,7 @@ const roleColors: Record<string, string> = {
   hygienist: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
   receptionist: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
   accountant: "bg-rose-500/10 text-rose-700 dark:text-rose-400",
+  lab_technician: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-400",
 };
 
 const stagger = {

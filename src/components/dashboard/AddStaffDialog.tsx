@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateStaff } from "@/hooks/useStaff";
 
-const roles = ["dentist", "assistant", "hygienist", "receptionist", "accountant"];
+const roles = ["dentist", "assistant", "hygienist", "receptionist", "accountant", "lab_technician"];
 
 interface AddStaffDialogProps {
   open: boolean;
