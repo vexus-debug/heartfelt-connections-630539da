@@ -14,7 +14,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 
-const expenseCategories = ["supplies", "rent", "utilities", "equipment", "salaries", "marketing", "maintenance", "other"];
+const expenseCategories = [
+  "supplies", "rent", "utilities", "equipment", "salaries", "marketing", "maintenance",
+  "logistics", "lab_job_outsourcing", "staff_appraisal", "loan_repayment", "dental_consumables", "other"
+];
+
+const categoryLabels: Record<string, string> = {
+  supplies: "Supplies",
+  rent: "Rent",
+  utilities: "Utilities",
+  equipment: "Equipment",
+  salaries: "Salaries",
+  marketing: "Marketing",
+  maintenance: "Maintenance",
+  logistics: "Logistics",
+  lab_job_outsourcing: "Lab Job Outsourcing",
+  staff_appraisal: "Staff Appraisal",
+  loan_repayment: "Loan Repayment",
+  dental_consumables: "Dental Consumables",
+  other: "Other",
+};
 
 export default function ExpensesPage() {
   const { data: expenses = [] } = useExpenses();
@@ -94,10 +113,10 @@ export default function ExpensesPage() {
           <Input placeholder="Search expenses..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
         <Select value={catFilter} onValueChange={setCatFilter}>
-          <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {expenseCategories.map(c => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
+            {expenseCategories.map(c => <SelectItem key={c} value={c}>{categoryLabels[c] || c}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
@@ -153,7 +172,7 @@ export default function ExpensesPage() {
                 <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {expenseCategories.map(c => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
+                    {expenseCategories.map(c => <SelectItem key={c} value={c}>{categoryLabels[c] || c}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

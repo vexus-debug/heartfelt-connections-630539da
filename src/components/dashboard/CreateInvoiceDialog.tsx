@@ -187,7 +187,13 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                       <FormField control={form.control} name={`lineItems.${index}.quantity`} render={({ field }) => (
                         <FormItem className="w-20">
                           <FormControl>
-                            <Input type="number" min={1} placeholder="Qty" {...field} />
+                            <Input
+                              type="number"
+                              min={1}
+                              placeholder="Qty"
+                              {...field}
+                              className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -230,7 +236,7 @@ export function CreateInvoiceDialog({ open, onOpenChange }: CreateInvoiceDialogP
                 <FormItem>
                   <FormLabel>Discount (%)</FormLabel>
                   <FormControl>
-                    <Input type="number" min={0} max={100} placeholder="0" {...field} />
+                    <Input type="number" min={0} max={100} placeholder="0" {...field} className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

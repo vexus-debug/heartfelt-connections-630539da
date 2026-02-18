@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { OverviewTab } from "@/components/patient-chart/OverviewTab";
 import { ComplaintsTab } from "@/components/patient-chart/ComplaintsTab";
 import { DiagnosisTab } from "@/components/patient-chart/DiagnosisTab";
+import { ClinicalNotesTab } from "@/components/patient-chart/ClinicalNotesTab";
 import { TreatmentTab } from "@/components/patient-chart/TreatmentTab";
 import { BillingTab } from "@/components/patient-chart/BillingTab";
 import { PrescriptionTab } from "@/components/patient-chart/PrescriptionTab";
@@ -110,6 +111,7 @@ export default function PatientProfilePage() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="complaints">Complaints</TabsTrigger>
           <TabsTrigger value="diagnosis">Diagnosis</TabsTrigger>
+          <TabsTrigger value="clinical-notes">Clinical Notes</TabsTrigger>
           <TabsTrigger value="dental-chart">Dental Chart</TabsTrigger>
           <TabsTrigger value="treatment">Treatment</TabsTrigger>
           <TabsTrigger value="billing">Billing</TabsTrigger>
@@ -133,6 +135,15 @@ export default function PatientProfilePage() {
 
         <TabsContent value="diagnosis" className="mt-4">
           <DiagnosisTab
+            patientId={patientId!}
+            clinicalNotes={clinicalNotes}
+            canEdit={canEditClinical}
+            userId={user?.id}
+          />
+        </TabsContent>
+
+        <TabsContent value="clinical-notes" className="mt-4">
+          <ClinicalNotesTab
             patientId={patientId!}
             clinicalNotes={clinicalNotes}
             canEdit={canEditClinical}
