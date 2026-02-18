@@ -29,14 +29,14 @@ const services = [
   {
     icon: Syringe,
     title: "Dental Implants",
-    description: "Permanent, natural-looking tooth replacements using advanced implant technology",
+    description: "Permanent, natural-looking tooth replacements using advanced implant technology — designed to last a lifetime",
     href: "/services/implants",
     image: dentalTechnology,
   },
   {
     icon: Heart,
     title: "Gum Treatment",
-    description: "Comprehensive periodontal care for healthy gums and oral wellness",
+    description: "Comprehensive periodontal care for healthy gums, including deep cleaning and disease management",
     href: "/services/periodontics",
     image: heroSmile,
   },

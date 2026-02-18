@@ -98,10 +98,10 @@ const services = [
   },
   {
     icon: Scissors,
-    title: "Root Canal Treatment",
-    shortTitle: "Root Canal",
-    description: "Expert endodontic procedures to save infected teeth, relieve pain, and restore dental health.",
-    href: "/services/periodontics",
+    title: "Oral Surgery & Extractions",
+    shortTitle: "Oral Surgery",
+    description: "Expert extractions and wisdom tooth removal. Gentle surgical care to relieve pain and restore oral health.",
+    href: "/services/oral-surgery",
     color: "from-red-500 to-rose-600",
     bgColor: "bg-red-500/10",
     textColor: "text-red-600",
@@ -216,14 +216,14 @@ const Services = () => {
               </motion.div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white">
-                Expert Dental Services for a{" "}
-                <span className="text-secondary">Perfect Smile</span>
+                Expert Dental Services in{" "}
+                <span className="text-secondary">Abuja, Nigeria</span>
               </h1>
 
               <p className="text-lg text-white/80 max-w-xl">
-                From preventive care to advanced cosmetic procedures, we offer a full range 
-                of dental services tailored to your unique needs. Experience the difference 
-                of personalized, professional care.
+                Looking for a trusted dental clinic in Abuja? Vista Dental Care offers a full range
+                of dental services tailored to your unique needs — from preventive care to advanced
+                cosmetic procedures, delivered with compassionate, professional care.
               </p>
 
               <motion.div 

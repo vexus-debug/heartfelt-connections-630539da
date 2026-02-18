@@ -150,7 +150,7 @@ const DentalImplants = () => {
       <ServiceHero
         title="Dental Implants"
         subtitle="The Gold Standard for Missing Teeth"
-        description="Replace missing teeth with the most advanced, permanent solution available. Dental implants look, feel, and function just like your natural teeth. They're the closest thing to getting your real teeth back—designed to last a lifetime with proper care."
+        description="Looking for dental implants in Abuja? Vista Dental Care provides the most advanced, permanent tooth replacement solution. Implants look, feel, and function just like natural teeth — designed to last a lifetime with proper care."
         image={dentalTechImage}
         icon={Syringe}
         iconColor="bg-teal-600"
@@ -214,8 +214,8 @@ const DentalImplants = () => {
       />
 
       <ServiceCTA
-        title="Ready for a Permanent Solution?"
-        description="Discover if dental implants are right for you. Book a consultation for a comprehensive evaluation and personalized treatment plan."
+        title="Ready for a Permanent Solution in Abuja?"
+        description="Discover if dental implants are right for you. Schedule a consultation at Vista Dental Care for a comprehensive evaluation and personalized treatment plan."
         primaryButtonText="Book Implant Consultation"
       />
     </Layout>

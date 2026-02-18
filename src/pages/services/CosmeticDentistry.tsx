@@ -151,7 +151,7 @@ const CosmeticDentistry = () => {
       <ServiceHero
         title="Cosmetic Dentistry"
         subtitle="Smile Transformation Experts"
-        description="Your dream smile is within reach. Our cosmetic dentistry services combine artistry with advanced dental techniques to create stunning, natural-looking results. From professional teeth whitening to complete smile makeovers, we'll help you achieve the confident, radiant smile you deserve."
+        description="Looking for cosmetic dentistry in Abuja? Vista Dental Care combines artistry with advanced techniques to deliver stunning, natural-looking results. From professional teeth whitening to complete smile makeovers — your confident smile is one appointment away."
         image={teethWhiteningImage}
         icon={Sparkles}
         iconColor="bg-pink-600"
@@ -215,8 +215,8 @@ const CosmeticDentistry = () => {
       />
 
       <ServiceCTA
-        title="Ready for Your Smile Transformation?"
-        description="Schedule a smile consultation today and discover how cosmetic dentistry can change your life. Your perfect smile is just one appointment away."
+        title="Ready for Your Smile Transformation in Abuja?"
+        description="Book a smile consultation at Vista Dental Care and discover how cosmetic dentistry can change your life. Your radiant smile is just one visit away."
         primaryButtonText="Book Consultation"
       />
     </Layout>

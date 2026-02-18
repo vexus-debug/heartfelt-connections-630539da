@@ -64,7 +64,7 @@ export function WhyChooseUsSection() {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-3xl font-bold text-primary sm:text-4xl lg:text-5xl">
-            Why Choose <span className="text-secondary">Vista Dental</span>?
+            Why Choose <span className="text-secondary">Vista Dental Care</span>?
           </h2>
           <p className="text-muted-foreground mt-4 text-lg">
             We combine expertise, technology, and compassion to deliver exceptional dental care

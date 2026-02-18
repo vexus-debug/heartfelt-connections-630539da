@@ -24,7 +24,7 @@ const contactCards = [
   {
     icon: Clock,
     title: "Working Hours",
-    content: "Mon - Sat: 9:00 AM - 6:00 PM\nSunday: Closed",
+    content: "Mon – Fri: 9:00 AM – 6:00 PM\nSaturday: 9:00 AM – 6:00 PM\nSunday: Closed",
     badge: "Open Today",
     color: "from-amber-500 to-orange-500",
   },
@@ -105,7 +105,7 @@ export function LocationSection() {
               {/* Overlay content */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <p className="text-foreground font-semibold mb-4">Vista Dental Care</p>
+                  <p className="text-foreground font-semibold mb-4">Vista Dental Care — Gaduwa, Abuja</p>
                   <Button className="bg-secondary hover:bg-secondary/90 group">
                     <Navigation className="mr-2 h-4 w-4" />
                     Open in Google Maps

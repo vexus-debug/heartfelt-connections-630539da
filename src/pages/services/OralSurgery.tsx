@@ -150,7 +150,7 @@ const OralSurgery = () => {
       <ServiceHero
         title="Oral Surgery"
         subtitle="Expert Surgical Care"
-        description="When teeth can't be saved or are causing problems, expert oral surgery provides relief. Our skilled team performs extractions and dental surgeries with precision and compassion, prioritizing your comfort and quick recovery. From simple extractions to wisdom tooth removal, you're in safe hands."
+        description="Looking for a reliable oral surgeon in Abuja? Vista Dental Care's skilled team performs extractions and dental surgeries with precision and compassion, prioritizing your comfort and quick recovery — from simple extractions to wisdom tooth removal."
         image={clinicImage}
         icon={Scissors}
         iconColor="bg-red-600"
@@ -214,8 +214,8 @@ const OralSurgery = () => {
       />
 
       <ServiceCTA
-        title="Need a Tooth Extraction?"
-        description="Don't suffer with painful teeth. Book a consultation to discuss your options. We'll ensure your comfort and guide you through every step."
+        title="Need a Tooth Extraction in Abuja?"
+        description="Don't suffer with painful teeth. Schedule a consultation at Vista Dental Care to discuss your options — we'll ensure your comfort and guide you through every step."
         primaryButtonText="Book Surgical Consultation"
       />
     </Layout>
