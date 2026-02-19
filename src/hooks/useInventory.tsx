@@ -39,7 +39,18 @@ export function useUpdateInventoryStock() {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["inventory"] }),
+    onMutate: async ({ id, quantity }) => {
+      await queryClient.cancelQueries({ queryKey: ["inventory"] });
+      const previous = queryClient.getQueryData<InventoryItem[]>(["inventory"]);
+      queryClient.setQueryData<InventoryItem[]>(["inventory"], (old) =>
+        old?.map((item) => item.id === id ? { ...item, quantity } : item) ?? []
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(["inventory"], ctx.previous);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["inventory"] }),
   });
 }
 
