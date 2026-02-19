@@ -48,11 +48,21 @@ export const useProducts = () => {
       const { error } = await supabase.from("products" as any).update(updates as any).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onMutate: async ({ id, ...updates }) => {
+      await queryClient.cancelQueries({ queryKey: ["products"] });
+      const previous = queryClient.getQueryData<Product[]>(["products"]);
+      queryClient.setQueryData<Product[]>(["products"], (old) =>
+        old?.map((p) => p.id === id ? { ...p, ...updates } : p) ?? []
+      );
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(["products"], ctx.previous);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast({ title: "Product updated successfully" });
     },
-    onError: (err: any) => toast({ title: "Error updating product", description: err.message, variant: "destructive" }),
   });
 
   const deleteProduct = useMutation({
