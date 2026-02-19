@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, DollarSign, TrendingUp, AlertCircle } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, AlertCircle, MessageCircle } from "lucide-react";
+import { useClinicSettings } from "@/hooks/useClinicSettings";
 import { useLabInvoices, useLabInvoiceStats, useCreateLabInvoice, useUpdateLabInvoice } from "@/hooks/useLabInvoices";
 import { useLabCases } from "@/hooks/useLabCases";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -29,9 +30,33 @@ function fmt(v: number) {
   return `₦${v.toLocaleString()}`;
 }
 
+function buildWhatsAppMessage(inv: any, ownerPhone?: string | null) {
+  const lines = [
+    `📄 *Lab Invoice: ${inv.invoice_number}*`,
+    ``,
+    `👨‍⚕️ Doctor: ${inv.clinic_doctor_name || inv.clinic_code || "—"}`,
+    `🦷 Patient: ${inv.patient_name || "—"}`,
+    `📅 Date: ${inv.invoice_date}`,
+    ``,
+    `💰 Subtotal: ${fmt(Number(inv.subtotal))}`,
+    inv.discount > 0 ? `🏷️ Discount: ${fmt(Number(inv.discount))}` : null,
+    `✅ Total: ${fmt(Number(inv.total_amount))}`,
+    `💵 Paid: ${fmt(Number(inv.amount_paid))}`,
+    `⚠️ Outstanding: ${fmt(Number(inv.total_amount) - Number(inv.amount_paid))}`,
+    ``,
+    `Status: ${inv.status.toUpperCase()}`,
+    inv.notes ? `📝 Notes: ${inv.notes}` : null,
+  ].filter(Boolean).join("\n");
+
+  const encoded = encodeURIComponent(lines);
+  const phone = ownerPhone ? ownerPhone.replace(/\D/g, "") : "";
+  return phone ? `https://wa.me/${phone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+}
+
 export default function LabBillingPage() {
   const { invoices, totalRevenue, totalPaid, totalOutstanding, unpaidCount, isLoading } = useLabInvoiceStats();
   const { data: labCases = [] } = useLabCases();
+  const { data: clinicSettings } = useClinicSettings();
   const createInvoice = useCreateLabInvoice();
   const updateInvoice = useUpdateLabInvoice();
   const [createOpen, setCreateOpen] = useState(false);
@@ -163,15 +188,32 @@ export default function LabBillingPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant={inv.status === "paid" ? "outline" : "default"}
-                          className="text-xs h-7"
-                          onClick={() => togglePaid(inv)}
-                          disabled={updateInvoice.isPending}
-                        >
-                          {inv.status === "paid" ? "Mark Unpaid" : "Mark Paid"}
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            size="sm"
+                            variant={inv.status === "paid" ? "outline" : "default"}
+                            className="text-xs h-7"
+                            onClick={() => togglePaid(inv)}
+                            disabled={updateInvoice.isPending}
+                          >
+                            {inv.status === "paid" ? "Mark Unpaid" : "Mark Paid"}
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7"
+                            title="Send to owner via WhatsApp"
+                            asChild
+                          >
+                            <a
+                              href={buildWhatsAppMessage(inv, clinicSettings?.phone)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+                            </a>
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
