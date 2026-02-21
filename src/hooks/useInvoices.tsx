@@ -176,6 +176,27 @@ export function useCreateInvoice() {
   });
 }
 
+export function useDeleteInvoice() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (invoiceId: string) => {
+      // Delete related records first: payments, invoice_items, then the invoice
+      const { error: payErr } = await supabase.from("payments").delete().eq("invoice_id", invoiceId);
+      if (payErr) throw payErr;
+      const { error: itemsErr } = await supabase.from("invoice_items").delete().eq("invoice_id", invoiceId);
+      if (itemsErr) throw itemsErr;
+      const { error: invErr } = await supabase.from("invoices").delete().eq("id", invoiceId);
+      if (invErr) throw invErr;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["billing_stats"] });
+      queryClient.invalidateQueries({ queryKey: ["invoice_items"] });
+    },
+  });
+}
+
 export function useUpdateInvoice() {
   const queryClient = useQueryClient();
 
