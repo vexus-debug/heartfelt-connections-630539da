@@ -9,10 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { Printer, CreditCard, Loader2, Mail, MessageCircle, Building2, Phone, MapPin, Globe, Pencil, X, Save, Plus, Trash2 } from "lucide-react";
-import { useInvoiceItems, useUpdateInvoice } from "@/hooks/useInvoices";
+import { useInvoiceItems, useUpdateInvoice, useDeleteInvoice } from "@/hooks/useInvoices";
 import { usePayments, useRecordPayment } from "@/hooks/usePayments";
 import { useClinicSettings } from "@/hooks/useClinicSettings";
+import { useAuth } from "@/hooks/useAuth";
 import type { InvoiceWithPatient } from "@/hooks/useInvoices";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import logo from "@/assets/logo.jpg";
 
 interface InvoiceDetailDialogProps {
@@ -149,7 +151,10 @@ export function InvoiceDetailDialog({ open, onOpenChange, invoice }: InvoiceDeta
   const { data: payments = [], isLoading: paymentsLoading } = usePayments(invoice?.id ?? null);
   const recordPayment = useRecordPayment();
   const updateInvoice = useUpdateInvoice();
+  const deleteInvoice = useDeleteInvoice();
   const { data: clinic } = useClinicSettings();
+  const { roles } = useAuth();
+  const isAdmin = roles.includes("admin");
 
   if (!invoice) return null;
 
@@ -227,6 +232,16 @@ export function InvoiceDetailDialog({ open, onOpenChange, invoice }: InvoiceDeta
     const w = window.open("", "_blank");
     w?.document.write(html);
     w?.document.close();
+  };
+
+  const handleDeleteInvoice = async () => {
+    try {
+      await deleteInvoice.mutateAsync(invoice.id);
+      toast({ title: "Invoice deleted", description: `${invoice.invoice_number} has been permanently deleted.` });
+      onOpenChange(false);
+    } catch (err: any) {
+      toast({ title: "Error deleting invoice", description: err.message, variant: "destructive" });
+    }
   };
 
   const handleEmail = () => {
@@ -469,6 +484,29 @@ export function InvoiceDetailDialog({ open, onOpenChange, invoice }: InvoiceDeta
               <Button variant="outline" size="sm" onClick={startEditing}>
                 <Pencil className="mr-1.5 h-3.5 w-3.5" />Edit
               </Button>
+              {isAdmin && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="mr-1.5 h-3.5 w-3.5" />Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Invoice {invoice.invoice_number}?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete this invoice, all its line items, and all associated payment records. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteInvoice} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        {deleteInvoice.isPending ? "Deleting..." : "Delete Invoice"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
               <Button variant="outline" size="sm" onClick={handlePrint}>
                 <Printer className="mr-1.5 h-3.5 w-3.5" />Print
               </Button>
