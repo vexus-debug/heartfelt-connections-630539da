@@ -13,6 +13,7 @@ import {
 import { AddPatientDialog } from "@/components/dashboard/AddPatientDialog";
 import { BookAppointmentDialog } from "@/components/dashboard/BookAppointmentDialog";
 import { usePatients } from "@/hooks/usePatients";
+import { useAuth } from "@/hooks/useAuth";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { TableSkeleton } from "@/components/dashboard/TableSkeleton";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -20,6 +21,7 @@ import { motion } from "framer-motion";
 
 export default function PatientsPage() {
   const navigate = useNavigate();
+  const { roles } = useAuth();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
@@ -29,10 +31,15 @@ export default function PatientsPage() {
 
   const { data: patients = [], isLoading } = usePatients();
 
+  // Dentists cannot see contact details or contact patients
+  const isDentistOnly = roles.includes("dentist") && !roles.includes("admin") && !roles.includes("receptionist");
+  // Only admin/receptionist can add patients
+  const canAddPatient = !isDentistOnly;
+
   const filtered = patients
     .filter((p) => {
       const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
-      const matchesSearch = fullName.includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()) || p.phone.includes(search);
+      const matchesSearch = fullName.includes(search.toLowerCase()) || p.id.toLowerCase().includes(search.toLowerCase()) || (!isDentistOnly && p.phone.includes(search));
       const matchesStatus = statusFilter === "all" || p.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
@@ -53,10 +60,12 @@ export default function PatientsPage() {
           </Badge>
         }
       >
-        <Button size="sm" className="bg-secondary hover:bg-secondary/90 shadow-lg shadow-secondary/20" onClick={() => setAddOpen(true)}>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Add Patient
-        </Button>
+        {canAddPatient && (
+          <Button size="sm" className="bg-secondary hover:bg-secondary/90 shadow-lg shadow-secondary/20" onClick={() => setAddOpen(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Patient
+          </Button>
+        )}
       </PageHeader>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
@@ -65,7 +74,7 @@ export default function PatientsPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search by name, ID, or phone..." className="pl-9 bg-muted/30 border-border/40" value={search} onChange={(e) => setSearch(e.target.value)} />
+                <Input placeholder={isDentistOnly ? "Search by name or ID..." : "Search by name, ID, or phone..."} className="pl-9 bg-muted/30 border-border/40" value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-[140px] bg-muted/30 border-border/40">
@@ -99,16 +108,20 @@ export default function PatientsPage() {
                   icon={Users}
                   title="No patients found"
                   description="Try adjusting your search or filters, or add a new patient to get started."
-                  actionLabel="Add Patient"
-                  onAction={() => setAddOpen(true)}
+                  actionLabel={canAddPatient ? "Add Patient" : undefined}
+                  onAction={canAddPatient ? () => setAddOpen(true) : undefined}
                 />
               ) : (
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-muted/20">
                       <th className="py-3 px-4 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">Patient</th>
-                      <th className="py-3 px-4 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">Phone</th>
-                      <th className="py-3 px-4 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">Email</th>
+                      {!isDentistOnly && (
+                        <>
+                          <th className="py-3 px-4 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider hidden md:table-cell">Phone</th>
+                          <th className="py-3 px-4 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">Email</th>
+                        </>
+                      )}
                       <th className="py-3 px-4 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider hidden lg:table-cell">Registered</th>
                       <th className="py-3 px-4 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider">Status</th>
                       <th className="py-3 px-4 text-left font-medium text-muted-foreground text-xs uppercase tracking-wider w-10"></th>
@@ -133,22 +146,26 @@ export default function PatientsPage() {
                               </Avatar>
                               <div>
                                 <p className="font-medium text-foreground group-hover:text-secondary transition-colors">{p.first_name} {p.last_name}</p>
-                                <p className="text-[10px] text-muted-foreground md:hidden">{p.phone}</p>
+                                {!isDentistOnly && <p className="text-[10px] text-muted-foreground md:hidden">{p.phone}</p>}
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4 hidden md:table-cell text-muted-foreground" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center gap-2">
-                              <span>{p.phone}</span>
-                              <a href={`tel:${p.phone}`} title="Call" className="text-secondary hover:text-secondary/80">
-                                <Phone className="h-3.5 w-3.5" />
-                              </a>
-                              <a href={`https://wa.me/${p.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" className="text-emerald-600 hover:text-emerald-500">
-                                <MessageCircle className="h-3.5 w-3.5" />
-                              </a>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 hidden lg:table-cell text-muted-foreground">{p.email}</td>
+                          {!isDentistOnly && (
+                            <>
+                              <td className="py-3 px-4 hidden md:table-cell text-muted-foreground" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center gap-2">
+                                  <span>{p.phone}</span>
+                                  <a href={`tel:${p.phone}`} title="Call" className="text-secondary hover:text-secondary/80">
+                                    <Phone className="h-3.5 w-3.5" />
+                                  </a>
+                                  <a href={`https://wa.me/${p.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" className="text-emerald-600 hover:text-emerald-500">
+                                    <MessageCircle className="h-3.5 w-3.5" />
+                                  </a>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 hidden lg:table-cell text-muted-foreground">{p.email}</td>
+                            </>
+                          )}
                           <td className="py-3 px-4 hidden lg:table-cell text-muted-foreground font-mono text-xs">{p.registered_date}</td>
                           <td className="py-3 px-4">
                             <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${p.status === "active" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
@@ -166,12 +183,16 @@ export default function PatientsPage() {
                               <DropdownMenuContent align="end" className="backdrop-blur-xl bg-popover/95">
                                 <DropdownMenuItem onClick={() => navigate(`/dashboard/patients/${p.id}`)}>View Profile</DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => { setSelectedPatientId(p.id); setBookOpen(true); }}>Book Appointment</DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                  <a href={`tel:${p.phone}`}><Phone className="mr-2 h-3.5 w-3.5" />Call Patient</a>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                  <a href={`https://wa.me/${p.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"><MessageCircle className="mr-2 h-3.5 w-3.5" />WhatsApp</a>
-                                </DropdownMenuItem>
+                                {!isDentistOnly && (
+                                  <>
+                                    <DropdownMenuItem asChild>
+                                      <a href={`tel:${p.phone}`}><Phone className="mr-2 h-3.5 w-3.5" />Call Patient</a>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                      <a href={`https://wa.me/${p.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"><MessageCircle className="mr-2 h-3.5 w-3.5" />WhatsApp</a>
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </td>

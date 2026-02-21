@@ -32,10 +32,11 @@ export default function PatientProfilePage() {
 
   const canViewClinical = roles.some(r => ["admin", "dentist", "hygienist"].includes(r));
   const canEditClinical = roles.some(r => ["admin", "dentist", "hygienist"].includes(r));
-  const canEditPatient = roles.some(r => ["admin", "dentist", "receptionist", "assistant", "hygienist"].includes(r));
 
-  // Dentists cannot see contact PII
+  // Dentists cannot see contact PII or edit patient personal info
   const isDentistOnly = roles.includes("dentist") && !roles.includes("admin") && !roles.includes("receptionist");
+  // Only admin/receptionist can edit patient personal details
+  const canEditPatient = roles.some(r => ["admin", "receptionist"].includes(r));
 
   const { data: patient, isLoading } = usePatientDetail(patientId);
   const { data: visits = [] } = usePatientVisits(patientId);
@@ -156,11 +157,11 @@ export default function PatientProfilePage() {
         </TabsContent>
 
         <TabsContent value="treatment" className="mt-4">
-          <TreatmentTab plans={plans} visits={visits} />
+          <TreatmentTab plans={plans} visits={visits} patientId={patientId!} roles={roles} />
         </TabsContent>
 
         <TabsContent value="billing" className="mt-4">
-          <BillingTab invoices={invoices} />
+          <BillingTab invoices={invoices} roles={roles} patientId={patientId!} />
         </TabsContent>
 
         <TabsContent value="prescription" className="mt-4">
@@ -176,7 +177,7 @@ export default function PatientProfilePage() {
         </TabsContent>
       </Tabs>
 
-      <EditPatientDialog patient={patient} open={editOpen} onOpenChange={setEditOpen} />
+      {canEditPatient && <EditPatientDialog patient={patient} open={editOpen} onOpenChange={setEditOpen} />}
     </div>
   );
 }
