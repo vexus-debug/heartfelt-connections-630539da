@@ -38,6 +38,9 @@ import {
   FolderOpen,
   ShoppingBag,
   ShoppingCart,
+  Megaphone,
+  MessageSquareMore,
+  Mail,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
@@ -107,6 +110,13 @@ const navGroups = [
     items: [
       { title: "Products", url: "/dashboard/shop/products", icon: ShoppingBag },
       { title: "Orders", url: "/dashboard/shop/orders", icon: ShoppingCart },
+    ],
+  },
+  {
+    label: "Marketing",
+    items: [
+      { title: "WhatsApp Marketing", url: "/dashboard/marketing/whatsapp", icon: MessageSquareMore },
+      { title: "Email Marketing", url: "/dashboard/marketing/email", icon: Mail },
     ],
   },
 ];
