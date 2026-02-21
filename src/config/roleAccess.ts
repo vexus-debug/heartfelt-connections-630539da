@@ -34,6 +34,8 @@ export const PAGE_ROLE_ACCESS: Record<string, AppRole[]> = {
   "/dashboard/documents": ["admin"],
   "/dashboard/shop/products": ["admin", "receptionist"],
   "/dashboard/shop/orders": ["admin", "receptionist"],
+  "/dashboard/marketing/whatsapp": ["admin"],
+  "/dashboard/marketing/email": ["admin"],
 };
 
 // Check if user has access to a given path

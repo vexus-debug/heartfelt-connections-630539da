@@ -66,6 +66,8 @@ import ConsentFormsPage from "./pages/dashboard/ConsentFormsPage";
 import DocumentsPage from "./pages/dashboard/DocumentsPage";
 import ShopProductsPage from "./pages/dashboard/ShopProductsPage";
 import ShopOrdersPage from "./pages/dashboard/ShopOrdersPage";
+import WhatsAppMarketingPage from "./pages/dashboard/WhatsAppMarketingPage";
+import EmailMarketingPage from "./pages/dashboard/EmailMarketingPage";
 
 const queryClient = new QueryClient();
 
@@ -145,6 +147,8 @@ const App = () => (
             <Route path="/dashboard/documents" element={<ProtectedDashboard><DocumentsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/shop/products" element={<ProtectedDashboard><ShopProductsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/shop/orders" element={<ProtectedDashboard><ShopOrdersPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/marketing/whatsapp" element={<ProtectedDashboard><WhatsAppMarketingPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/marketing/email" element={<ProtectedDashboard><EmailMarketingPage /></ProtectedDashboard>} />
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
