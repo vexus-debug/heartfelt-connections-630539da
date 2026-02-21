@@ -1,7 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface BillingTabProps {
   invoices: any[];
+  roles?: string[];
+  patientId?: string;
 }
 
 const statusStyles: Record<string, string> = {
@@ -14,10 +17,13 @@ function formatCurrency(amount: number) {
   return `₦${amount.toLocaleString()}`;
 }
 
-export function BillingTab({ invoices }: BillingTabProps) {
+export function BillingTab({ invoices, roles = [] }: BillingTabProps) {
   const totalBilled = invoices.reduce((sum, inv: any) => sum + Number(inv.total_amount), 0);
   const totalPaid = invoices.reduce((sum, inv: any) => sum + Number(inv.amount_paid), 0);
   const outstanding = totalBilled - totalPaid;
+
+  // Only admin/accountant can edit invoices
+  const canEditInvoice = roles.some(r => ["admin", "accountant"].includes(r));
 
   return (
     <div className="space-y-4">
@@ -42,6 +48,10 @@ export function BillingTab({ invoices }: BillingTabProps) {
           </CardContent>
         </Card>
       </div>
+
+      {!canEditInvoice && (
+        <p className="text-xs text-muted-foreground italic">Only Admin or Accountant can edit saved invoices.</p>
+      )}
 
       {/* Invoice Table */}
       <Card>
