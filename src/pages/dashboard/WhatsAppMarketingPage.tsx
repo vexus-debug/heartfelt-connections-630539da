@@ -26,6 +26,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { TableSkeleton } from "@/components/dashboard/TableSkeleton";
+import { MarketingMediaUpload } from "@/components/dashboard/MarketingMediaUpload";
 import { toast } from "@/hooks/use-toast";
 
 const statusColors: Record<string, string> = {
@@ -70,6 +71,7 @@ export default function WhatsAppMarketingPage() {
   const [campaignName, setCampaignName] = useState("");
   const [messageBody, setMessageBody] = useState("");
   const [templateName, setTemplateName] = useState("");
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
 
   // Template form
   const [tplName, setTplName] = useState("");
@@ -95,12 +97,14 @@ export default function WhatsAppMarketingPage() {
       channel: "whatsapp",
       message_body: messageBody,
       template_name: templateName || null,
+      media_urls: mediaUrls,
       created_by: user?.id,
     });
     setShowCreate(false);
     setCampaignName("");
     setMessageBody("");
     setTemplateName("");
+    setMediaUrls([]);
   };
 
   const handleSendCampaign = async () => {
@@ -240,6 +244,10 @@ export default function WhatsAppMarketingPage() {
                 <div className="space-y-2">
                   <Label>Message Body</Label>
                   <Textarea value={messageBody} onChange={(e) => setMessageBody(e.target.value)} rows={5} placeholder="Hi {{name}}, we'd like to invite you..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Attach Media (Photos, Videos, Files)</Label>
+                  <MarketingMediaUpload mediaUrls={mediaUrls} onMediaChange={setMediaUrls} />
                 </div>
                 <DialogFooter>
                   <Button onClick={handleCreateCampaign} disabled={createCampaign.isPending}>
@@ -419,6 +427,24 @@ export default function WhatsAppMarketingPage() {
                 <p className="text-sm text-muted-foreground mb-1">Message:</p>
                 <div className="bg-muted rounded-lg p-3 text-sm whitespace-pre-wrap">{selectedCampaign?.message_body}</div>
               </div>
+              {selectedCampaign?.media_urls && selectedCampaign.media_urls.length > 0 && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Attached Media ({selectedCampaign.media_urls.length}):</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {selectedCampaign.media_urls.map((url: string, i: number) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="rounded-lg border overflow-hidden aspect-square bg-muted block hover:ring-2 hover:ring-primary transition-all">
+                        {/\.(jpg|jpeg|png|gif|webp|svg)/i.test(url) ? (
+                          <img src={url} alt={`Media ${i + 1}`} className="w-full h-full object-cover" />
+                        ) : /\.(mp4|webm|mov)/i.test(url) ? (
+                          <video src={url} className="w-full h-full object-cover" muted />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">File {i + 1}</div>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </TabsContent>
             <TabsContent value="messages" className="mt-4">
               <ScrollArea className="h-64">

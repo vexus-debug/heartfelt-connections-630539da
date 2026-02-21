@@ -26,6 +26,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { EmptyState } from "@/components/dashboard/EmptyState";
 import { TableSkeleton } from "@/components/dashboard/TableSkeleton";
+import { MarketingMediaUpload } from "@/components/dashboard/MarketingMediaUpload";
 import { toast } from "@/hooks/use-toast";
 
 const statusColors: Record<string, string> = {
@@ -67,6 +68,7 @@ export default function EmailMarketingPage() {
   const [campaignName, setCampaignName] = useState("");
   const [subject, setSubject] = useState("");
   const [messageBody, setMessageBody] = useState("");
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
 
   const [tplName, setTplName] = useState("");
   const [tplSubject, setTplSubject] = useState("");
@@ -92,12 +94,14 @@ export default function EmailMarketingPage() {
       channel: "email",
       subject,
       message_body: messageBody,
+      media_urls: mediaUrls,
       created_by: user?.id,
     });
     setShowCreate(false);
     setCampaignName("");
     setSubject("");
     setMessageBody("");
+    setMediaUrls([]);
   };
 
   const handleSendCampaign = async () => {
@@ -232,6 +236,10 @@ export default function EmailMarketingPage() {
                 <div className="space-y-2">
                   <Label>Email Body</Label>
                   <Textarea value={messageBody} onChange={(e) => setMessageBody(e.target.value)} rows={6} placeholder="Dear {{name}},\n\nWe are excited to..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Attach Media (Photos, Videos, Files)</Label>
+                  <MarketingMediaUpload mediaUrls={mediaUrls} onMediaChange={setMediaUrls} />
                 </div>
                 <DialogFooter>
                   <Button onClick={handleCreateCampaign} disabled={createCampaign.isPending}>
@@ -395,6 +403,24 @@ export default function EmailMarketingPage() {
                 <p className="text-sm text-muted-foreground mb-1">Email Body:</p>
                 <div className="bg-muted rounded-lg p-3 text-sm whitespace-pre-wrap max-h-48 overflow-auto">{selectedCampaign?.message_body}</div>
               </div>
+              {selectedCampaign?.media_urls && selectedCampaign.media_urls.length > 0 && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Attachments ({selectedCampaign.media_urls.length}):</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {selectedCampaign.media_urls.map((url: string, i: number) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="rounded-lg border overflow-hidden aspect-square bg-muted block hover:ring-2 hover:ring-primary transition-all">
+                        {/\.(jpg|jpeg|png|gif|webp|svg)/i.test(url) ? (
+                          <img src={url} alt={`Media ${i + 1}`} className="w-full h-full object-cover" />
+                        ) : /\.(mp4|webm|mov)/i.test(url) ? (
+                          <video src={url} className="w-full h-full object-cover" muted />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">File {i + 1}</div>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </TabsContent>
             <TabsContent value="messages" className="mt-4">
               <ScrollArea className="h-64">
