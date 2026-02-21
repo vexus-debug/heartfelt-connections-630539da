@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { InvoiceDetailDialog } from "@/components/dashboard/InvoiceDetailDialog";
+import type { InvoiceWithPatient } from "@/hooks/useInvoices";
 
 interface BillingTabProps {
   invoices: any[];
@@ -18,12 +21,32 @@ function formatCurrency(amount: number) {
 }
 
 export function BillingTab({ invoices, roles = [] }: BillingTabProps) {
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithPatient | null>(null);
+
   const totalBilled = invoices.reduce((sum, inv: any) => sum + Number(inv.total_amount), 0);
   const totalPaid = invoices.reduce((sum, inv: any) => sum + Number(inv.amount_paid), 0);
   const outstanding = totalBilled - totalPaid;
 
   // Only admin/accountant can edit invoices
   const canEditInvoice = roles.some(r => ["admin", "accountant"].includes(r));
+
+  const handleRowClick = (inv: any) => {
+    if (!canEditInvoice) return;
+    setSelectedInvoice({
+      id: inv.id,
+      invoice_number: inv.invoice_number,
+      patient_id: inv.patient_id,
+      invoice_date: inv.invoice_date,
+      status: inv.status,
+      discount_percent: inv.discount_percent ?? 0,
+      payment_method: inv.payment_method ?? "cash",
+      total_amount: Number(inv.total_amount),
+      amount_paid: Number(inv.amount_paid),
+      notes: inv.notes ?? "",
+      created_at: inv.created_at,
+      patient_name: inv.patient_name ?? "Unknown",
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -49,7 +72,9 @@ export function BillingTab({ invoices, roles = [] }: BillingTabProps) {
         </Card>
       </div>
 
-      {!canEditInvoice && (
+      {canEditInvoice ? (
+        <p className="text-xs text-muted-foreground italic">Click an invoice row to view or edit it.</p>
+      ) : (
         <p className="text-xs text-muted-foreground italic">Only Admin or Accountant can edit saved invoices.</p>
       )}
 
@@ -75,7 +100,11 @@ export function BillingTab({ invoices, roles = [] }: BillingTabProps) {
               </thead>
               <tbody>
                 {invoices.map((inv: any) => (
-                  <tr key={inv.id} className="border-b last:border-0 hover:bg-muted/20">
+                  <tr
+                    key={inv.id}
+                    className={`border-b last:border-0 hover:bg-muted/20 ${canEditInvoice ? "cursor-pointer" : ""}`}
+                    onClick={() => handleRowClick(inv)}
+                  >
                     <td className="py-2 px-4 font-mono text-xs">{inv.invoice_number}</td>
                     <td className="py-2 px-4 text-muted-foreground">{inv.invoice_date}</td>
                     <td className="py-2 px-4 font-medium">{formatCurrency(Number(inv.total_amount))}</td>
@@ -93,6 +122,13 @@ export function BillingTab({ invoices, roles = [] }: BillingTabProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Invoice Detail/Edit Dialog */}
+      <InvoiceDetailDialog
+        open={!!selectedInvoice}
+        onOpenChange={(open) => !open && setSelectedInvoice(null)}
+        invoice={selectedInvoice}
+      />
     </div>
   );
 }
