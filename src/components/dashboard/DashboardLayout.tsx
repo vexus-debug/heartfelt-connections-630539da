@@ -5,7 +5,7 @@ import { DashboardHeader } from "./DashboardHeader";
 import { AIChatPanel } from "./AIChatPanel";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Sparkles } from "lucide-react";
+import { LayoutDashboard, Bot } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -59,33 +59,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </AnimatePresence>
           </div>
 
-          {/* Floating "Try AI" button - visible when AI panel is closed */}
-          <AnimatePresence>
-            {!showAI && (
-              <motion.button
-                onClick={() => setShowAI(true)}
-                className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-secondary text-secondary-foreground shadow-lg shadow-secondary/25 hover:shadow-xl hover:shadow-secondary/30 hover:scale-105 transition-all duration-200"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Sparkles className="h-4 w-4" />
-                <span className="text-sm font-medium">Try AI</span>
-              </motion.button>
-            )}
-          </AnimatePresence>
-
           {/* Mobile bottom tab bar */}
           <div className="lg:hidden flex items-center border-t border-border/50 bg-card/95 backdrop-blur-xl sticky bottom-0 z-40">
             <button
               onClick={() => setShowAI(false)}
               className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors ${
-                !showAI
-                  ? "text-secondary"
-                  : "text-muted-foreground"
+                !showAI ? "text-secondary" : "text-muted-foreground"
               }`}
             >
               <LayoutDashboard className="h-5 w-5" />
@@ -94,18 +73,35 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <button
               onClick={() => setShowAI(true)}
               className={`flex-1 flex flex-col items-center gap-1 py-2.5 transition-colors relative ${
-                showAI
-                  ? "text-secondary"
-                  : "text-muted-foreground"
+                showAI ? "text-secondary" : "text-muted-foreground"
               }`}
             >
-              <Sparkles className="h-5 w-5" />
+              <Bot className="h-5 w-5" />
               <span className="text-[11px] font-medium">AI Chat</span>
               {!showAI && (
                 <span className="absolute top-2 right-[calc(50%-8px)] translate-x-4 h-1.5 w-1.5 rounded-full bg-secondary" />
               )}
             </button>
           </div>
+
+          {/* Desktop "Try AI" toggle button - centered bottom like screenshot */}
+          <AnimatePresence>
+            {!showAI && (
+              <motion.button
+                onClick={() => setShowAI(true)}
+                className="hidden lg:flex fixed bottom-6 left-1/2 -translate-x-1/2 z-50 items-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground shadow-lg shadow-secondary/25 hover:shadow-xl hover:shadow-secondary/30 hover:scale-105 transition-all duration-200"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Bot className="h-4 w-4" />
+                <span className="text-sm font-medium">Try AI</span>
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </SidebarProvider>

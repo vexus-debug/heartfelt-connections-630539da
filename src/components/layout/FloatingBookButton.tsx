@@ -15,7 +15,7 @@ const FloatingBookButton = () => {
       initial={{ opacity: 0, y: 100, scale: 0.8 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay: 1, duration: 0.5, type: "spring", stiffness: 200 }}
-      className="fixed bottom-6 right-6 z-50"
+      className="fixed bottom-6 left-6 z-50"
     >
       <Link
         to="/book-appointment"
