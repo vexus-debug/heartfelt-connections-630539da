@@ -694,6 +694,7 @@ export type Database = {
           is_urgent: boolean
           job_description: string | null
           job_instructions: string[] | null
+          lab_client_id: string | null
           lab_fee: number
           net_amount: number | null
           patient_id: string
@@ -726,6 +727,7 @@ export type Database = {
           is_urgent?: boolean
           job_description?: string | null
           job_instructions?: string[] | null
+          lab_client_id?: string | null
           lab_fee?: number
           net_amount?: number | null
           patient_id: string
@@ -758,6 +760,7 @@ export type Database = {
           is_urgent?: boolean
           job_description?: string | null
           job_instructions?: string[] | null
+          lab_client_id?: string | null
           lab_fee?: number
           net_amount?: number | null
           patient_id?: string
@@ -788,6 +791,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lab_cases_lab_client_id_fkey"
+            columns: ["lab_client_id"]
+            isOneToOne: false
+            referencedRelation: "lab_clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "lab_cases_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
@@ -803,6 +813,48 @@ export type Database = {
           },
         ]
       }
+      lab_clients: {
+        Row: {
+          address: string | null
+          clinic_code: string | null
+          clinic_name: string
+          created_at: string
+          doctor_name: string
+          email: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          clinic_code?: string | null
+          clinic_name: string
+          created_at?: string
+          doctor_name: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          clinic_code?: string | null
+          clinic_name?: string
+          created_at?: string
+          doctor_name?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lab_invoices: {
         Row: {
           amount_paid: number
@@ -810,6 +862,7 @@ export type Database = {
           clinic_doctor_name: string | null
           created_at: string
           created_by: string | null
+          deposit_amount: number
           discount: number
           id: string
           invoice_date: string
@@ -828,6 +881,7 @@ export type Database = {
           clinic_doctor_name?: string | null
           created_at?: string
           created_by?: string | null
+          deposit_amount?: number
           discount?: number
           id?: string
           invoice_date?: string
@@ -846,6 +900,7 @@ export type Database = {
           clinic_doctor_name?: string | null
           created_at?: string
           created_by?: string | null
+          deposit_amount?: number
           discount?: number
           id?: string
           invoice_date?: string
@@ -972,6 +1027,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lab_settings: {
+        Row: {
+          address: string | null
+          email: string | null
+          id: string
+          lab_name: string
+          phone: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          email?: string | null
+          id?: string
+          lab_name?: string
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          email?: string | null
+          id?: string
+          lab_name?: string
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       marketing_campaigns: {
         Row: {

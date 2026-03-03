@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, DollarSign, TrendingUp, AlertCircle, MessageCircle } from "lucide-react";
 import { useClinicSettings } from "@/hooks/useClinicSettings";
+import { useLabSettings } from "@/hooks/useLabClients";
 import { useLabInvoices, useLabInvoiceStats, useCreateLabInvoice, useUpdateLabInvoice } from "@/hooks/useLabInvoices";
 import { useLabCases } from "@/hooks/useLabCases";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -30,8 +31,9 @@ function fmt(v: number) {
   return `₦${v.toLocaleString()}`;
 }
 
-function buildWhatsAppMessage(inv: any, ownerPhone?: string | null) {
+function buildWhatsAppMessage(inv: any, ownerPhone?: string | null, labName?: string) {
   const lines = [
+    `🏥 *${labName || "Impressions 'n' Teeth Ltd"}*`,
     `📄 *Lab Invoice: ${inv.invoice_number}*`,
     ``,
     `👨‍⚕️ Doctor: ${inv.clinic_doctor_name || inv.clinic_code || "—"}`,
@@ -41,6 +43,7 @@ function buildWhatsAppMessage(inv: any, ownerPhone?: string | null) {
     `💰 Subtotal: ${fmt(Number(inv.subtotal))}`,
     inv.discount > 0 ? `🏷️ Discount: ${fmt(Number(inv.discount))}` : null,
     `✅ Total: ${fmt(Number(inv.total_amount))}`,
+    Number(inv.deposit_amount) > 0 ? `💳 Deposit: ${fmt(Number(inv.deposit_amount))}` : null,
     `💵 Paid: ${fmt(Number(inv.amount_paid))}`,
     `⚠️ Outstanding: ${fmt(Number(inv.total_amount) - Number(inv.amount_paid))}`,
     ``,
@@ -57,6 +60,8 @@ export default function LabBillingPage() {
   const { invoices, totalRevenue, totalPaid, totalOutstanding, unpaidCount, isLoading } = useLabInvoiceStats();
   const { data: labCases = [] } = useLabCases();
   const { data: clinicSettings } = useClinicSettings();
+  const { data: labSettings } = useLabSettings();
+  const labName = labSettings?.lab_name || "Impressions 'n' Teeth Ltd";
   const createInvoice = useCreateLabInvoice();
   const updateInvoice = useUpdateLabInvoice();
   const [createOpen, setCreateOpen] = useState(false);
@@ -110,7 +115,7 @@ export default function LabBillingPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Lab Billing" description="Lab invoices and payment tracking — separate from clinic billing">
+      <PageHeader title={`${labName} — Billing`} description="Lab invoices and payment tracking — independent from clinic billing">
         <Button size="sm" className="bg-secondary hover:bg-secondary/90" onClick={() => setCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Create Lab Invoice
@@ -167,7 +172,9 @@ export default function LabBillingPage() {
                     <TableHead className="text-right">Subtotal</TableHead>
                     <TableHead className="text-right">Discount</TableHead>
                     <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-right">Deposit</TableHead>
                     <TableHead className="text-right">Paid</TableHead>
+                    <TableHead className="text-right">Balance</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Action</TableHead>
                   </TableRow>
@@ -181,7 +188,13 @@ export default function LabBillingPage() {
                       <TableCell className="text-right text-sm">{fmt(Number(inv.subtotal))}</TableCell>
                       <TableCell className="text-right text-sm">{fmt(Number(inv.discount))}</TableCell>
                       <TableCell className="text-right text-sm font-medium">{fmt(Number(inv.total_amount))}</TableCell>
+                      <TableCell className="text-right text-sm">{fmt(Number((inv as any).deposit_amount || 0))}</TableCell>
                       <TableCell className="text-right text-sm">{fmt(Number(inv.amount_paid))}</TableCell>
+                      <TableCell className="text-right text-sm font-semibold">
+                        <span className={Number(inv.total_amount) - Number(inv.amount_paid) > 0 ? "text-destructive" : "text-emerald-600"}>
+                          {fmt(Number(inv.total_amount) - Number(inv.amount_paid))}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <Badge className={`text-[10px] ${statusStyles[inv.status] || ""}`}>
                           {inv.status}
@@ -206,7 +219,7 @@ export default function LabBillingPage() {
                             asChild
                           >
                             <a
-                              href={buildWhatsAppMessage(inv, clinicSettings?.phone)}
+                              href={buildWhatsAppMessage(inv, clinicSettings?.phone, labName)}
                               target="_blank"
                               rel="noopener noreferrer"
                             >

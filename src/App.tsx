@@ -47,6 +47,7 @@ import ReportsPage from "./pages/dashboard/ReportsPage";
 import LabWorkPage from "./pages/dashboard/LabWorkPage";
 import LabDashboardPage from "./pages/dashboard/LabDashboardPage";
 import LabCasesPage from "./pages/dashboard/LabCasesPage";
+import LabClientsPage from "./pages/dashboard/LabClientsPage";
 import LabTechniciansPage from "./pages/dashboard/LabTechniciansPage";
 import LabBillingPage from "./pages/dashboard/LabBillingPage";
 import LabSettingsPage from "./pages/dashboard/LabSettingsPage";
@@ -129,6 +130,7 @@ const App = () => (
             <Route path="/dashboard/lab-work" element={<ProtectedDashboard><LabWorkPage /></ProtectedDashboard>} />
             <Route path="/dashboard/lab" element={<ProtectedDashboard><LabDashboardPage /></ProtectedDashboard>} />
             <Route path="/dashboard/lab/cases" element={<ProtectedDashboard><LabCasesPage /></ProtectedDashboard>} />
+            <Route path="/dashboard/lab/clients" element={<ProtectedDashboard><LabClientsPage /></ProtectedDashboard>} />
             <Route path="/dashboard/lab/technicians" element={<ProtectedDashboard><LabTechniciansPage /></ProtectedDashboard>} />
             <Route path="/dashboard/lab/billing" element={<ProtectedDashboard><LabBillingPage /></ProtectedDashboard>} />
             <Route path="/dashboard/lab/settings" element={<ProtectedDashboard><LabSettingsPage /></ProtectedDashboard>} />
