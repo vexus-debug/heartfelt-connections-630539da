@@ -16,6 +16,7 @@ export const PAGE_ROLE_ACCESS: Record<string, AppRole[]> = {
   "/dashboard/lab-work": ["admin", "dentist", "hygienist", "assistant"],
   "/dashboard/lab": ["admin", "lab_technician"],
   "/dashboard/lab/cases": ["admin", "lab_technician"],
+  "/dashboard/lab/clients": ["admin", "lab_technician"],
   "/dashboard/lab/technicians": ["admin", "lab_technician"],
   "/dashboard/lab/billing": ["admin", "lab_technician"],
   "/dashboard/lab/settings": ["admin"],

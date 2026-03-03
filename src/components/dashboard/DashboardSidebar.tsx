@@ -15,6 +15,7 @@ import {
 import {
   LayoutDashboard,
   Users,
+  Building2,
   CalendarDays,
   Stethoscope,
   CreditCard,
@@ -100,6 +101,7 @@ const navGroups = [
     items: [
       { title: "Lab Dashboard", url: "/dashboard/lab", icon: Microscope },
       { title: "Lab Cases", url: "/dashboard/lab/cases", icon: ClipboardList },
+      { title: "Lab Clients", url: "/dashboard/lab/clients", icon: Building2 },
       { title: "Technicians", url: "/dashboard/lab/technicians", icon: Users },
       { title: "Lab Billing", url: "/dashboard/lab/billing", icon: DollarSign },
       { title: "Lab Settings", url: "/dashboard/lab/settings", icon: Wrench },

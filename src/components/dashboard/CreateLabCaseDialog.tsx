@@ -24,6 +24,7 @@ import {
 import { usePatients } from "@/hooks/usePatients";
 import { useDentists } from "@/hooks/useStaff";
 import { useCreateLabCase } from "@/hooks/useLabCases";
+import { useLabClients } from "@/hooks/useLabClients";
 
 const JOB_INSTRUCTION_OPTIONS = [
   "Courier Charge",
@@ -50,15 +51,18 @@ const REMARK_OPTIONS = [
 ] as const;
 
 const labCaseSchema = z.object({
+  labClientId: z.string().optional(),
   clinicCode: z.string().optional(),
-  clinicDoctorName: z.string().min(1, "Required"),
+  clinicDoctorName: z.string().min(1, "Doctor/Clinic name is required"),
   patientId: z.string().min(1, "Select a patient"),
   dentistId: z.string().min(1, "Select a dentist"),
+  patientName: z.string().optional(),
   jobInstructions: z.array(z.string()).min(1, "Select at least one"),
   jobDescription: z.string().optional(),
   shade: z.string().optional(),
   cost: z.coerce.number().min(0, "Must be >= 0"),
   discount: z.coerce.number().min(0).default(0),
+  deposit: z.coerce.number().min(0).default(0),
   dueDate: z.date({ required_error: "Select delivery date" }),
   isPaid: z.boolean().default(false),
   remark: z.string().optional(),
@@ -75,28 +79,39 @@ interface CreateLabCaseDialogProps {
 export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogProps) {
   const { data: patients = [] } = usePatients();
   const { data: dentists = [] } = useDentists();
+  const { data: labClients = [] } = useLabClients();
   const createLabCase = useCreateLabCase();
 
   const form = useForm<LabCaseFormValues>({
     resolver: zodResolver(labCaseSchema),
     defaultValues: {
+      labClientId: "",
       clinicCode: "",
       clinicDoctorName: "",
       patientId: "",
       dentistId: "",
+      patientName: "",
       jobInstructions: [],
       jobDescription: "",
       shade: "",
       cost: 0,
       discount: 0,
+      deposit: 0,
       isPaid: false,
       remark: "none",
       instructions: "",
     },
   });
 
+  const watchCost = form.watch("cost");
+  const watchDiscount = form.watch("discount");
+  const watchDeposit = form.watch("deposit");
+  const netAmount = Math.max((watchCost || 0) - (watchDiscount || 0), 0);
+  const balance = Math.max(netAmount - (watchDeposit || 0), 0);
+
   function onSubmit(data: LabCaseFormValues) {
     const workType = data.jobInstructions.join(", ");
+    const isPaid = data.deposit >= netAmount;
     createLabCase.mutate(
       {
         patient_id: data.patientId,
@@ -110,7 +125,7 @@ export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogP
         lab_fee: data.cost,
         discount: data.discount,
         due_date: format(data.dueDate, "yyyy-MM-dd"),
-        is_paid: data.isPaid,
+        is_paid: isPaid,
         remark: data.remark === "none" ? "" : (data.remark || ""),
         instructions: data.instructions || "",
       },
@@ -123,6 +138,15 @@ export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogP
     );
   }
 
+  const handleClientSelect = (clientId: string) => {
+    const client = labClients.find((c) => c.id === clientId);
+    if (client) {
+      form.setValue("labClientId", clientId);
+      form.setValue("clinicDoctorName", client.doctor_name);
+      form.setValue("clinicCode", client.clinic_code || "");
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -133,6 +157,23 @@ export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogP
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Lab Client Selection */}
+            {labClients.length > 0 && (
+              <div>
+                <Label className="text-sm font-medium">Select Existing Client</Label>
+                <Select onValueChange={handleClientSelect} value={form.watch("labClientId") || ""}>
+                  <SelectTrigger><SelectValue placeholder="Choose from registered clients" /></SelectTrigger>
+                  <SelectContent>
+                    {labClients.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.doctor_name} {c.clinic_name ? `(${c.clinic_name})` : ""} {c.clinic_code ? `— ${c.clinic_code}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {/* Clinic Code & Doctor Name */}
             <div className="grid gap-3 sm:grid-cols-2">
               <FormField control={form.control} name="clinicCode" render={({ field }) => (
@@ -256,6 +297,31 @@ export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogP
               )} />
             </div>
 
+            {/* Deposit & Balance Display */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <FormField control={form.control} name="deposit" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Deposit Amount (₦)</FormLabel>
+                  <FormControl><Input type="number" min={0} step={100} {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <div className="flex flex-col justify-end">
+                <div className="rounded-lg border p-3 bg-muted/20 space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Net Amount:</span>
+                    <span className="font-semibold">₦{netAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Balance Due:</span>
+                    <span className={`font-bold ${balance > 0 ? "text-destructive" : "text-emerald-600"}`}>
+                      ₦{balance.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Due Date & Remark */}
             <div className="grid gap-3 sm:grid-cols-2">
               <FormField control={form.control} name="dueDate" render={({ field }) => (
@@ -298,19 +364,6 @@ export function CreateLabCaseDialog({ open, onOpenChange }: CreateLabCaseDialogP
                 </FormItem>
               )} />
             </div>
-
-            {/* Payment Status Toggle */}
-            <FormField control={form.control} name="isPaid" render={({ field }) => (
-              <FormItem className="flex items-center gap-3 rounded-lg border p-3 bg-muted/20">
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-                <div>
-                  <FormLabel className="text-sm font-medium">Payment Status</FormLabel>
-                  <p className="text-xs text-muted-foreground">{field.value ? "Paid" : "Unpaid"}</p>
-                </div>
-              </FormItem>
-            )} />
 
             {/* Special Instructions */}
             <FormField control={form.control} name="instructions" render={({ field }) => (

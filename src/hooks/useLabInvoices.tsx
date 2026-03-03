@@ -14,6 +14,7 @@ export interface LabInvoiceRow {
   discount: number;
   total_amount: number;
   amount_paid: number;
+  deposit_amount: number;
   status: string;
   notes: string;
   created_at: string;
@@ -56,11 +57,13 @@ export function useCreateLabInvoice() {
       subtotal: number;
       discount?: number;
       amount_paid?: number;
+      deposit_amount?: number;
       notes?: string;
     }) => {
       const disc = invoice.discount || 0;
       const total = Math.max(invoice.subtotal - disc, 0);
-      const paid = Math.min(invoice.amount_paid || 0, total);
+      const deposit = Math.min(invoice.deposit_amount || 0, total);
+      const paid = Math.min(invoice.amount_paid || deposit, total);
       const status = paid >= total ? "paid" : paid > 0 ? "partial" : "unpaid";
 
       const { data, error } = await supabase
@@ -75,6 +78,7 @@ export function useCreateLabInvoice() {
           discount: disc,
           total_amount: total,
           amount_paid: paid,
+          deposit_amount: deposit,
           status,
           notes: invoice.notes || "",
         })
