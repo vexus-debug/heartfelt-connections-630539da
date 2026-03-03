@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus } from "lucide-react";
-import { useLabCases } from "@/hooks/useLabCases";
+import { Plus, Pencil, ChevronRight } from "lucide-react";
+import { useLabCases, useUpdateLabCase, type LabCaseRow } from "@/hooks/useLabCases";
 import { CreateLabCaseDialog } from "@/components/dashboard/CreateLabCaseDialog";
+import { EditLabCaseDialog } from "@/components/dashboard/EditLabCaseDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 
@@ -22,6 +24,13 @@ const statusDots: Record<string, string> = {
   delivered: "bg-muted-foreground/50",
 };
 
+const STATUS_OPTIONS = [
+  { value: "pending", label: "Pending" },
+  { value: "in-progress", label: "In Progress" },
+  { value: "ready", label: "Ready" },
+  { value: "delivered", label: "Delivered" },
+];
+
 const stagger = {
   container: { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } },
   item: { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } },
@@ -29,8 +38,20 @@ const stagger = {
 
 export default function LabCasesPage() {
   const [createOpen, setCreateOpen] = useState(false);
+  const [editCase, setEditCase] = useState<LabCaseRow | null>(null);
   const { data: cases = [], isLoading } = useLabCases();
+  const updateLabCase = useUpdateLabCase();
   const statuses = ["pending", "in-progress", "ready", "delivered"] as const;
+
+  const handleStatusChange = (caseItem: LabCaseRow, newStatus: string) => {
+    const now = new Date().toISOString().split("T")[0];
+    updateLabCase.mutate({
+      id: caseItem.id,
+      status: newStatus,
+      ...(newStatus === "ready" && caseItem.status !== "ready" ? { completed_date: now } : {}),
+      ...(newStatus === "delivered" && caseItem.status !== "delivered" ? { delivered_date: now } : {}),
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -71,7 +92,18 @@ export default function LabCasesPage() {
                       >
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-medium">{c.work_type}</p>
-                          {c.is_urgent && <Badge variant="destructive" className="text-[10px] px-1.5">Urgent</Badge>}
+                          <div className="flex items-center gap-1">
+                            {c.is_urgent && <Badge variant="destructive" className="text-[10px] px-1.5">Urgent</Badge>}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => setEditCase(c)}
+                              title="Edit case"
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                          </div>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           {c.patients ? `${c.patients.first_name} ${c.patients.last_name}` : "Unknown"}
@@ -83,6 +115,26 @@ export default function LabCasesPage() {
                         {c.remark && (
                           <Badge variant="outline" className="text-[10px] mt-1">{c.remark}</Badge>
                         )}
+
+                        {/* Status change dropdown */}
+                        <div className="mt-2 pt-1.5 border-t border-border/20">
+                          <Select
+                            value={c.status}
+                            onValueChange={(val) => handleStatusChange(c, val)}
+                          >
+                            <SelectTrigger className="h-7 text-[11px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {STATUS_OPTIONS.map((s) => (
+                                <SelectItem key={s.value} value={s.value} className="text-xs">
+                                  {s.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
                         <div className="flex justify-between items-center mt-2 pt-1.5 border-t border-border/20">
                           <span className="text-[10px] text-muted-foreground">
                             ₦{Number(c.lab_fee).toLocaleString()}
@@ -112,6 +164,7 @@ export default function LabCasesPage() {
       )}
 
       <CreateLabCaseDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <EditLabCaseDialog labCase={editCase} open={!!editCase} onOpenChange={(open) => { if (!open) setEditCase(null); }} />
     </div>
   );
 }
