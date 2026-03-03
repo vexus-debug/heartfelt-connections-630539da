@@ -89,7 +89,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             {!showAI && (
               <motion.button
                 onClick={() => setShowAI(true)}
-                className="hidden lg:flex fixed bottom-6 left-1/2 -translate-x-1/2 z-50 items-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground shadow-lg shadow-secondary/25 hover:shadow-xl hover:shadow-secondary/30 hover:scale-105 transition-all duration-200"
+                className="hidden lg:flex sticky bottom-6 left-1/2 -translate-x-1/2 z-40 items-center gap-2 px-5 py-2.5 rounded-full bg-secondary text-secondary-foreground shadow-lg shadow-secondary/25 hover:shadow-xl hover:shadow-secondary/30 hover:scale-105 transition-all duration-200 mx-auto mb-4"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
