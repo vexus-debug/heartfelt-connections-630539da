@@ -54,8 +54,8 @@ export default function LabLogin() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <FlaskConical className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl text-primary">Lab Portal</CardTitle>
-          <CardDescription>Sign in to the Dental Lab Management System</CardDescription>
+          <CardTitle className="text-2xl text-primary">Impression n Teeth</CardTitle>
+          <CardDescription>Sign in to the Lab Management System</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

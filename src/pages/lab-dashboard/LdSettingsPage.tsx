@@ -120,7 +120,7 @@ export default function LdSettingsPage() {
             </div>
           ) : (
             <div className="space-y-1 text-sm">
-              <p className="text-lg font-bold text-foreground">{settings?.lab_name || "Vista Dental Lab"}</p>
+              <p className="text-lg font-bold text-foreground">{settings?.lab_name || "Impression n Teeth"}</p>
               {settings?.phone && <p className="text-muted-foreground">📞 {settings.phone}</p>}
               {settings?.email && <p className="text-muted-foreground">✉️ {settings.email}</p>}
               {settings?.address && <p className="text-muted-foreground">📍 {settings.address}</p>}

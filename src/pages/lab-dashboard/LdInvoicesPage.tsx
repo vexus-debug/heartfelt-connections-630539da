@@ -142,7 +142,7 @@ export default function LdInvoicesPage() {
     }, 100);
   };
 
-  const labName = settings?.lab_name || "Vista Dental Lab";
+  const labName = settings?.lab_name || "Impression n Teeth";
 
   return (
     <div className="space-y-6">

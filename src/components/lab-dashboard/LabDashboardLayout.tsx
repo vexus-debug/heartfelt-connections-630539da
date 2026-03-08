@@ -18,7 +18,7 @@ export function LabDashboardLayout({ children }: LabDashboardLayoutProps) {
         <div className="flex flex-1 flex-col overflow-hidden">
           <header className="h-14 flex items-center gap-3 border-b border-border/50 bg-card/80 backdrop-blur-xl px-4">
             <SidebarTrigger className="text-muted-foreground" />
-            <span className="text-sm font-semibold text-foreground">Lab Dashboard</span>
+            <span className="text-sm font-semibold text-foreground">Impression n Teeth</span>
           </header>
           <main className="flex-1 overflow-y-auto p-4 lg:p-6">
             <AnimatePresence mode="wait">
