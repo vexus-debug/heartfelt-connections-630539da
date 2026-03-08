@@ -1167,6 +1167,63 @@ export type Database = {
           },
         ]
       }
+      ld_case_materials: {
+        Row: {
+          case_id: string | null
+          id: string
+          inventory_id: string | null
+          material_name: string
+          notes: string | null
+          quantity_used: number
+          total_cost: number
+          unit: string
+          unit_cost: number
+          used_at: string
+          used_by: string | null
+        }
+        Insert: {
+          case_id?: string | null
+          id?: string
+          inventory_id?: string | null
+          material_name: string
+          notes?: string | null
+          quantity_used?: number
+          total_cost?: number
+          unit?: string
+          unit_cost?: number
+          used_at?: string
+          used_by?: string | null
+        }
+        Update: {
+          case_id?: string | null
+          id?: string
+          inventory_id?: string | null
+          material_name?: string
+          notes?: string | null
+          quantity_used?: number
+          total_cost?: number
+          unit?: string
+          unit_cost?: number
+          used_at?: string
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_case_materials_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_case_materials_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "ld_inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ld_case_notes: {
         Row: {
           created_at: string
@@ -1332,6 +1389,63 @@ export type Database = {
           },
         ]
       }
+      ld_client_prices: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          custom_price: number
+          discount_percent: number | null
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          notes: string | null
+          updated_at: string
+          work_type_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          custom_price?: number
+          discount_percent?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          work_type_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          custom_price?: number
+          discount_percent?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          work_type_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_client_prices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "ld_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_client_prices_work_type_id_fkey"
+            columns: ["work_type_id"]
+            isOneToOne: false
+            referencedRelation: "ld_work_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ld_clients: {
         Row: {
           address: string | null
@@ -1373,6 +1487,72 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ld_communications: {
+        Row: {
+          case_id: string | null
+          client_id: string | null
+          communicated_at: string
+          communicated_by: string | null
+          communicated_by_name: string | null
+          communication_type: string
+          contact_person: string | null
+          content: string | null
+          created_at: string
+          direction: string
+          follow_up_date: string | null
+          follow_up_required: boolean | null
+          id: string
+          subject: string | null
+        }
+        Insert: {
+          case_id?: string | null
+          client_id?: string | null
+          communicated_at?: string
+          communicated_by?: string | null
+          communicated_by_name?: string | null
+          communication_type?: string
+          contact_person?: string | null
+          content?: string | null
+          created_at?: string
+          direction?: string
+          follow_up_date?: string | null
+          follow_up_required?: boolean | null
+          id?: string
+          subject?: string | null
+        }
+        Update: {
+          case_id?: string | null
+          client_id?: string | null
+          communicated_at?: string
+          communicated_by?: string | null
+          communicated_by_name?: string | null
+          communication_type?: string
+          contact_person?: string | null
+          content?: string | null
+          created_at?: string
+          direction?: string
+          follow_up_date?: string | null
+          follow_up_required?: boolean | null
+          id?: string
+          subject?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_communications_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_communications_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "ld_clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ld_credit_notes: {
         Row: {
@@ -1434,6 +1614,187 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ld_digital_files: {
+        Row: {
+          case_id: string | null
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size_kb: number | null
+          file_type: string
+          file_url: string
+          id: string
+          uploaded_by: string | null
+          uploaded_by_name: string | null
+        }
+        Insert: {
+          case_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size_kb?: number | null
+          file_type?: string
+          file_url: string
+          id?: string
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Update: {
+          case_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size_kb?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_digital_files_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_equipment: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          model: string | null
+          name: string
+          notes: string | null
+          purchase_date: string | null
+          serial_number: string | null
+          status: string
+          updated_at: string
+          warranty_expiry: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          model?: string | null
+          name: string
+          notes?: string | null
+          purchase_date?: string | null
+          serial_number?: string | null
+          status?: string
+          updated_at?: string
+          warranty_expiry?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          model?: string | null
+          name?: string
+          notes?: string | null
+          purchase_date?: string | null
+          serial_number?: string | null
+          status?: string
+          updated_at?: string
+          warranty_expiry?: string | null
+        }
+        Relationships: []
+      }
+      ld_equipment_maintenance: {
+        Row: {
+          cost: number | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          equipment_id: string | null
+          id: string
+          maintenance_date: string
+          maintenance_type: string
+          next_maintenance_date: string | null
+          notes: string | null
+          performed_by: string | null
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          equipment_id?: string | null
+          id?: string
+          maintenance_date?: string
+          maintenance_type?: string
+          next_maintenance_date?: string | null
+          notes?: string | null
+          performed_by?: string | null
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          equipment_id?: string | null
+          id?: string
+          maintenance_date?: string
+          maintenance_type?: string
+          next_maintenance_date?: string | null
+          notes?: string | null
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_equipment_maintenance_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "ld_equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_external_labs: {
+        Row: {
+          address: string | null
+          contact_person: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          specialties: string[] | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          specialties?: string[] | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          specialties?: string[] | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       ld_inventory: {
         Row: {
@@ -1549,6 +1910,66 @@ export type Database = {
           },
         ]
       }
+      ld_outsourced_cases: {
+        Row: {
+          actual_return_date: string | null
+          case_id: string | null
+          cost: number
+          created_at: string
+          created_by: string | null
+          expected_return_date: string | null
+          external_lab_id: string | null
+          id: string
+          notes: string | null
+          sent_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          actual_return_date?: string | null
+          case_id?: string | null
+          cost?: number
+          created_at?: string
+          created_by?: string | null
+          expected_return_date?: string | null
+          external_lab_id?: string | null
+          id?: string
+          notes?: string | null
+          sent_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          actual_return_date?: string | null
+          case_id?: string | null
+          cost?: number
+          created_at?: string
+          created_by?: string | null
+          expected_return_date?: string | null
+          external_lab_id?: string | null
+          id?: string
+          notes?: string | null
+          sent_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_outsourced_cases_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_outsourced_cases_external_lab_id_fkey"
+            columns: ["external_lab_id"]
+            isOneToOne: false
+            referencedRelation: "ld_external_labs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ld_payments: {
         Row: {
           amount: number
@@ -1586,6 +2007,65 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "ld_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_pickup_schedules: {
+        Row: {
+          client_id: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          driver_name: string | null
+          driver_phone: string | null
+          estimated_cases: number | null
+          id: string
+          notes: string | null
+          pickup_date: string
+          pickup_time: string | null
+          pickup_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          estimated_cases?: number | null
+          id?: string
+          notes?: string | null
+          pickup_date: string
+          pickup_time?: string | null
+          pickup_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          estimated_cases?: number | null
+          id?: string
+          notes?: string | null
+          pickup_date?: string
+          pickup_time?: string | null
+          pickup_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_pickup_schedules_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "ld_clients"
             referencedColumns: ["id"]
           },
         ]
@@ -1634,6 +2114,75 @@ export type Database = {
           },
         ]
       }
+      ld_recurring_orders: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          frequency: string
+          id: string
+          instructions: string | null
+          is_active: boolean
+          lab_fee: number
+          last_generated_date: string | null
+          next_due_date: string | null
+          patient_name: string
+          shade: string | null
+          updated_at: string
+          work_type_id: string | null
+          work_type_name: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          frequency?: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          lab_fee?: number
+          last_generated_date?: string | null
+          next_due_date?: string | null
+          patient_name?: string
+          shade?: string | null
+          updated_at?: string
+          work_type_id?: string | null
+          work_type_name?: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          frequency?: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          lab_fee?: number
+          last_generated_date?: string | null
+          next_due_date?: string | null
+          patient_name?: string
+          shade?: string | null
+          updated_at?: string
+          work_type_id?: string | null
+          work_type_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_recurring_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "ld_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_recurring_orders_work_type_id_fkey"
+            columns: ["work_type_id"]
+            isOneToOne: false
+            referencedRelation: "ld_work_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ld_settings: {
         Row: {
           address: string | null
@@ -1666,6 +2215,140 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      ld_shade_library: {
+        Row: {
+          color_hex: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          shade_code: string
+          shade_name: string
+          shade_system: string
+          updated_at: string
+        }
+        Insert: {
+          color_hex?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          shade_code: string
+          shade_name: string
+          shade_system?: string
+          updated_at?: string
+        }
+        Update: {
+          color_hex?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          shade_code?: string
+          shade_name?: string
+          shade_system?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ld_shipment_cases: {
+        Row: {
+          case_id: string | null
+          created_at: string
+          id: string
+          shipment_id: string | null
+        }
+        Insert: {
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          shipment_id?: string | null
+        }
+        Update: {
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          shipment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_shipment_cases_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_shipment_cases_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "ld_shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_shipments: {
+        Row: {
+          client_id: string | null
+          courier_name: string | null
+          created_at: string
+          created_by: string | null
+          delivery_method: string
+          dispatched_at: string | null
+          dispatched_by: string | null
+          id: string
+          notes: string | null
+          shipment_date: string
+          shipment_number: string
+          status: string
+          total_cases: number
+          tracking_number: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          courier_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_method?: string
+          dispatched_at?: string | null
+          dispatched_by?: string | null
+          id?: string
+          notes?: string | null
+          shipment_date?: string
+          shipment_number?: string
+          status?: string
+          total_cases?: number
+          tracking_number?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          courier_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_method?: string
+          dispatched_at?: string | null
+          dispatched_by?: string | null
+          id?: string
+          notes?: string | null
+          shipment_date?: string
+          shipment_number?: string
+          status?: string
+          total_cases?: number
+          tracking_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_shipments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "ld_clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ld_staff: {
         Row: {
@@ -1705,6 +2388,110 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      ld_technician_skills: {
+        Row: {
+          certification_date: string | null
+          certified: boolean | null
+          created_at: string
+          id: string
+          notes: string | null
+          proficiency_level: string
+          technician_id: string | null
+          updated_at: string
+          work_type_id: string | null
+        }
+        Insert: {
+          certification_date?: string | null
+          certified?: boolean | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          proficiency_level?: string
+          technician_id?: string | null
+          updated_at?: string
+          work_type_id?: string | null
+        }
+        Update: {
+          certification_date?: string | null
+          certified?: boolean | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          proficiency_level?: string
+          technician_id?: string | null
+          updated_at?: string
+          work_type_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_technician_skills_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "ld_staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_technician_skills_work_type_id_fkey"
+            columns: ["work_type_id"]
+            isOneToOne: false
+            referencedRelation: "ld_work_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_warranties: {
+        Row: {
+          case_id: string | null
+          claim_date: string | null
+          claim_reason: string | null
+          claim_resolution: string | null
+          created_at: string
+          end_date: string
+          id: string
+          notes: string | null
+          start_date: string
+          status: string
+          updated_at: string
+          warranty_months: number
+        }
+        Insert: {
+          case_id?: string | null
+          claim_date?: string | null
+          claim_reason?: string | null
+          claim_resolution?: string | null
+          created_at?: string
+          end_date: string
+          id?: string
+          notes?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          warranty_months?: number
+        }
+        Update: {
+          case_id?: string | null
+          claim_date?: string | null
+          claim_reason?: string | null
+          claim_resolution?: string | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          notes?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          warranty_months?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_warranties_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ld_work_types: {
         Row: {
