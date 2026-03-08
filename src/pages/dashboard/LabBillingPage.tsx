@@ -61,7 +61,7 @@ export default function LabBillingPage() {
   const { data: labCases = [] } = useLabCases();
   const { data: clinicSettings } = useClinicSettings();
   const { data: labSettings } = useLabSettings();
-  const labName = labSettings?.lab_name || "Impressions 'n' Teeth Ltd";
+  const labName = labSettings?.lab_name || "Impression n Teeth";
   const createInvoice = useCreateLabInvoice();
   const updateInvoice = useUpdateLabInvoice();
   const [createOpen, setCreateOpen] = useState(false);

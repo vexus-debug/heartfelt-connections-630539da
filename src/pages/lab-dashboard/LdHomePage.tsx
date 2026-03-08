@@ -82,7 +82,7 @@ export default function LdHomePage() {
       <motion.div variants={fadeIn} initial="hidden" animate="visible">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Lab Dashboard</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Impression n Teeth</h1>
             <p className="text-sm text-muted-foreground mt-1">Real-time overview of lab operations & financials</p>
           </div>
           <Badge variant="outline" className="gap-1.5 px-3 py-1.5 text-xs font-medium border-secondary/30 text-secondary">

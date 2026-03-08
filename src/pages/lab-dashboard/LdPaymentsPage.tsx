@@ -37,7 +37,7 @@ export default function LdPaymentsPage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Payments</h1>
-          <p className="text-sm text-muted-foreground">Payment tracking for lab invoices</p>
+          <p className="text-sm text-muted-foreground">Impression n Teeth — Payment tracking</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
