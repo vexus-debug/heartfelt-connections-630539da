@@ -358,9 +358,14 @@ export default function LdCasesPage() {
                       <td className="p-3 text-xs">{c.due_date ? format(new Date(c.due_date), "MMM d, yyyy") : "—"}</td>
                       <td className="p-3 text-right font-medium">₦{Number(c.net_amount || 0).toLocaleString()}</td>
                       <td className="p-3 text-right">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
+                        <div className="flex gap-1 justify-end">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigate(`/lab-dashboard/cases/${c.id}`)}>
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
