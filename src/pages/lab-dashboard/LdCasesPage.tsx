@@ -1,27 +1,57 @@
 import { useState, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Search, Pencil, CalendarIcon, Filter } from "lucide-react";
+import { Plus, Search, Pencil, CalendarIcon, LayoutGrid, Table } from "lucide-react";
 import { useLdCases, useCreateLdCase, useUpdateLdCase, useLdClients, useLdStaff, useLdWorkTypes } from "@/hooks/useLabDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
-const statuses = ["pending", "in-progress", "ready", "delivered"];
+const STATUSES = ["pending", "in-progress", "ready", "delivered"] as const;
+
 const statusColor: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800",
   "in-progress": "bg-blue-100 text-blue-800",
   ready: "bg-emerald-100 text-emerald-800",
-  delivered: "bg-gray-100 text-gray-800",
+  delivered: "bg-muted text-muted-foreground",
+};
+
+const statusDots: Record<string, string> = {
+  pending: "bg-amber-500",
+  "in-progress": "bg-blue-500",
+  ready: "bg-emerald-500",
+  delivered: "bg-muted-foreground/50",
+};
+
+const JOB_INSTRUCTION_OPTIONS = [
+  "Courier Charge", "Acrylic Dentures", "Flexible Dentures", "AJC Crowns",
+  "PFM Crowns", "Zirconia Crowns", "Shell Crowns (Gold)", "Shell Crowns (Silver)",
+  "VFR", "Orthodontic Appliances", "Denture Repair", "Crown Repair", "Gingival Masking",
+];
+
+const REMARK_OPTIONS = ["Express", "Rejected", "Damaged", "Repeat", "Remake"];
+
+const DELIVERY_METHODS = [
+  { value: "", label: "Not set" },
+  { value: "pickup", label: "Pickup" },
+  { value: "delivery", label: "Delivery" },
+  { value: "courier", label: "Courier" },
+];
+
+const stagger = {
+  container: { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } },
+  item: { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } },
 };
 
 export default function LdCasesPage() {
@@ -41,6 +71,19 @@ export default function LdCasesPage() {
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editCase, setEditCase] = useState<any>(null);
+  const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
+
+  // Form state for job instructions checkboxes
+  const [formJobInstructions, setFormJobInstructions] = useState<string[]>([]);
+  const [formRemark, setFormRemark] = useState("none");
+  const [formDeliveryMethod, setFormDeliveryMethod] = useState("");
+  const [formIsPaid, setFormIsPaid] = useState(false);
+  const [formLabFee, setFormLabFee] = useState(0);
+  const [formDiscount, setFormDiscount] = useState(0);
+  const [formDeposit, setFormDeposit] = useState(0);
+
+  const netAmount = Math.max(formLabFee - formDiscount, 0);
+  const balance = Math.max(netAmount - formDeposit, 0);
 
   const filtered = useMemo(() => {
     return cases.filter((c: any) => {
@@ -54,52 +97,81 @@ export default function LdCasesPage() {
     });
   }, [cases, search, filterStatus, filterClientId, dateFrom, dateTo]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const values: Record<string, unknown> = {
-      patient_name: fd.get("patient_name"),
-      client_id: fd.get("client_id") || null,
-      work_type_id: fd.get("work_type_id") || null,
-      work_type_name: fd.get("work_type_name"),
-      assigned_technician_id: fd.get("assigned_technician_id") || null,
-      tooth_number: fd.get("tooth_number") ? Number(fd.get("tooth_number")) : null,
-      shade: fd.get("shade"),
-      instructions: fd.get("instructions"),
-      lab_fee: Number(fd.get("lab_fee") || 0),
-      discount: Number(fd.get("discount") || 0),
-      due_date: fd.get("due_date") || null,
-      is_urgent: fd.get("is_urgent") === "on",
-      delivery_method: fd.get("delivery_method"),
-    };
-
-    if (editCase) {
-      // Only admin can change technician after initial assignment
-      if (!isAdmin && editCase.assigned_technician_id && values.assigned_technician_id !== editCase.assigned_technician_id) {
-        values.assigned_technician_id = editCase.assigned_technician_id;
-      }
-      updateCase.mutate({ id: editCase.id, ...values }, { onSuccess: () => { setDialogOpen(false); setEditCase(null); } });
-    } else {
-      createCase.mutate(values, { onSuccess: () => setDialogOpen(false) });
-    }
+  const resetFormState = () => {
+    setFormJobInstructions([]);
+    setFormRemark("none");
+    setFormDeliveryMethod("");
+    setFormIsPaid(false);
+    setFormLabFee(0);
+    setFormDiscount(0);
+    setFormDeposit(0);
   };
 
-  const handleStatusChange = (caseId: string, newStatus: string) => {
-    const updates: Record<string, unknown> = { status: newStatus };
-    if (newStatus === "ready") updates.completed_date = new Date().toISOString().split("T")[0];
-    if (newStatus === "delivered") updates.delivered_date = new Date().toISOString().split("T")[0];
-    if (newStatus === "in-progress") updates.started_date = new Date().toISOString().split("T")[0];
-    updateCase.mutate({ id: caseId, ...updates });
+  const openCreate = () => {
+    setEditCase(null);
+    resetFormState();
+    setDialogOpen(true);
   };
 
   const openEdit = (c: any) => {
     setEditCase(c);
+    setFormJobInstructions(c.job_instructions || []);
+    setFormRemark(c.remark || "none");
+    setFormDeliveryMethod(c.delivery_method || "");
+    setFormIsPaid(c.is_paid || false);
+    setFormLabFee(Number(c.lab_fee) || 0);
+    setFormDiscount(Number(c.discount) || 0);
+    setFormDeposit(0);
     setDialogOpen(true);
   };
 
-  const clearDateFilter = () => {
-    setDateFrom(undefined);
-    setDateTo(undefined);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const workTypeName = formJobInstructions.length > 0 ? formJobInstructions.join(", ") : (fd.get("work_type_name") as string);
+
+    const values: Record<string, unknown> = {
+      patient_name: fd.get("patient_name") || "",
+      client_id: fd.get("client_id") || null,
+      work_type_id: fd.get("work_type_id") || null,
+      work_type_name: workTypeName,
+      assigned_technician_id: fd.get("assigned_technician_id") || null,
+      tooth_number: fd.get("tooth_number") ? Number(fd.get("tooth_number")) : null,
+      shade: fd.get("shade"),
+      instructions: fd.get("instructions"),
+      job_description: fd.get("job_description") || "",
+      lab_fee: formLabFee,
+      discount: formDiscount,
+      due_date: fd.get("due_date") || null,
+      is_urgent: fd.get("is_urgent") === "on",
+      delivery_method: formDeliveryMethod,
+      remark: formRemark === "none" ? "" : formRemark,
+      is_paid: formIsPaid || formDeposit >= netAmount,
+    };
+
+    if (editCase) {
+      if (!isAdmin && editCase.assigned_technician_id && values.assigned_technician_id !== editCase.assigned_technician_id) {
+        values.assigned_technician_id = editCase.assigned_technician_id;
+      }
+      updateCase.mutate({ id: editCase.id, ...values }, { onSuccess: () => { setDialogOpen(false); setEditCase(null); resetFormState(); } });
+    } else {
+      createCase.mutate(values, { onSuccess: () => { setDialogOpen(false); resetFormState(); } });
+    }
+  };
+
+  const handleStatusChange = (caseId: string, currentStatus: string, newStatus: string) => {
+    const updates: Record<string, unknown> = { status: newStatus };
+    const now = new Date().toISOString().split("T")[0];
+    if (newStatus === "ready" && currentStatus !== "ready") updates.completed_date = now;
+    if (newStatus === "delivered" && currentStatus !== "delivered") updates.delivered_date = now;
+    if (newStatus === "in-progress" && currentStatus !== "in-progress") updates.started_date = now;
+    updateCase.mutate({ id: caseId, ...updates });
+  };
+
+  const clearDateFilter = () => { setDateFrom(undefined); setDateTo(undefined); };
+
+  const toggleJobInstruction = (option: string) => {
+    setFormJobInstructions(prev => prev.includes(option) ? prev.filter(v => v !== option) : [...prev, option]);
   };
 
   return (
@@ -109,92 +181,17 @@ export default function LdCasesPage() {
           <h1 className="text-2xl font-bold text-foreground">Lab Cases</h1>
           <p className="text-sm text-muted-foreground">{cases.length} total cases</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) setEditCase(null); }}>
-          <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-1" /> New Case</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>{editCase ? "Edit Case" : "New Case"}</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <Label>Patient Name <span className="text-muted-foreground text-xs">(optional)</span></Label>
-                  <Input name="patient_name" placeholder="Leave blank if confidential" defaultValue={editCase?.patient_name || ""} />
-                </div>
-                <div>
-                  <Label>Client (Clinic)</Label>
-                  <select name="client_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.client_id || ""}>
-                    <option value="">Walk-in</option>
-                    {clients.map((c: any) => <option key={c.id} value={c.id}>{c.clinic_code ? `[${c.clinic_code}] ` : ""}{c.clinic_name} - {c.doctor_name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <Label>Work Type</Label>
-                  <select name="work_type_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.work_type_id || ""}>
-                    <option value="">Select...</option>
-                    {workTypes.map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}
-                  </select>
-                </div>
-                <div className="col-span-2">
-                  <Label>Work Type Name *</Label>
-                  <Input name="work_type_name" required defaultValue={editCase?.work_type_name || ""} />
-                </div>
-                <div>
-                  <Label>Technician {editCase?.assigned_technician_id && !isAdmin ? "(locked)" : ""}</Label>
-                  <select
-                    name="assigned_technician_id"
-                    className="w-full border rounded-md p-2 text-sm bg-background"
-                    defaultValue={editCase?.assigned_technician_id || ""}
-                    disabled={!!editCase?.assigned_technician_id && !isAdmin}
-                  >
-                    <option value="">Unassigned</option>
-                    {staff.filter((s: any) => s.status === "active").map((s: any, idx: number) => (
-                      <option key={s.id} value={s.id}>Technician {idx + 1} — {s.full_name}</option>
-                    ))}
-                  </select>
-                  {editCase?.assigned_technician_id && !isAdmin && (
-                    <p className="text-[10px] text-muted-foreground mt-1">Only admin can change technician after assignment</p>
-                  )}
-                </div>
-                <div>
-                  <Label>Tooth #</Label>
-                  <Input name="tooth_number" type="number" defaultValue={editCase?.tooth_number || ""} />
-                </div>
-                <div>
-                  <Label>Shade</Label>
-                  <Input name="shade" defaultValue={editCase?.shade || ""} />
-                </div>
-                <div>
-                  <Label>Due Date</Label>
-                  <Input name="due_date" type="date" defaultValue={editCase?.due_date || ""} />
-                </div>
-                <div>
-                  <Label>Lab Fee (₦)</Label>
-                  <Input name="lab_fee" type="number" step="0.01" defaultValue={editCase?.lab_fee || 0} />
-                </div>
-                <div>
-                  <Label>Discount (₦)</Label>
-                  <Input name="discount" type="number" step="0.01" defaultValue={editCase?.discount || 0} />
-                </div>
-                <div>
-                  <Label>Delivery Method</Label>
-                  <Input name="delivery_method" defaultValue={editCase?.delivery_method || ""} />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Label>Urgent</Label>
-                  <Switch name="is_urgent" defaultChecked={editCase?.is_urgent || false} />
-                </div>
-              </div>
-              <div>
-                <Label>Instructions</Label>
-                <Textarea name="instructions" defaultValue={editCase?.instructions || ""} />
-              </div>
-              <Button type="submit" className="w-full" disabled={createCase.isPending || updateCase.isPending}>
-                {editCase ? "Update Case" : "Create Case"}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <div className="flex border rounded-md overflow-hidden">
+            <Button variant={viewMode === "table" ? "default" : "ghost"} size="icon" className="h-9 w-9 rounded-none" onClick={() => setViewMode("table")}>
+              <Table className="h-4 w-4" />
+            </Button>
+            <Button variant={viewMode === "kanban" ? "default" : "ghost"} size="icon" className="h-9 w-9 rounded-none" onClick={() => setViewMode("kanban")}>
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button onClick={openCreate}><Plus className="h-4 w-4 mr-1" /> New Case</Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -207,35 +204,23 @@ export default function LdCasesPage() {
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            {statuses.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+            {STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterClientId} onValueChange={setFilterClientId}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Clients" />
-          </SelectTrigger>
+          <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Clients" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Clients</SelectItem>
             {clients.map((c: any) => (
-              <SelectItem key={c.id} value={c.id}>
-                {c.clinic_code ? `[${c.clinic_code}] ` : ""}{c.clinic_name}
-              </SelectItem>
+              <SelectItem key={c.id} value={c.id}>{c.clinic_code ? `[${c.clinic_code}] ` : ""}{c.clinic_name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-
-        {/* Date Range Picker */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className={cn("gap-1", (dateFrom || dateTo) && "border-primary text-primary")}>
               <CalendarIcon className="h-3.5 w-3.5" />
-              {dateFrom && dateTo
-                ? `${format(dateFrom, "MMM d, yyyy")} – ${format(dateTo, "MMM d, yyyy")}`
-                : dateFrom
-                  ? `From ${format(dateFrom, "MMM d, yyyy")}`
-                  : dateTo
-                    ? `Until ${format(dateTo, "MMM d, yyyy")}`
-                    : "Date Range"}
+              {dateFrom && dateTo ? `${format(dateFrom, "MMM d, yyyy")} – ${format(dateTo, "MMM d, yyyy")}` : dateFrom ? `From ${format(dateFrom, "MMM d, yyyy")}` : dateTo ? `Until ${format(dateTo, "MMM d, yyyy")}` : "Date Range"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-4 space-y-3" align="end">
@@ -248,71 +233,328 @@ export default function LdCasesPage() {
               <Calendar mode="single" selected={dateTo} onSelect={setDateTo} className="pointer-events-auto" />
             </div>
             {(dateFrom || dateTo) && (
-              <Button variant="ghost" size="sm" className="w-full text-xs" onClick={clearDateFilter}>
-                Clear Date Filter
-              </Button>
+              <Button variant="ghost" size="sm" className="w-full text-xs" onClick={clearDateFilter}>Clear Date Filter</Button>
             )}
           </PopoverContent>
         </Popover>
       </div>
 
-      {/* Cases Table */}
-      <Card className="border-border/50">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border/50 bg-muted/30">
-                  <th className="text-left p-3 font-medium text-muted-foreground">Case #</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Patient</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Work Type</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Client</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Technician</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">Due</th>
-                  <th className="text-right p-3 font-medium text-muted-foreground">Amount</th>
-                  <th className="text-right p-3 font-medium text-muted-foreground">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Loading...</td></tr>
-                ) : !filtered.length ? (
-                  <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">No cases found</td></tr>
-                ) : filtered.map((c: any) => (
-                  <tr key={c.id} className="border-b border-border/30 hover:bg-muted/20">
-                    <td className="p-3 font-mono text-xs">{c.case_number}</td>
-                    <td className="p-3">
-                      {c.patient_name}
-                      {c.is_urgent && <Badge variant="destructive" className="ml-1 text-[10px]">!</Badge>}
-                    </td>
-                    <td className="p-3">{c.work_type_name}</td>
-                    <td className="p-3 text-xs">{c.client?.clinic_name || "—"}</td>
-                    <td className="p-3 text-xs">{c.technician?.full_name || "Unassigned"}</td>
-                    <td className="p-3">
-                      <Select value={c.status} onValueChange={(v) => handleStatusChange(c.id, v)}>
-                        <SelectTrigger className="h-7 text-xs w-[120px]">
-                          <Badge className={`${statusColor[c.status]} text-[10px]`}>{c.status}</Badge>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statuses.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    <td className="p-3 text-xs">{c.due_date ? format(new Date(c.due_date), "MMM d, yyyy") : "—"}</td>
-                    <td className="p-3 text-right font-medium">₦{Number(c.net_amount || 0).toLocaleString()}</td>
-                    <td className="p-3 text-right">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                    </td>
+      {/* Kanban View */}
+      {viewMode === "kanban" && (
+        isLoading ? (
+          <p className="text-sm text-muted-foreground text-center py-10">Loading lab cases...</p>
+        ) : (
+          <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" variants={stagger.container} initial="hidden" animate="visible">
+            {STATUSES.map((status) => {
+              const statusCases = filtered.filter((c: any) => c.status === status);
+              return (
+                <motion.div key={status} variants={stagger.item}>
+                  <Card className="border-border/50">
+                    <CardHeader className="pb-2 border-b border-border/30">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm capitalize">{status.replace("-", " ")}</CardTitle>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${statusColor[status]}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${statusDots[status]}`} />
+                          {statusCases.length}
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3 pt-3">
+                      {statusCases.map((c: any) => (
+                        <div key={c.id} className={`p-3 rounded-lg border border-border/30 bg-card/50 hover:shadow-md transition-all duration-200 ${c.is_urgent ? "border-destructive/50" : ""}`}>
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium">{c.work_type_name}</p>
+                            <div className="flex items-center gap-1">
+                              {c.is_urgent && <Badge variant="destructive" className="text-[10px] px-1.5">Urgent</Badge>}
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(c)}>
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{c.patient_name || "Confidential"}</p>
+                          <p className="text-[10px] text-muted-foreground">{c.case_number}</p>
+                          {c.client?.clinic_name && <p className="text-[10px] text-muted-foreground">Clinic: {c.client.clinic_name}</p>}
+                          {c.technician?.full_name && <p className="text-[10px] text-muted-foreground">Tech: {c.technician.full_name}</p>}
+                          {c.remark && <Badge variant="outline" className="text-[10px] mt-1">{c.remark}</Badge>}
+
+                          <div className="mt-2 pt-1.5 border-t border-border/20">
+                            <Select value={c.status} onValueChange={(val) => handleStatusChange(c.id, c.status, val)}>
+                              <SelectTrigger className="h-7 text-[11px]"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                {STATUSES.map(s => <SelectItem key={s} value={s} className="text-xs capitalize">{s}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="flex justify-between items-center mt-2 pt-1.5 border-t border-border/20">
+                            <span className="text-[10px] text-muted-foreground">
+                              ₦{Number(c.lab_fee).toLocaleString()}
+                              {Number(c.discount) > 0 && <span className="text-destructive ml-1">-₦{Number(c.discount).toLocaleString()}</span>}
+                            </span>
+                            {c.due_date && (
+                              <span className={`text-[10px] ${new Date(c.due_date) < new Date() && !["delivered", "ready"].includes(c.status) ? "text-destructive font-medium" : "text-muted-foreground"}`}>
+                                Due: {format(new Date(c.due_date), "MMM d")}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {statusCases.length === 0 && <p className="text-xs text-muted-foreground text-center py-4">No cases</p>}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )
+      )}
+
+      {/* Table View */}
+      {viewMode === "table" && (
+        <Card className="border-border/50">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/50 bg-muted/30">
+                    <th className="text-left p-3 font-medium text-muted-foreground">Case #</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">Patient</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">Work Type</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">Client</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">Technician</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground">Due</th>
+                    <th className="text-right p-3 font-medium text-muted-foreground">Amount</th>
+                    <th className="text-right p-3 font-medium text-muted-foreground">Actions</th>
                   </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">Loading...</td></tr>
+                  ) : !filtered.length ? (
+                    <tr><td colSpan={9} className="p-8 text-center text-muted-foreground">No cases found</td></tr>
+                  ) : filtered.map((c: any) => (
+                    <tr key={c.id} className="border-b border-border/30 hover:bg-muted/20">
+                      <td className="p-3 font-mono text-xs">{c.case_number}</td>
+                      <td className="p-3">
+                        {c.patient_name || <span className="text-muted-foreground italic">Confidential</span>}
+                        {c.is_urgent && <Badge variant="destructive" className="ml-1 text-[10px]">!</Badge>}
+                      </td>
+                      <td className="p-3">{c.work_type_name}</td>
+                      <td className="p-3 text-xs">{c.client?.clinic_name || "—"}</td>
+                      <td className="p-3 text-xs">{c.technician?.full_name || "Unassigned"}</td>
+                      <td className="p-3">
+                        <Select value={c.status} onValueChange={(v) => handleStatusChange(c.id, c.status, v)}>
+                          <SelectTrigger className="h-7 text-xs w-[120px]">
+                            <Badge className={`${statusColor[c.status]} text-[10px]`}>{c.status}</Badge>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {STATUSES.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      <td className="p-3 text-xs">{c.due_date ? format(new Date(c.due_date), "MMM d, yyyy") : "—"}</td>
+                      <td className="p-3 text-right font-medium">₦{Number(c.net_amount || 0).toLocaleString()}</td>
+                      <td className="p-3 text-right">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Create/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { setEditCase(null); resetFormState(); } }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{editCase ? `Edit Case — ${editCase.case_number}` : "New Lab Case"}</DialogTitle></DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Patient & Client */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <Label>Patient Name <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                <Input name="patient_name" placeholder="Leave blank if confidential" defaultValue={editCase?.patient_name || ""} />
+              </div>
+              <div>
+                <Label>Client (Clinic)</Label>
+                <select name="client_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.client_id || ""}>
+                  <option value="">Walk-in</option>
+                  {clients.map((c: any) => <option key={c.id} value={c.id}>{c.clinic_code ? `[${c.clinic_code}] ` : ""}{c.clinic_name} - {c.doctor_name}</option>)}
+                </select>
+              </div>
+              <div>
+                <Label>Work Type (Catalog)</Label>
+                <select name="work_type_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.work_type_id || ""}>
+                  <option value="">Select...</option>
+                  {workTypes.map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Job Instructions Checkboxes */}
+            <div>
+              <Label>Job Instructions *</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 border rounded-lg bg-muted/20 mt-1">
+                {JOB_INSTRUCTION_OPTIONS.map((option) => (
+                  <div key={option} className="flex items-center gap-2">
+                    <Checkbox
+                      checked={formJobInstructions.includes(option)}
+                      onCheckedChange={() => toggleJobInstruction(option)}
+                      id={`ji-${option}`}
+                    />
+                    <Label htmlFor={`ji-${option}`} className="text-xs font-normal cursor-pointer">{option}</Label>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+              </div>
+            </div>
+
+            {/* Work Type Name (auto-filled or manual) */}
+            <div>
+              <Label>Work Type Name {formJobInstructions.length === 0 && "*"}</Label>
+              <Input
+                name="work_type_name"
+                required={formJobInstructions.length === 0}
+                defaultValue={editCase?.work_type_name || ""}
+                placeholder={formJobInstructions.length > 0 ? formJobInstructions.join(", ") : "Enter work type name"}
+              />
+              {formJobInstructions.length > 0 && (
+                <p className="text-[10px] text-muted-foreground mt-1">Will use selected job instructions if left empty</p>
+              )}
+            </div>
+
+            {/* Job Description */}
+            <div>
+              <Label>Job Description</Label>
+              <Textarea name="job_description" placeholder="Additional job details..." rows={2} defaultValue={editCase?.job_description || ""} />
+            </div>
+
+            {/* Technician, Tooth, Shade, Due Date */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Technician {editCase?.assigned_technician_id && !isAdmin ? "(locked)" : ""}</Label>
+                <select
+                  name="assigned_technician_id"
+                  className="w-full border rounded-md p-2 text-sm bg-background"
+                  defaultValue={editCase?.assigned_technician_id || ""}
+                  disabled={!!editCase?.assigned_technician_id && !isAdmin}
+                >
+                  <option value="">Unassigned</option>
+                  {staff.filter((s: any) => s.status === "active").map((s: any, idx: number) => (
+                    <option key={s.id} value={s.id}>Technician {idx + 1} — {s.full_name}</option>
+                  ))}
+                </select>
+                {editCase?.assigned_technician_id && !isAdmin && (
+                  <p className="text-[10px] text-muted-foreground mt-1">Only admin can change after assignment</p>
+                )}
+              </div>
+              <div>
+                <Label>Tooth #</Label>
+                <Input name="tooth_number" type="number" defaultValue={editCase?.tooth_number || ""} />
+              </div>
+              <div>
+                <Label>Shade</Label>
+                <Input name="shade" defaultValue={editCase?.shade || ""} placeholder="e.g. A2, B1" />
+              </div>
+              <div>
+                <Label>Due Date</Label>
+                <Input name="due_date" type="date" defaultValue={editCase?.due_date || ""} />
+              </div>
+            </div>
+
+            {/* Cost, Discount, Deposit */}
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <Label>Lab Fee (₦) *</Label>
+                <Input type="number" step="0.01" min={0} value={formLabFee} onChange={(e) => setFormLabFee(Number(e.target.value))} />
+              </div>
+              <div>
+                <Label>Discount (₦)</Label>
+                <Input type="number" step="0.01" min={0} value={formDiscount} onChange={(e) => setFormDiscount(Number(e.target.value))} />
+              </div>
+              <div>
+                <Label>Deposit (₦)</Label>
+                <Input type="number" step="0.01" min={0} value={formDeposit} onChange={(e) => setFormDeposit(Number(e.target.value))} />
+              </div>
+            </div>
+
+            {/* Net Amount & Balance Display */}
+            <div className="rounded-lg border p-3 bg-muted/20 space-y-1">
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Net Amount:</span>
+                <span className="font-semibold">₦{netAmount.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Balance Due:</span>
+                <span className={`font-bold ${balance > 0 ? "text-destructive" : "text-emerald-600"}`}>
+                  ₦{balance.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {/* Remark, Delivery Method, Paid, Urgent */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label>Remark</Label>
+                <Select value={formRemark} onValueChange={setFormRemark}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {REMARK_OPTIONS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Delivery Method</Label>
+                <Select value={formDeliveryMethod} onValueChange={setFormDeliveryMethod}>
+                  <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    {DELIVERY_METHODS.map(d => <SelectItem key={d.value || "empty"} value={d.value || "not-set"}>{d.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <Checkbox checked={formIsPaid} onCheckedChange={(v) => setFormIsPaid(!!v)} id="is-paid" />
+                <Label htmlFor="is-paid" className="text-sm cursor-pointer">Fully Paid</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label>Urgent</Label>
+                <Switch name="is_urgent" defaultChecked={editCase?.is_urgent || false} />
+              </div>
+            </div>
+
+            {/* Special Instructions */}
+            <div>
+              <Label>Special Instructions</Label>
+              <Textarea name="instructions" defaultValue={editCase?.instructions || ""} rows={2} />
+            </div>
+
+            {/* Edit-only: Status */}
+            {editCase && (
+              <div>
+                <Label>Status</Label>
+                <select name="status" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase.status}>
+                  {STATUSES.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
+                </select>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => { setDialogOpen(false); setEditCase(null); resetFormState(); }}>Cancel</Button>
+              <Button type="submit" disabled={createCase.isPending || updateCase.isPending}>
+                {editCase ? (updateCase.isPending ? "Saving..." : "Save Changes") : (createCase.isPending ? "Creating..." : "Register Lab Case")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
