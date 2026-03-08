@@ -23,7 +23,7 @@ const fmt = (v: number) => `₦${v.toLocaleString()}`;
 function buildWhatsAppMessage(inv: any, labPhone?: string, labName?: string, isReminder?: boolean) {
   const balance = Number(inv.total_amount) - Number(inv.amount_paid);
   const lines = [
-    `🏥 *${labName || "Vista Dental Lab"}*`,
+    `🏥 *${labName || "Impression n Teeth"}*`,
     isReminder ? `⏰ *PAYMENT REMINDER*` : `📄 *Invoice: ${inv.invoice_number}*`,
     ``,
     `🦷 Patient: ${inv.patient_name || "—"}`,
