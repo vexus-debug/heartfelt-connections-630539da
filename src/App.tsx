@@ -181,6 +181,10 @@ const App = () => (
             <Route path="/lab-dashboard/invoices" element={<ProtectedLabDashboard><LdInvoicesPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/payments" element={<ProtectedLabDashboard><LdPaymentsPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/settings" element={<ProtectedLabDashboard><LdSettingsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/inventory" element={<ProtectedLabDashboard><LdInventoryPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/analytics" element={<ProtectedLabDashboard><LdAnalyticsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/notifications" element={<ProtectedLabDashboard><LdNotificationsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/audit-log" element={<ProtectedLabDashboard><LdAuditLogPage /></ProtectedLabDashboard>} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
