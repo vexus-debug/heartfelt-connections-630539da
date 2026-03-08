@@ -162,7 +162,7 @@ export default function LdCasesPage() {
   };
 
   const handleStatusChange = (caseId: string, currentStatus: string, newStatus: string) => {
-    const updates: Record<string, unknown> = { status: newStatus };
+    const updates: Record<string, unknown> = { status: newStatus, _oldStatus: currentStatus, _changedBy: user?.id, _changedByName: profile?.full_name || "" };
     const now = new Date().toISOString().split("T")[0];
     if (newStatus === "ready" && currentStatus !== "ready") updates.completed_date = now;
     if (newStatus === "delivered" && currentStatus !== "delivered") updates.delivered_date = now;
