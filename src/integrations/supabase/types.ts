@@ -1091,16 +1091,129 @@ export type Database = {
         }
         Relationships: []
       }
+      ld_case_history: {
+        Row: {
+          changed_by: string | null
+          changed_by_name: string | null
+          created_at: string
+          field_changed: string
+          id: string
+          lab_case_id: string
+          new_value: string | null
+          old_value: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          field_changed: string
+          id?: string
+          lab_case_id: string
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          field_changed?: string
+          id?: string
+          lab_case_id?: string
+          new_value?: string | null
+          old_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_case_history_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_case_images: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          lab_case_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          lab_case_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          lab_case_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_case_images_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_case_notes: {
+        Row: {
+          created_at: string
+          id: string
+          lab_case_id: string
+          note: string
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lab_case_id: string
+          note: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lab_case_id?: string
+          note?: string
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_case_notes_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ld_cases: {
         Row: {
           assigned_technician_id: string | null
           case_number: string
           client_id: string | null
           completed_date: string | null
+          courier_name: string | null
           created_at: string
           created_by: string | null
           delivered_date: string | null
           delivery_method: string | null
+          delivery_notes: string | null
           discount: number | null
           due_date: string | null
           id: string
@@ -1111,12 +1224,16 @@ export type Database = {
           lab_fee: number
           net_amount: number | null
           patient_name: string
+          qc_passed: boolean | null
+          qc_passed_at: string | null
+          qc_passed_by: string | null
           received_date: string | null
           remark: string | null
           shade: string | null
           started_date: string | null
           status: string
           tooth_number: number | null
+          tracking_number: string | null
           updated_at: string
           work_type_id: string | null
           work_type_name: string
@@ -1126,10 +1243,12 @@ export type Database = {
           case_number?: string
           client_id?: string | null
           completed_date?: string | null
+          courier_name?: string | null
           created_at?: string
           created_by?: string | null
           delivered_date?: string | null
           delivery_method?: string | null
+          delivery_notes?: string | null
           discount?: number | null
           due_date?: string | null
           id?: string
@@ -1140,12 +1259,16 @@ export type Database = {
           lab_fee?: number
           net_amount?: number | null
           patient_name?: string
+          qc_passed?: boolean | null
+          qc_passed_at?: string | null
+          qc_passed_by?: string | null
           received_date?: string | null
           remark?: string | null
           shade?: string | null
           started_date?: string | null
           status?: string
           tooth_number?: number | null
+          tracking_number?: string | null
           updated_at?: string
           work_type_id?: string | null
           work_type_name?: string
@@ -1155,10 +1278,12 @@ export type Database = {
           case_number?: string
           client_id?: string | null
           completed_date?: string | null
+          courier_name?: string | null
           created_at?: string
           created_by?: string | null
           delivered_date?: string | null
           delivery_method?: string | null
+          delivery_notes?: string | null
           discount?: number | null
           due_date?: string | null
           id?: string
@@ -1169,12 +1294,16 @@ export type Database = {
           lab_fee?: number
           net_amount?: number | null
           patient_name?: string
+          qc_passed?: boolean | null
+          qc_passed_at?: string | null
+          qc_passed_by?: string | null
           received_date?: string | null
           remark?: string | null
           shade?: string | null
           started_date?: string | null
           status?: string
           tooth_number?: number | null
+          tracking_number?: string | null
           updated_at?: string
           work_type_id?: string | null
           work_type_name?: string
@@ -1244,6 +1373,67 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ld_credit_notes: {
+        Row: {
+          amount: number
+          case_id: string | null
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          invoice_id: string | null
+          note_number: string
+          reason: string
+          type: string
+        }
+        Insert: {
+          amount?: number
+          case_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invoice_id?: string | null
+          note_number?: string
+          reason?: string
+          type?: string
+        }
+        Update: {
+          amount?: number
+          case_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invoice_id?: string | null
+          note_number?: string
+          reason?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_credit_notes_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_credit_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "ld_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_credit_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "ld_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ld_inventory: {
         Row: {
@@ -1396,6 +1586,50 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "ld_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_quality_checks: {
+        Row: {
+          check_item: string
+          checked_at: string | null
+          checked_by: string | null
+          checked_by_name: string | null
+          created_at: string
+          id: string
+          is_passed: boolean
+          lab_case_id: string
+          notes: string | null
+        }
+        Insert: {
+          check_item: string
+          checked_at?: string | null
+          checked_by?: string | null
+          checked_by_name?: string | null
+          created_at?: string
+          id?: string
+          is_passed?: boolean
+          lab_case_id: string
+          notes?: string | null
+        }
+        Update: {
+          check_item?: string
+          checked_at?: string | null
+          checked_by?: string | null
+          checked_by_name?: string | null
+          created_at?: string
+          id?: string
+          is_passed?: boolean
+          lab_case_id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_quality_checks_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
             referencedColumns: ["id"]
           },
         ]

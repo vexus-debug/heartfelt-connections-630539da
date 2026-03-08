@@ -50,6 +50,11 @@ import LdInventoryPage from "./pages/lab-dashboard/LdInventoryPage";
 import LdAnalyticsPage from "./pages/lab-dashboard/LdAnalyticsPage";
 import LdNotificationsPage from "./pages/lab-dashboard/LdNotificationsPage";
 import LdAuditLogPage from "./pages/lab-dashboard/LdAuditLogPage";
+import LdCaseDetailPage from "./pages/lab-dashboard/LdCaseDetailPage";
+import LdClientStatementsPage from "./pages/lab-dashboard/LdClientStatementsPage";
+import LdCreditNotesPage from "./pages/lab-dashboard/LdCreditNotesPage";
+import LdTechPerformancePage from "./pages/lab-dashboard/LdTechPerformancePage";
+import LdReportsPage from "./pages/lab-dashboard/LdReportsPage";
 import LabLogin from "./pages/lab-dashboard/LabLogin";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PatientsPage from "./pages/dashboard/PatientsPage";
@@ -189,6 +194,11 @@ const App = () => (
             <Route path="/lab-dashboard/analytics" element={<ProtectedLabDashboard><LdAnalyticsPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/notifications" element={<ProtectedLabDashboard><LdNotificationsPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/audit-log" element={<ProtectedLabDashboard><LdAuditLogPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/cases/:caseId" element={<ProtectedLabDashboard><LdCaseDetailPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/statements" element={<ProtectedLabDashboard><LdClientStatementsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/credit-notes" element={<ProtectedLabDashboard><LdCreditNotesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/performance" element={<ProtectedLabDashboard><LdTechPerformancePage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/reports" element={<ProtectedLabDashboard><LdReportsPage /></ProtectedLabDashboard>} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />

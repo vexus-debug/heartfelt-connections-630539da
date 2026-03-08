@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Search, Pencil, CalendarIcon, LayoutGrid, Table } from "lucide-react";
+import { Plus, Search, Pencil, CalendarIcon, LayoutGrid, Table, Eye } from "lucide-react";
 import { useLdCases, useCreateLdCase, useUpdateLdCase, useLdClients, useLdStaff, useLdWorkTypes } from "@/hooks/useLabDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
@@ -55,11 +56,12 @@ const stagger = {
 };
 
 export default function LdCasesPage() {
+  const navigate = useNavigate();
   const { data: cases = [], isLoading } = useLdCases();
   const { data: clients = [] } = useLdClients();
   const { data: staff = [] } = useLdStaff();
   const { data: workTypes = [] } = useLdWorkTypes();
-  const { roles } = useAuth();
+  const { roles, user, profile } = useAuth();
   const isAdmin = roles.includes("admin");
   const createCase = useCreateLdCase();
   const updateCase = useUpdateLdCase();
@@ -160,7 +162,7 @@ export default function LdCasesPage() {
   };
 
   const handleStatusChange = (caseId: string, currentStatus: string, newStatus: string) => {
-    const updates: Record<string, unknown> = { status: newStatus };
+    const updates: Record<string, unknown> = { status: newStatus, _oldStatus: currentStatus, _changedBy: user?.id, _changedByName: profile?.full_name || "" };
     const now = new Date().toISOString().split("T")[0];
     if (newStatus === "ready" && currentStatus !== "ready") updates.completed_date = now;
     if (newStatus === "delivered" && currentStatus !== "delivered") updates.delivered_date = now;
@@ -266,6 +268,9 @@ export default function LdCasesPage() {
                             <p className="text-sm font-medium">{c.work_type_name}</p>
                             <div className="flex items-center gap-1">
                               {c.is_urgent && <Badge variant="destructive" className="text-[10px] px-1.5">Urgent</Badge>}
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => navigate(`/lab-dashboard/cases/${c.id}`)}>
+                                <Eye className="h-3 w-3" />
+                              </Button>
                               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(c)}>
                                 <Pencil className="h-3 w-3" />
                               </Button>
@@ -356,9 +361,14 @@ export default function LdCasesPage() {
                       <td className="p-3 text-xs">{c.due_date ? format(new Date(c.due_date), "MMM d, yyyy") : "—"}</td>
                       <td className="p-3 text-right font-medium">₦{Number(c.net_amount || 0).toLocaleString()}</td>
                       <td className="p-3 text-right">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
+                        <div className="flex gap-1 justify-end">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigate(`/lab-dashboard/cases/${c.id}`)}>
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}

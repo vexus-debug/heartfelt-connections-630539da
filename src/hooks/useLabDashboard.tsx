@@ -164,11 +164,23 @@ export function useCreateLdCase() {
 export function useUpdateLdCase() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...values }: { id: string } & Record<string, unknown>) => {
+    mutationFn: async ({ id, _oldStatus, _changedBy, _changedByName, ...values }: { id: string; _oldStatus?: string; _changedBy?: string; _changedByName?: string } & Record<string, unknown>) => {
       const { error } = await supabase.from("ld_cases").update(values as any).eq("id", id);
       if (error) throw error;
+
+      // Log status change to history
+      if (values.status && _oldStatus && values.status !== _oldStatus) {
+        await supabase.from("ld_case_history").insert({
+          lab_case_id: id,
+          field_changed: "status",
+          old_value: _oldStatus,
+          new_value: values.status as string,
+          changed_by: _changedBy || null,
+          changed_by_name: _changedByName || "",
+        });
+      }
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["ld-cases"] }); toast.success("Case updated"); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["ld-cases"] }); qc.invalidateQueries({ queryKey: ["ld-case-history"] }); toast.success("Case updated"); },
     onError: (e: Error) => toast.error(e.message),
   });
 }

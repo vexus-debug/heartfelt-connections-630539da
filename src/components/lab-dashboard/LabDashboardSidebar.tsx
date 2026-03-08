@@ -8,7 +8,7 @@ import {
 import {
   LayoutDashboard, Users, Building2, ClipboardList, Wrench,
   CreditCard, DollarSign, UserCog, Settings, LogOut, FlaskConical,
-  Package, BarChart3, Bell, Shield,
+  Package, BarChart3, Bell, Shield, FileText, Receipt, Download, Activity,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,6 +37,7 @@ const navGroups = [
     label: "Team",
     items: [
       { title: "Staff", url: "/lab-dashboard/staff", icon: UserCog },
+      { title: "Performance", url: "/lab-dashboard/performance", icon: Activity },
     ],
   },
   {
@@ -44,7 +45,10 @@ const navGroups = [
     items: [
       { title: "Invoices", url: "/lab-dashboard/invoices", icon: CreditCard },
       { title: "Payments", url: "/lab-dashboard/payments", icon: DollarSign },
+      { title: "Credit Notes", url: "/lab-dashboard/credit-notes", icon: FileText },
+      { title: "Statements", url: "/lab-dashboard/statements", icon: Receipt },
       { title: "Analytics", url: "/lab-dashboard/analytics", icon: BarChart3 },
+      { title: "Reports", url: "/lab-dashboard/reports", icon: Download },
     ],
   },
   {
