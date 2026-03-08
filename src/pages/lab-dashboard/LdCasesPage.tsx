@@ -56,6 +56,7 @@ const stagger = {
 };
 
 export default function LdCasesPage() {
+  const navigate = useNavigate();
   const { data: cases = [], isLoading } = useLdCases();
   const { data: clients = [] } = useLdClients();
   const { data: staff = [] } = useLdStaff();
