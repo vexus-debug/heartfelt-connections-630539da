@@ -175,11 +175,11 @@ export default function LdEquipmentPage() {
       <PageHeader
         title="Equipment Management"
         description="Track lab machinery and maintenance schedules"
-        action={
-          <Button onClick={openCreateEquipmentDialog} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Equipment
-          </Button>
-        }
+      >
+        <Button onClick={openCreateEquipmentDialog} className="gap-2">
+          <Plus className="h-4 w-4" /> Add Equipment
+        </Button>
+      </PageHeader>
       />
 
       {/* Summary */}

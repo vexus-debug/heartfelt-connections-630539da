@@ -201,11 +201,11 @@ export default function LdDispatchPage() {
       <PageHeader
         title="Dispatch & Pickups"
         description="Schedule and manage courier pickups and deliveries"
-        action={
-          <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="gap-2">
-            <Plus className="h-4 w-4" /> Schedule Pickup
-          </Button>
-        }
+      >
+        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="gap-2">
+          <Plus className="h-4 w-4" /> Schedule Pickup
+        </Button>
+      </PageHeader>
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

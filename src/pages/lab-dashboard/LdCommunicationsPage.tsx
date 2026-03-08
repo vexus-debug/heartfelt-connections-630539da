@@ -106,11 +106,11 @@ export default function LdCommunicationsPage() {
       <PageHeader
         title="Communication Log"
         description="Track all client interactions"
-        action={
-          <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="gap-2">
-            <Plus className="h-4 w-4" /> Log Communication
-          </Button>
-        }
+      >
+        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="gap-2">
+          <Plus className="h-4 w-4" /> Log Communication
+        </Button>
+      </PageHeader>
       />
 
       {/* Follow-up Alert */}

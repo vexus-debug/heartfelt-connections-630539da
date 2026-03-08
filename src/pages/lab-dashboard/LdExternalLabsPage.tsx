@@ -178,16 +178,14 @@ export default function LdExternalLabsPage() {
       <PageHeader
         title="External Labs"
         description="Manage partner labs and outsourced cases"
-        action={
-          <div className="flex gap-2">
-            <Button onClick={openOutsourceDialog} variant="outline" className="gap-2">
-              <Send className="h-4 w-4" /> Outsource Case
-            </Button>
-            <Button onClick={openCreateLabDialog} className="gap-2">
-              <Plus className="h-4 w-4" /> Add Lab
-            </Button>
-          </div>
-        }
+      >
+        <Button onClick={openOutsourceDialog} variant="outline" className="gap-2">
+          <Send className="h-4 w-4" /> Outsource Case
+        </Button>
+        <Button onClick={openCreateLabDialog} className="gap-2">
+          <Plus className="h-4 w-4" /> Add Lab
+        </Button>
+      </PageHeader>
       />
 
       <Tabs defaultValue="labs">

@@ -131,11 +131,11 @@ export default function LdShipmentsPage() {
       <PageHeader
         title="Batch Shipments"
         description="Group completed cases for dispatch to clients"
-        action={
-          <Button onClick={() => { resetForm(); setCreateDialogOpen(true); }} className="gap-2">
-            <Plus className="h-4 w-4" /> Create Shipment
-          </Button>
-        }
+      >
+        <Button onClick={() => { resetForm(); setCreateDialogOpen(true); }} className="gap-2">
+          <Plus className="h-4 w-4" /> Create Shipment
+        </Button>
+      </PageHeader>
       />
 
       {/* Summary Cards */}

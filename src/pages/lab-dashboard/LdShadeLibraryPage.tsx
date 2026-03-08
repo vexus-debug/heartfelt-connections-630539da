@@ -159,18 +159,16 @@ export default function LdShadeLibraryPage() {
       <PageHeader
         title="Shade Library"
         description="Manage dental shade references"
-        action={
-          <div className="flex gap-2">
-            {shades.filter(s => s.shade_system === "vita-classic").length === 0 && (
-              <Button variant="outline" onClick={importVitaClassic}>
-                Import VITA Classical
-              </Button>
-            )}
-            <Button onClick={openCreateDialog} className="gap-2">
-              <Plus className="h-4 w-4" /> Add Shade
-            </Button>
-          </div>
-        }
+      >
+        {shades.filter(s => s.shade_system === "vita-classic").length === 0 && (
+          <Button variant="outline" onClick={importVitaClassic}>
+            Import VITA Classical
+          </Button>
+        )}
+        <Button onClick={openCreateDialog} className="gap-2">
+          <Plus className="h-4 w-4" /> Add Shade
+        </Button>
+      </PageHeader>
       />
 
       <Card>

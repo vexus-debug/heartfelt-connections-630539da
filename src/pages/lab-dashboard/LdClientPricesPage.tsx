@@ -125,11 +125,11 @@ export default function LdClientPricesPage() {
       <PageHeader
         title="Client Price Lists"
         description="Custom pricing and discounts per client"
-        action={
-          <Button onClick={openCreateDialog} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Custom Price
-          </Button>
-        }
+      >
+        <Button onClick={openCreateDialog} className="gap-2">
+          <Plus className="h-4 w-4" /> Add Custom Price
+        </Button>
+      </PageHeader>
       />
 
       <Card>

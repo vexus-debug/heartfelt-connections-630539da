@@ -140,11 +140,11 @@ export default function LdWarrantiesPage() {
       <PageHeader
         title="Warranty Tracking"
         description="Track warranty periods and claims on delivered work"
-        action={
-          <Button onClick={() => { resetCreateForm(); setCreateDialogOpen(true); }} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Warranty
-          </Button>
-        }
+      >
+        <Button onClick={() => { resetCreateForm(); setCreateDialogOpen(true); }} className="gap-2">
+          <Plus className="h-4 w-4" /> Add Warranty
+        </Button>
+      </PageHeader>
       />
 
       {/* Summary */}

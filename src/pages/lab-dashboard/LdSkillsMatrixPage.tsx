@@ -138,20 +138,17 @@ export default function LdSkillsMatrixPage() {
       <PageHeader
         title="Skills Matrix"
         description="Match technicians to work types by proficiency"
-        action={
-          <div className="flex gap-2">
-            <Button variant={viewMode === "matrix" ? "default" : "outline"} size="sm" onClick={() => setViewMode("matrix")}>
-              Matrix View
-            </Button>
-            <Button variant={viewMode === "list" ? "default" : "outline"} size="sm" onClick={() => setViewMode("list")}>
-              List View
-            </Button>
-            <Button onClick={openCreateDialog} className="gap-2">
-              <Plus className="h-4 w-4" /> Add Skill
-            </Button>
-          </div>
-        }
-      />
+      >
+        <Button variant={viewMode === "matrix" ? "default" : "outline"} size="sm" onClick={() => setViewMode("matrix")}>
+          Matrix View
+        </Button>
+        <Button variant={viewMode === "list" ? "default" : "outline"} size="sm" onClick={() => setViewMode("list")}>
+          List View
+        </Button>
+        <Button onClick={openCreateDialog} className="gap-2">
+          <Plus className="h-4 w-4" /> Add Skill
+        </Button>
+      </PageHeader>
 
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

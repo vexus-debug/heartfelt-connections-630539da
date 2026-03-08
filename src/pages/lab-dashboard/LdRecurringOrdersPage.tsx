@@ -160,11 +160,11 @@ export default function LdRecurringOrdersPage() {
       <PageHeader
         title="Recurring Orders"
         description="Manage standing orders for regular clients"
-        action={
-          <Button onClick={openCreateDialog} className="gap-2">
-            <Plus className="h-4 w-4" /> New Recurring Order
-          </Button>
-        }
+      >
+        <Button onClick={openCreateDialog} className="gap-2">
+          <Plus className="h-4 w-4" /> New Recurring Order
+        </Button>
+      </PageHeader>
       />
 
       <Card>
