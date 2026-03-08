@@ -6,10 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff } from "lucide-react";
-import logo from "@/assets/logo.jpg";
+import { Eye, EyeOff, FlaskConical } from "lucide-react";
 
-export default function Login() {
+export default function LabLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,47 +25,56 @@ export default function Login() {
     if (error) {
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
     } else if (data.user) {
-      // Check role to determine landing page
       const { data: rolesData } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", data.user.id);
 
       const roles = (rolesData ?? []).map((r: any) => r.role);
-      const isLabOnly = roles.every((r: string) => r === "lab_technician") && roles.length > 0;
-      navigate(isLabOnly ? "/dashboard/lab" : "/dashboard");
+      const hasLabAccess = roles.includes("lab_technician") || roles.includes("admin");
+
+      if (!hasLabAccess) {
+        await supabase.auth.signOut();
+        toast({
+          title: "Access denied",
+          description: "You don't have lab dashboard access. Please use the clinic login.",
+          variant: "destructive",
+        });
+      } else {
+        navigate("/lab-dashboard");
+      }
     }
     setLoading(false);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background px-4">
+      <Card className="w-full max-w-md border-primary/20">
         <CardHeader className="text-center space-y-3">
-          <div className="mx-auto">
-            <img src={logo} alt="Vista Dental" className="h-16 w-16 rounded-full object-cover mx-auto" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <FlaskConical className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl text-primary">Welcome Back</CardTitle>
-          <CardDescription>Sign in to Vista Dental Clinic Management</CardDescription>
+          <CardTitle className="text-2xl text-primary">Lab Portal</CardTitle>
+          <CardDescription>Sign in to the Dental Lab Management System</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="lab-email">Email</Label>
               <Input
-                id="email"
+                id="lab-email"
                 type="email"
-                placeholder="you@vistadentalcare.com"
+                placeholder="you@lab.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="lab-password">Password</Label>
               <div className="relative">
                 <Input
-                  id="password"
+                  id="lab-password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
@@ -83,19 +91,15 @@ export default function Login() {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Signing in..." : "Sign In to Lab"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
-            Staff accounts are created by your administrator.
+            Lab accounts are created by your administrator.
           </div>
-          <div className="mt-2 flex items-center justify-center gap-3 text-xs text-muted-foreground">
-            <Link to="/" className="hover:text-foreground">
-              ← Back to website
-            </Link>
-            <span>·</span>
-            <Link to="/lab-login" className="hover:text-foreground">
-              Lab Portal →
+          <div className="mt-2 text-center">
+            <Link to="/login" className="text-xs text-muted-foreground hover:text-foreground">
+              ← Clinic staff login
             </Link>
           </div>
         </CardContent>

@@ -50,6 +50,7 @@ import LdInventoryPage from "./pages/lab-dashboard/LdInventoryPage";
 import LdAnalyticsPage from "./pages/lab-dashboard/LdAnalyticsPage";
 import LdNotificationsPage from "./pages/lab-dashboard/LdNotificationsPage";
 import LdAuditLogPage from "./pages/lab-dashboard/LdAuditLogPage";
+import LabLogin from "./pages/lab-dashboard/LabLogin";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PatientsPage from "./pages/dashboard/PatientsPage";
 import AppointmentsPage from "./pages/dashboard/AppointmentsPage";
@@ -171,6 +172,9 @@ const App = () => (
             <Route path="/dashboard/shop/orders" element={<ProtectedDashboard><ShopOrdersPage /></ProtectedDashboard>} />
             <Route path="/dashboard/marketing/whatsapp" element={<ProtectedDashboard><WhatsAppMarketingPage /></ProtectedDashboard>} />
             <Route path="/dashboard/marketing/email" element={<ProtectedDashboard><EmailMarketingPage /></ProtectedDashboard>} />
+
+            {/* Lab Login */}
+            <Route path="/lab-login" element={<LabLogin />} />
 
             {/* Lab Dashboard Routes - Independent */}
             <Route path="/lab-dashboard" element={<ProtectedLabDashboard><LdHomePage /></ProtectedLabDashboard>} />

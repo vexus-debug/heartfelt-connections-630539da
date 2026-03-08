@@ -34,7 +34,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!session) {
-    return <Navigate to="/login" replace />;
+    const loginPath = location.pathname.startsWith("/lab-dashboard") ? "/lab-login" : "/login";
+    return <Navigate to={loginPath} replace />;
   }
 
   // Lab-technician-only users should always land on /dashboard/lab
