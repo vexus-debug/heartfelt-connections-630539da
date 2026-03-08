@@ -37,6 +37,15 @@ export const PAGE_ROLE_ACCESS: Record<string, AppRole[]> = {
   "/dashboard/shop/orders": ["admin", "receptionist"],
   "/dashboard/marketing/whatsapp": ["admin"],
   "/dashboard/marketing/email": ["admin"],
+  // Lab Dashboard (standalone)
+  "/lab-dashboard": ["admin", "lab_technician"],
+  "/lab-dashboard/cases": ["admin", "lab_technician"],
+  "/lab-dashboard/clients": ["admin", "lab_technician"],
+  "/lab-dashboard/staff": ["admin"],
+  "/lab-dashboard/work-types": ["admin"],
+  "/lab-dashboard/invoices": ["admin", "lab_technician"],
+  "/lab-dashboard/payments": ["admin", "lab_technician"],
+  "/lab-dashboard/settings": ["admin"],
 };
 
 // Check if user has access to a given path

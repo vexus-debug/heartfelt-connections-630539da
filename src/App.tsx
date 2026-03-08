@@ -36,6 +36,16 @@ import Periodontics from "./pages/services/Periodontics";
 
 // Dashboard Pages
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
+// Lab Dashboard
+import { LabDashboardLayout } from "./components/lab-dashboard/LabDashboardLayout";
+import LdHomePage from "./pages/lab-dashboard/LdHomePage";
+import LdCasesPage from "./pages/lab-dashboard/LdCasesPage";
+import LdClientsPage from "./pages/lab-dashboard/LdClientsPage";
+import LdStaffPage from "./pages/lab-dashboard/LdStaffPage";
+import LdWorkTypesPage from "./pages/lab-dashboard/LdWorkTypesPage";
+import LdInvoicesPage from "./pages/lab-dashboard/LdInvoicesPage";
+import LdPaymentsPage from "./pages/lab-dashboard/LdPaymentsPage";
+import LdSettingsPage from "./pages/lab-dashboard/LdSettingsPage";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PatientsPage from "./pages/dashboard/PatientsPage";
 import AppointmentsPage from "./pages/dashboard/AppointmentsPage";
@@ -75,6 +85,12 @@ const queryClient = new QueryClient();
 const ProtectedDashboard = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute>
     <DashboardLayout>{children}</DashboardLayout>
+  </ProtectedRoute>
+);
+
+const ProtectedLabDashboard = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute>
+    <LabDashboardLayout>{children}</LabDashboardLayout>
   </ProtectedRoute>
 );
 
@@ -151,6 +167,17 @@ const App = () => (
             <Route path="/dashboard/shop/orders" element={<ProtectedDashboard><ShopOrdersPage /></ProtectedDashboard>} />
             <Route path="/dashboard/marketing/whatsapp" element={<ProtectedDashboard><WhatsAppMarketingPage /></ProtectedDashboard>} />
             <Route path="/dashboard/marketing/email" element={<ProtectedDashboard><EmailMarketingPage /></ProtectedDashboard>} />
+
+            {/* Lab Dashboard Routes - Independent */}
+            <Route path="/lab-dashboard" element={<ProtectedLabDashboard><LdHomePage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/cases" element={<ProtectedLabDashboard><LdCasesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/clients" element={<ProtectedLabDashboard><LdClientsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/staff" element={<ProtectedLabDashboard><LdStaffPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/work-types" element={<ProtectedLabDashboard><LdWorkTypesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/invoices" element={<ProtectedLabDashboard><LdInvoicesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/payments" element={<ProtectedLabDashboard><LdPaymentsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/settings" element={<ProtectedLabDashboard><LdSettingsPage /></ProtectedLabDashboard>} />
+
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>

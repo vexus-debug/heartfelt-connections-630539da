@@ -1058,6 +1058,375 @@ export type Database = {
         }
         Relationships: []
       }
+      ld_cases: {
+        Row: {
+          assigned_technician_id: string | null
+          case_number: string
+          client_id: string | null
+          completed_date: string | null
+          created_at: string
+          created_by: string | null
+          delivered_date: string | null
+          delivery_method: string | null
+          discount: number | null
+          due_date: string | null
+          id: string
+          instructions: string | null
+          is_paid: boolean
+          is_urgent: boolean
+          job_description: string | null
+          lab_fee: number
+          net_amount: number | null
+          patient_name: string
+          received_date: string | null
+          remark: string | null
+          shade: string | null
+          started_date: string | null
+          status: string
+          tooth_number: number | null
+          updated_at: string
+          work_type_id: string | null
+          work_type_name: string
+        }
+        Insert: {
+          assigned_technician_id?: string | null
+          case_number?: string
+          client_id?: string | null
+          completed_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivered_date?: string | null
+          delivery_method?: string | null
+          discount?: number | null
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          is_paid?: boolean
+          is_urgent?: boolean
+          job_description?: string | null
+          lab_fee?: number
+          net_amount?: number | null
+          patient_name?: string
+          received_date?: string | null
+          remark?: string | null
+          shade?: string | null
+          started_date?: string | null
+          status?: string
+          tooth_number?: number | null
+          updated_at?: string
+          work_type_id?: string | null
+          work_type_name?: string
+        }
+        Update: {
+          assigned_technician_id?: string | null
+          case_number?: string
+          client_id?: string | null
+          completed_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivered_date?: string | null
+          delivery_method?: string | null
+          discount?: number | null
+          due_date?: string | null
+          id?: string
+          instructions?: string | null
+          is_paid?: boolean
+          is_urgent?: boolean
+          job_description?: string | null
+          lab_fee?: number
+          net_amount?: number | null
+          patient_name?: string
+          received_date?: string | null
+          remark?: string | null
+          shade?: string | null
+          started_date?: string | null
+          status?: string
+          tooth_number?: number | null
+          updated_at?: string
+          work_type_id?: string | null
+          work_type_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_cases_assigned_technician_id_fkey"
+            columns: ["assigned_technician_id"]
+            isOneToOne: false
+            referencedRelation: "ld_staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_cases_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "ld_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_cases_work_type_id_fkey"
+            columns: ["work_type_id"]
+            isOneToOne: false
+            referencedRelation: "ld_work_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_clients: {
+        Row: {
+          address: string | null
+          clinic_code: string | null
+          clinic_name: string
+          created_at: string
+          doctor_name: string
+          email: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          clinic_code?: string | null
+          clinic_name: string
+          created_at?: string
+          doctor_name: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          clinic_code?: string | null
+          clinic_name?: string
+          created_at?: string
+          doctor_name?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ld_invoices: {
+        Row: {
+          amount_paid: number
+          case_id: string | null
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          discount: number
+          id: string
+          invoice_date: string
+          invoice_number: string
+          notes: string | null
+          patient_name: string | null
+          status: string
+          subtotal: number
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          case_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount?: number
+          id?: string
+          invoice_date?: string
+          invoice_number?: string
+          notes?: string | null
+          patient_name?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          case_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          discount?: number
+          id?: string
+          invoice_date?: string
+          invoice_number?: string
+          notes?: string | null
+          patient_name?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_invoices_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "ld_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          invoice_id: string
+          payment_date: string
+          payment_method: string
+          reference: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          invoice_id: string
+          payment_date?: string
+          payment_method?: string
+          reference?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          payment_date?: string
+          payment_method?: string
+          reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "ld_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ld_settings: {
+        Row: {
+          address: string | null
+          email: string | null
+          id: string
+          lab_name: string
+          logo_url: string | null
+          phone: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          email?: string | null
+          id?: string
+          lab_name?: string
+          logo_url?: string | null
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          email?: string | null
+          id?: string
+          lab_name?: string
+          logo_url?: string | null
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      ld_staff: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          role: string
+          specialty: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          role?: string
+          specialty?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          role?: string
+          specialty?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      ld_work_types: {
+        Row: {
+          base_price: number
+          category: string
+          created_at: string
+          description: string | null
+          estimated_days: number
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          base_price?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          estimated_days?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          base_price?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          estimated_days?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       marketing_campaigns: {
         Row: {
           channel: string
