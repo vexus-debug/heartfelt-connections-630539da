@@ -173,6 +173,9 @@ const App = () => (
             <Route path="/dashboard/marketing/whatsapp" element={<ProtectedDashboard><WhatsAppMarketingPage /></ProtectedDashboard>} />
             <Route path="/dashboard/marketing/email" element={<ProtectedDashboard><EmailMarketingPage /></ProtectedDashboard>} />
 
+            {/* Lab Login */}
+            <Route path="/lab-login" element={<LabLogin />} />
+
             {/* Lab Dashboard Routes - Independent */}
             <Route path="/lab-dashboard" element={<ProtectedLabDashboard><LdHomePage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/cases" element={<ProtectedLabDashboard><LdCasesPage /></ProtectedLabDashboard>} />
