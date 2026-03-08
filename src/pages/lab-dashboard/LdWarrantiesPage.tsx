@@ -145,7 +145,6 @@ export default function LdWarrantiesPage() {
           <Plus className="h-4 w-4" /> Add Warranty
         </Button>
       </PageHeader>
-      />
 
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

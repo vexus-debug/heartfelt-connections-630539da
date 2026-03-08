@@ -186,7 +186,6 @@ export default function LdExternalLabsPage() {
           <Plus className="h-4 w-4" /> Add Lab
         </Button>
       </PageHeader>
-      />
 
       <Tabs defaultValue="labs">
         <TabsList>

@@ -169,7 +169,6 @@ export default function LdShadeLibraryPage() {
           <Plus className="h-4 w-4" /> Add Shade
         </Button>
       </PageHeader>
-      />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4 pb-4">

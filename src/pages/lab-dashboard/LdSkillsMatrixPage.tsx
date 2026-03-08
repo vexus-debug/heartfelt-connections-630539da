@@ -218,8 +218,8 @@ export default function LdSkillsMatrixPage() {
                             {skill ? (
                               <div className="flex flex-col items-center gap-1">
                                 {getProficiencyBadge(skill.proficiency)}
-                                {skill.certified && (
-                                  <CheckCircle className="h-4 w-4 text-emerald-600" title="Certified" />
+                        {skill.certified && (
+                          <CheckCircle className="h-4 w-4 text-emerald-600" />
                                 )}
                               </div>
                             ) : (

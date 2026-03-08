@@ -206,7 +206,6 @@ export default function LdDispatchPage() {
           <Plus className="h-4 w-4" /> Schedule Pickup
         </Button>
       </PageHeader>
-      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Today & Tomorrow */}

@@ -130,7 +130,6 @@ export default function LdClientPricesPage() {
           <Plus className="h-4 w-4" /> Add Custom Price
         </Button>
       </PageHeader>
-      />
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">

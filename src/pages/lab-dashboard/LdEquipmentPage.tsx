@@ -180,7 +180,6 @@ export default function LdEquipmentPage() {
           <Plus className="h-4 w-4" /> Add Equipment
         </Button>
       </PageHeader>
-      />
 
       {/* Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

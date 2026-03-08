@@ -136,7 +136,6 @@ export default function LdShipmentsPage() {
           <Plus className="h-4 w-4" /> Create Shipment
         </Button>
       </PageHeader>
-      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

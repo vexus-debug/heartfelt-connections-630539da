@@ -111,7 +111,6 @@ export default function LdCommunicationsPage() {
           <Plus className="h-4 w-4" /> Log Communication
         </Button>
       </PageHeader>
-      />
 
       {/* Follow-up Alert */}
       {followUpRequired > 0 && (
