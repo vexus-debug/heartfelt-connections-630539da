@@ -44,11 +44,14 @@ const navGroups = [
     items: [
       { title: "Invoices", url: "/lab-dashboard/invoices", icon: CreditCard },
       { title: "Payments", url: "/lab-dashboard/payments", icon: DollarSign },
+      { title: "Analytics", url: "/lab-dashboard/analytics", icon: BarChart3 },
     ],
   },
   {
-    label: "Settings",
+    label: "System",
     items: [
+      { title: "Notifications", url: "/lab-dashboard/notifications", icon: Bell },
+      { title: "Audit Log", url: "/lab-dashboard/audit-log", icon: Shield },
       { title: "Lab Settings", url: "/lab-dashboard/settings", icon: Settings },
     ],
   },
