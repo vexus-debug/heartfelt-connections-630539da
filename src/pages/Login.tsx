@@ -89,9 +89,13 @@ export default function Login() {
           <div className="mt-4 text-center text-sm text-muted-foreground">
             Staff accounts are created by your administrator.
           </div>
-          <div className="mt-2 text-center">
-            <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
+          <div className="mt-2 flex items-center justify-center gap-3 text-xs text-muted-foreground">
+            <Link to="/" className="hover:text-foreground">
               ← Back to website
+            </Link>
+            <span>·</span>
+            <Link to="/lab-login" className="hover:text-foreground">
+              Lab Portal →
             </Link>
           </div>
         </CardContent>
