@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Search, Pencil, CalendarIcon, LayoutGrid, Table } from "lucide-react";
+import { Plus, Search, Pencil, CalendarIcon, LayoutGrid, Table, Eye } from "lucide-react";
 import { useLdCases, useCreateLdCase, useUpdateLdCase, useLdClients, useLdStaff, useLdWorkTypes } from "@/hooks/useLabDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
