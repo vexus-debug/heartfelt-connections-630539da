@@ -37,6 +37,7 @@ const navGroups = [
     label: "Team",
     items: [
       { title: "Staff", url: "/lab-dashboard/staff", icon: UserCog },
+      { title: "Performance", url: "/lab-dashboard/performance", icon: Activity },
     ],
   },
   {
