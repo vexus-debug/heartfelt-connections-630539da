@@ -55,6 +55,17 @@ import LdClientStatementsPage from "./pages/lab-dashboard/LdClientStatementsPage
 import LdCreditNotesPage from "./pages/lab-dashboard/LdCreditNotesPage";
 import LdTechPerformancePage from "./pages/lab-dashboard/LdTechPerformancePage";
 import LdReportsPage from "./pages/lab-dashboard/LdReportsPage";
+import LdRecurringOrdersPage from "./pages/lab-dashboard/LdRecurringOrdersPage";
+import LdCalendarPage from "./pages/lab-dashboard/LdCalendarPage";
+import LdExternalLabsPage from "./pages/lab-dashboard/LdExternalLabsPage";
+import LdShipmentsPage from "./pages/lab-dashboard/LdShipmentsPage";
+import LdEquipmentPage from "./pages/lab-dashboard/LdEquipmentPage";
+import LdClientPricesPage from "./pages/lab-dashboard/LdClientPricesPage";
+import LdWarrantiesPage from "./pages/lab-dashboard/LdWarrantiesPage";
+import LdCommunicationsPage from "./pages/lab-dashboard/LdCommunicationsPage";
+import LdShadeLibraryPage from "./pages/lab-dashboard/LdShadeLibraryPage";
+import LdSkillsMatrixPage from "./pages/lab-dashboard/LdSkillsMatrixPage";
+import LdDispatchPage from "./pages/lab-dashboard/LdDispatchPage";
 import LabLogin from "./pages/lab-dashboard/LabLogin";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PatientsPage from "./pages/dashboard/PatientsPage";
