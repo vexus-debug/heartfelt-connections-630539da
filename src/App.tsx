@@ -50,6 +50,7 @@ import LdInventoryPage from "./pages/lab-dashboard/LdInventoryPage";
 import LdAnalyticsPage from "./pages/lab-dashboard/LdAnalyticsPage";
 import LdNotificationsPage from "./pages/lab-dashboard/LdNotificationsPage";
 import LdAuditLogPage from "./pages/lab-dashboard/LdAuditLogPage";
+import LabLogin from "./pages/lab-dashboard/LabLogin";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PatientsPage from "./pages/dashboard/PatientsPage";
 import AppointmentsPage from "./pages/dashboard/AppointmentsPage";
