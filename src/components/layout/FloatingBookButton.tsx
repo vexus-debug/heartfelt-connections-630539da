@@ -6,7 +6,7 @@ const FloatingBookButton = () => {
   const location = useLocation();
 
   // Hide on dashboard/admin routes
-  if (location.pathname.startsWith("/dashboard")) {
+  if (location.pathname.startsWith("/dashboard") || location.pathname.startsWith("/lab-dashboard")) {
     return null;
   }
 
