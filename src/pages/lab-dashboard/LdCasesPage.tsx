@@ -268,6 +268,9 @@ export default function LdCasesPage() {
                             <p className="text-sm font-medium">{c.work_type_name}</p>
                             <div className="flex items-center gap-1">
                               {c.is_urgent && <Badge variant="destructive" className="text-[10px] px-1.5">Urgent</Badge>}
+                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => navigate(`/lab-dashboard/cases/${c.id}`)}>
+                                <Eye className="h-3 w-3" />
+                              </Button>
                               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => openEdit(c)}>
                                 <Pencil className="h-3 w-3" />
                               </Button>
