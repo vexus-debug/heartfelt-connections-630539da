@@ -210,6 +210,17 @@ const App = () => (
             <Route path="/lab-dashboard/credit-notes" element={<ProtectedLabDashboard><LdCreditNotesPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/performance" element={<ProtectedLabDashboard><LdTechPerformancePage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/reports" element={<ProtectedLabDashboard><LdReportsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/recurring" element={<ProtectedLabDashboard><LdRecurringOrdersPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/calendar" element={<ProtectedLabDashboard><LdCalendarPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/external-labs" element={<ProtectedLabDashboard><LdExternalLabsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/shipments" element={<ProtectedLabDashboard><LdShipmentsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/equipment" element={<ProtectedLabDashboard><LdEquipmentPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/prices" element={<ProtectedLabDashboard><LdClientPricesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/warranties" element={<ProtectedLabDashboard><LdWarrantiesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/communications" element={<ProtectedLabDashboard><LdCommunicationsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/shades" element={<ProtectedLabDashboard><LdShadeLibraryPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/skills" element={<ProtectedLabDashboard><LdSkillsMatrixPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/dispatch" element={<ProtectedLabDashboard><LdDispatchPage /></ProtectedLabDashboard>} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
