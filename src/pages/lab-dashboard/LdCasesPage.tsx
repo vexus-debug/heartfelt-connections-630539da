@@ -29,7 +29,7 @@ export default function LdCasesPage() {
   const { data: clients = [] } = useLdClients();
   const { data: staff = [] } = useLdStaff();
   const { data: workTypes = [] } = useLdWorkTypes();
-  const { roles } = useUserRoles();
+  const { roles } = useAuth();
   const isAdmin = roles.includes("admin");
   const createCase = useCreateLdCase();
   const updateCase = useUpdateLdCase();
