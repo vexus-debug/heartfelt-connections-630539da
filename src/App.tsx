@@ -36,6 +36,16 @@ import Periodontics from "./pages/services/Periodontics";
 
 // Dashboard Pages
 import { DashboardLayout } from "./components/dashboard/DashboardLayout";
+// Lab Dashboard
+import { LabDashboardLayout } from "./components/lab-dashboard/LabDashboardLayout";
+import LdHomePage from "./pages/lab-dashboard/LdHomePage";
+import LdCasesPage from "./pages/lab-dashboard/LdCasesPage";
+import LdClientsPage from "./pages/lab-dashboard/LdClientsPage";
+import LdStaffPage from "./pages/lab-dashboard/LdStaffPage";
+import LdWorkTypesPage from "./pages/lab-dashboard/LdWorkTypesPage";
+import LdInvoicesPage from "./pages/lab-dashboard/LdInvoicesPage";
+import LdPaymentsPage from "./pages/lab-dashboard/LdPaymentsPage";
+import LdSettingsPage from "./pages/lab-dashboard/LdSettingsPage";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PatientsPage from "./pages/dashboard/PatientsPage";
 import AppointmentsPage from "./pages/dashboard/AppointmentsPage";
