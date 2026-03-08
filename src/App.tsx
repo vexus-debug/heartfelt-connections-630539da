@@ -88,6 +88,12 @@ const ProtectedDashboard = ({ children }: { children: React.ReactNode }) => (
   </ProtectedRoute>
 );
 
+const ProtectedLabDashboard = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute>
+    <LabDashboardLayout>{children}</LabDashboardLayout>
+  </ProtectedRoute>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
