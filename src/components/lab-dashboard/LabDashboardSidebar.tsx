@@ -8,6 +8,7 @@ import {
 import {
   LayoutDashboard, Users, Building2, ClipboardList, Wrench,
   CreditCard, DollarSign, UserCog, Settings, LogOut, FlaskConical,
+  Package, BarChart3, Bell, Shield,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
