@@ -46,6 +46,10 @@ import LdWorkTypesPage from "./pages/lab-dashboard/LdWorkTypesPage";
 import LdInvoicesPage from "./pages/lab-dashboard/LdInvoicesPage";
 import LdPaymentsPage from "./pages/lab-dashboard/LdPaymentsPage";
 import LdSettingsPage from "./pages/lab-dashboard/LdSettingsPage";
+import LdInventoryPage from "./pages/lab-dashboard/LdInventoryPage";
+import LdAnalyticsPage from "./pages/lab-dashboard/LdAnalyticsPage";
+import LdNotificationsPage from "./pages/lab-dashboard/LdNotificationsPage";
+import LdAuditLogPage from "./pages/lab-dashboard/LdAuditLogPage";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PatientsPage from "./pages/dashboard/PatientsPage";
 import AppointmentsPage from "./pages/dashboard/AppointmentsPage";
@@ -177,6 +181,10 @@ const App = () => (
             <Route path="/lab-dashboard/invoices" element={<ProtectedLabDashboard><LdInvoicesPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/payments" element={<ProtectedLabDashboard><LdPaymentsPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/settings" element={<ProtectedLabDashboard><LdSettingsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/inventory" element={<ProtectedLabDashboard><LdInventoryPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/analytics" element={<ProtectedLabDashboard><LdAnalyticsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/notifications" element={<ProtectedLabDashboard><LdNotificationsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/audit-log" element={<ProtectedLabDashboard><LdAuditLogPage /></ProtectedLabDashboard>} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
