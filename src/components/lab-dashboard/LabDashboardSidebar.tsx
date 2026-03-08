@@ -30,6 +30,7 @@ const navGroups = [
       { title: "Cases", url: "/lab-dashboard/cases", icon: ClipboardList },
       { title: "Work Types", url: "/lab-dashboard/work-types", icon: Wrench },
       { title: "Clients", url: "/lab-dashboard/clients", icon: Building2 },
+      { title: "Inventory", url: "/lab-dashboard/inventory", icon: Package },
     ],
   },
   {
