@@ -111,7 +111,7 @@ export function LabDashboardSidebar() {
         </div>
         {!collapsed && (
           <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-bold text-sidebar-primary-foreground truncate tracking-tight">Vista Lab</span>
+            <span className="text-sm font-bold text-sidebar-primary-foreground truncate tracking-tight">Impression n Teeth</span>
             <span className="text-[10px] text-sidebar-foreground/60 font-medium">Lab Management</span>
           </div>
         )}
