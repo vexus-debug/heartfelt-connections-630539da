@@ -22,22 +22,41 @@ const navGroups = [
     label: "Overview",
     items: [
       { title: "Dashboard", url: "/lab-dashboard", icon: LayoutDashboard },
+      { title: "Calendar", url: "/lab-dashboard/calendar", icon: BarChart3 },
     ],
   },
   {
     label: "Operations",
     items: [
       { title: "Cases", url: "/lab-dashboard/cases", icon: ClipboardList },
+      { title: "Recurring Orders", url: "/lab-dashboard/recurring", icon: Package },
       { title: "Work Types", url: "/lab-dashboard/work-types", icon: Wrench },
+      { title: "Shade Library", url: "/lab-dashboard/shades", icon: FlaskConical },
       { title: "Clients", url: "/lab-dashboard/clients", icon: Building2 },
-      { title: "Inventory", url: "/lab-dashboard/inventory", icon: Package },
+      { title: "External Labs", url: "/lab-dashboard/external-labs", icon: Building2 },
+    ],
+  },
+  {
+    label: "Logistics",
+    items: [
+      { title: "Shipments", url: "/lab-dashboard/shipments", icon: Package },
+      { title: "Dispatch", url: "/lab-dashboard/dispatch", icon: Package },
+      { title: "Warranties", url: "/lab-dashboard/warranties", icon: Shield },
     ],
   },
   {
     label: "Team",
     items: [
       { title: "Staff", url: "/lab-dashboard/staff", icon: UserCog },
+      { title: "Skills Matrix", url: "/lab-dashboard/skills", icon: Activity },
       { title: "Performance", url: "/lab-dashboard/performance", icon: Activity },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { title: "Inventory", url: "/lab-dashboard/inventory", icon: Package },
+      { title: "Equipment", url: "/lab-dashboard/equipment", icon: Wrench },
     ],
   },
   {
@@ -45,6 +64,7 @@ const navGroups = [
     items: [
       { title: "Invoices", url: "/lab-dashboard/invoices", icon: CreditCard },
       { title: "Payments", url: "/lab-dashboard/payments", icon: DollarSign },
+      { title: "Client Prices", url: "/lab-dashboard/prices", icon: DollarSign },
       { title: "Credit Notes", url: "/lab-dashboard/credit-notes", icon: FileText },
       { title: "Statements", url: "/lab-dashboard/statements", icon: Receipt },
       { title: "Analytics", url: "/lab-dashboard/analytics", icon: BarChart3 },
@@ -54,6 +74,7 @@ const navGroups = [
   {
     label: "System",
     items: [
+      { title: "Communications", url: "/lab-dashboard/communications", icon: Bell },
       { title: "Notifications", url: "/lab-dashboard/notifications", icon: Bell },
       { title: "Audit Log", url: "/lab-dashboard/audit-log", icon: Shield },
       { title: "Lab Settings", url: "/lab-dashboard/settings", icon: Settings },
