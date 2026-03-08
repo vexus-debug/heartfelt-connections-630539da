@@ -864,6 +864,7 @@ export type Database = {
           created_by: string | null
           deposit_amount: number
           discount: number
+          due_date: string | null
           id: string
           invoice_date: string
           invoice_number: string
@@ -883,6 +884,7 @@ export type Database = {
           created_by?: string | null
           deposit_amount?: number
           discount?: number
+          due_date?: string | null
           id?: string
           invoice_date?: string
           invoice_number?: string
@@ -902,6 +904,7 @@ export type Database = {
           created_by?: string | null
           deposit_amount?: number
           discount?: number
+          due_date?: string | null
           id?: string
           invoice_date?: string
           invoice_number?: string
@@ -1292,6 +1295,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           discount: number
+          due_date: string | null
           id: string
           invoice_date: string
           invoice_number: string
@@ -1309,6 +1313,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           discount?: number
+          due_date?: string | null
           id?: string
           invoice_date?: string
           invoice_number?: string
@@ -1326,6 +1331,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           discount?: number
+          due_date?: string | null
           id?: string
           invoice_date?: string
           invoice_number?: string
@@ -1362,6 +1368,7 @@ export type Database = {
           payment_date: string
           payment_method: string
           reference: string | null
+          remark: string | null
         }
         Insert: {
           amount?: number
@@ -1371,6 +1378,7 @@ export type Database = {
           payment_date?: string
           payment_method?: string
           reference?: string | null
+          remark?: string | null
         }
         Update: {
           amount?: number
@@ -1380,6 +1388,7 @@ export type Database = {
           payment_date?: string
           payment_method?: string
           reference?: string | null
+          remark?: string | null
         }
         Relationships: [
           {
@@ -2122,6 +2131,7 @@ export type Database = {
           payment_date: string
           payment_method: string
           reference: string | null
+          remark: string | null
         }
         Insert: {
           amount?: number
@@ -2131,6 +2141,7 @@ export type Database = {
           payment_date?: string
           payment_method?: string
           reference?: string | null
+          remark?: string | null
         }
         Update: {
           amount?: number
@@ -2140,6 +2151,7 @@ export type Database = {
           payment_date?: string
           payment_method?: string
           reference?: string | null
+          remark?: string | null
         }
         Relationships: [
           {
