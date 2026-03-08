@@ -118,8 +118,8 @@ export default function LdCasesPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
-                  <Label>Patient Name *</Label>
-                  <Input name="patient_name" required defaultValue={editCase?.patient_name || ""} />
+                  <Label>Patient Name <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                  <Input name="patient_name" placeholder="Leave blank if confidential" defaultValue={editCase?.patient_name || ""} />
                 </div>
                 <div>
                   <Label>Client (Clinic)</Label>
