@@ -167,6 +167,17 @@ const App = () => (
             <Route path="/dashboard/shop/orders" element={<ProtectedDashboard><ShopOrdersPage /></ProtectedDashboard>} />
             <Route path="/dashboard/marketing/whatsapp" element={<ProtectedDashboard><WhatsAppMarketingPage /></ProtectedDashboard>} />
             <Route path="/dashboard/marketing/email" element={<ProtectedDashboard><EmailMarketingPage /></ProtectedDashboard>} />
+
+            {/* Lab Dashboard Routes - Independent */}
+            <Route path="/lab-dashboard" element={<ProtectedLabDashboard><LdHomePage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/cases" element={<ProtectedLabDashboard><LdCasesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/clients" element={<ProtectedLabDashboard><LdClientsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/staff" element={<ProtectedLabDashboard><LdStaffPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/work-types" element={<ProtectedLabDashboard><LdWorkTypesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/invoices" element={<ProtectedLabDashboard><LdInvoicesPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/payments" element={<ProtectedLabDashboard><LdPaymentsPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/settings" element={<ProtectedLabDashboard><LdSettingsPage /></ProtectedLabDashboard>} />
+
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
