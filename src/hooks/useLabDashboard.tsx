@@ -243,8 +243,19 @@ export function useCreateLdPayment() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (values: Record<string, unknown>) => {
-      const { error } = await supabase.from("ld_payments").insert([values as any]);
-      if (error) throw error;
+      const { error: payError } = await supabase.from("ld_payments").insert([values as any]);
+      if (payError) throw payError;
+
+      // Update invoice amount_paid and status
+      const invoiceId = values.invoice_id as string;
+      if (invoiceId) {
+        const { data: inv } = await supabase.from("ld_invoices").select("total_amount, amount_paid").eq("id", invoiceId).single();
+        if (inv) {
+          const newPaid = Number(inv.amount_paid) + Number(values.amount || 0);
+          const newStatus = newPaid >= Number(inv.total_amount) ? "paid" : newPaid > 0 ? "partial" : "unpaid";
+          await supabase.from("ld_invoices").update({ amount_paid: newPaid, status: newStatus }).eq("id", invoiceId);
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["ld-payments"] });

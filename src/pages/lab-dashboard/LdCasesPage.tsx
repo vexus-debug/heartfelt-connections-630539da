@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useMemo } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -8,9 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Search, Pencil } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Plus, Search, Pencil, CalendarIcon, Filter } from "lucide-react";
 import { useLdCases, useCreateLdCase, useUpdateLdCase, useLdClients, useLdStaff, useLdWorkTypes } from "@/hooks/useLabDashboard";
+import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const statuses = ["pending", "in-progress", "ready", "delivered"];
 const statusColor: Record<string, string> = {
@@ -25,19 +29,30 @@ export default function LdCasesPage() {
   const { data: clients = [] } = useLdClients();
   const { data: staff = [] } = useLdStaff();
   const { data: workTypes = [] } = useLdWorkTypes();
+  const { roles } = useAuth();
+  const isAdmin = roles.includes("admin");
   const createCase = useCreateLdCase();
   const updateCase = useUpdateLdCase();
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [filterClientId, setFilterClientId] = useState("all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editCase, setEditCase] = useState<any>(null);
 
-  const filtered = cases.filter((c: any) => {
-    const matchSearch = !search || c.case_number?.toLowerCase().includes(search.toLowerCase()) || c.patient_name?.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === "all" || c.status === filterStatus;
-    return matchSearch && matchStatus;
-  });
+  const filtered = useMemo(() => {
+    return cases.filter((c: any) => {
+      const matchSearch = !search || c.case_number?.toLowerCase().includes(search.toLowerCase()) || c.patient_name?.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = filterStatus === "all" || c.status === filterStatus;
+      const matchClient = filterClientId === "all" || c.client_id === filterClientId;
+      const caseDate = c.received_date ? new Date(c.received_date) : new Date(c.created_at);
+      const matchFrom = !dateFrom || caseDate >= dateFrom;
+      const matchTo = !dateTo || caseDate <= new Date(dateTo.getTime() + 86400000);
+      return matchSearch && matchStatus && matchClient && matchFrom && matchTo;
+    });
+  }, [cases, search, filterStatus, filterClientId, dateFrom, dateTo]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,6 +74,10 @@ export default function LdCasesPage() {
     };
 
     if (editCase) {
+      // Only admin can change technician after initial assignment
+      if (!isAdmin && editCase.assigned_technician_id && values.assigned_technician_id !== editCase.assigned_technician_id) {
+        values.assigned_technician_id = editCase.assigned_technician_id;
+      }
       updateCase.mutate({ id: editCase.id, ...values }, { onSuccess: () => { setDialogOpen(false); setEditCase(null); } });
     } else {
       createCase.mutate(values, { onSuccess: () => setDialogOpen(false) });
@@ -76,6 +95,11 @@ export default function LdCasesPage() {
   const openEdit = (c: any) => {
     setEditCase(c);
     setDialogOpen(true);
+  };
+
+  const clearDateFilter = () => {
+    setDateFrom(undefined);
+    setDateTo(undefined);
   };
 
   return (
@@ -98,10 +122,10 @@ export default function LdCasesPage() {
                   <Input name="patient_name" required defaultValue={editCase?.patient_name || ""} />
                 </div>
                 <div>
-                  <Label>Client</Label>
+                  <Label>Client (Clinic)</Label>
                   <select name="client_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.client_id || ""}>
                     <option value="">Walk-in</option>
-                    {clients.map((c: any) => <option key={c.id} value={c.id}>{c.clinic_name} - {c.doctor_name}</option>)}
+                    {clients.map((c: any) => <option key={c.id} value={c.id}>{c.clinic_code ? `[${c.clinic_code}] ` : ""}{c.clinic_name} - {c.doctor_name}</option>)}
                   </select>
                 </div>
                 <div>
@@ -116,11 +140,21 @@ export default function LdCasesPage() {
                   <Input name="work_type_name" required defaultValue={editCase?.work_type_name || ""} />
                 </div>
                 <div>
-                  <Label>Technician</Label>
-                  <select name="assigned_technician_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.assigned_technician_id || ""}>
+                  <Label>Technician {editCase?.assigned_technician_id && !isAdmin ? "(locked)" : ""}</Label>
+                  <select
+                    name="assigned_technician_id"
+                    className="w-full border rounded-md p-2 text-sm bg-background"
+                    defaultValue={editCase?.assigned_technician_id || ""}
+                    disabled={!!editCase?.assigned_technician_id && !isAdmin}
+                  >
                     <option value="">Unassigned</option>
-                    {staff.filter((s: any) => s.status === "active").map((s: any) => <option key={s.id} value={s.id}>{s.full_name}</option>)}
+                    {staff.filter((s: any) => s.status === "active").map((s: any, idx: number) => (
+                      <option key={s.id} value={s.id}>Technician {idx + 1} — {s.full_name}</option>
+                    ))}
                   </select>
+                  {editCase?.assigned_technician_id && !isAdmin && (
+                    <p className="text-[10px] text-muted-foreground mt-1">Only admin can change technician after assignment</p>
+                  )}
                 </div>
                 <div>
                   <Label>Tooth #</Label>
@@ -164,18 +198,62 @@ export default function LdCasesPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-3 flex-wrap items-end">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Search cases..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             {statuses.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Select value={filterClientId} onValueChange={setFilterClientId}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Clients" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Clients</SelectItem>
+            {clients.map((c: any) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.clinic_code ? `[${c.clinic_code}] ` : ""}{c.clinic_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Date Range Picker */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className={cn("gap-1", (dateFrom || dateTo) && "border-primary text-primary")}>
+              <CalendarIcon className="h-3.5 w-3.5" />
+              {dateFrom && dateTo
+                ? `${format(dateFrom, "MMM d, yyyy")} – ${format(dateTo, "MMM d, yyyy")}`
+                : dateFrom
+                  ? `From ${format(dateFrom, "MMM d, yyyy")}`
+                  : dateTo
+                    ? `Until ${format(dateTo, "MMM d, yyyy")}`
+                    : "Date Range"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-4 space-y-3" align="end">
+            <div className="space-y-1">
+              <Label className="text-xs">From Date</Label>
+              <Calendar mode="single" selected={dateFrom} onSelect={setDateFrom} className="pointer-events-auto" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">To Date</Label>
+              <Calendar mode="single" selected={dateTo} onSelect={setDateTo} className="pointer-events-auto" />
+            </div>
+            {(dateFrom || dateTo) && (
+              <Button variant="ghost" size="sm" className="w-full text-xs" onClick={clearDateFilter}>
+                Clear Date Filter
+              </Button>
+            )}
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Cases Table */}
