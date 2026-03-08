@@ -1058,6 +1058,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ld_activity_log: {
+        Row: {
+          created_at: string
+          description: string
+          entity_id: string | null
+          entity_type: string | null
+          event_type: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ld_cases: {
         Row: {
           assigned_technician_id: string | null
@@ -1208,6 +1238,48 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ld_inventory: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          last_restocked: string | null
+          min_stock: number
+          name: string
+          notes: string | null
+          quantity: number
+          supplier: string | null
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          last_restocked?: string | null
+          min_stock?: number
+          name: string
+          notes?: string | null
+          quantity?: number
+          supplier?: string | null
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          last_restocked?: string | null
+          min_stock?: number
+          name?: string
+          notes?: string | null
+          quantity?: number
+          supplier?: string | null
+          unit?: string
           updated_at?: string
         }
         Relationships: []
