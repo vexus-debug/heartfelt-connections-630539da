@@ -31,13 +31,13 @@ export default function LabLogin() {
         .eq("user_id", data.user.id);
 
       const roles = (rolesData ?? []).map((r: any) => r.role);
-      const hasLabAccess = roles.includes("lab_technician") || roles.includes("admin");
+      const hasLabAccess = roles.includes("lab_technician") || roles.includes("lab_entry_clerk") || roles.includes("admin");
 
       if (!hasLabAccess) {
         await supabase.auth.signOut();
         toast({
           title: "Access denied",
-          description: "You don't have lab dashboard access. Please use the clinic login.",
+          description: "You don't have lab dashboard access. Contact your administrator to get a lab account.",
           variant: "destructive",
         });
       } else {
@@ -56,6 +56,7 @@ export default function LabLogin() {
           </div>
           <CardTitle className="text-2xl text-primary">Impression n Teeth</CardTitle>
           <CardDescription>Sign in to the Lab Management System</CardDescription>
+          <p className="text-xs text-muted-foreground">Lab staff accounts are created by your administrator. Use your assigned lab credentials to sign in.</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
@@ -95,7 +96,8 @@ export default function LabLogin() {
             </Button>
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
-            Lab accounts are created by your administrator.
+            Lab accounts are created by your administrator.<br />
+            Each staff member gets their own login credentials.
           </div>
           <div className="mt-2 text-center">
             <Link to="/login" className="text-xs text-muted-foreground hover:text-foreground">

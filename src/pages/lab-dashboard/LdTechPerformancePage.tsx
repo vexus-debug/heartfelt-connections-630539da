@@ -18,18 +18,27 @@ export default function LdTechPerformancePage() {
     return technicians.map((tech: any) => {
       const techCases = cases.filter((c: any) => c.assigned_technician_id === tech.id);
       const total = techCases.length;
-      const completed = techCases.filter((c: any) => ["ready", "delivered"].includes(c.status)).length;
+      const fullyCompleted = techCases.filter((c: any) => ["ready", "delivered"].includes(c.status) && (c.completion_type === "full" || !c.completion_type)).length;
+      const partiallyCompleted = techCases.filter((c: any) => ["ready", "delivered"].includes(c.status) && c.completion_type === "partial").length;
+      const completed = fullyCompleted + partiallyCompleted;
       const inProgress = techCases.filter((c: any) => c.status === "in-progress").length;
       const pending = techCases.filter((c: any) => c.status === "pending").length;
       const rejected = techCases.filter((c: any) => c.remark && ["Rejected", "Damaged", "Remake"].includes(c.remark)).length;
       const overdue = techCases.filter((c: any) => c.due_date && new Date(c.due_date) < new Date() && !["delivered", "ready"].includes(c.status)).length;
       const urgent = techCases.filter((c: any) => c.is_urgent && !["delivered"].includes(c.status)).length;
-      const totalRevenue = techCases.reduce((s: number, c: any) => s + Number(c.net_amount || 0), 0);
+      
+      // Revenue: full value for fully completed, half for partially completed
+      const fullRevenue = techCases
+        .filter((c: any) => ["ready", "delivered"].includes(c.status) && (c.completion_type === "full" || !c.completion_type))
+        .reduce((s: number, c: any) => s + Number(c.net_amount || 0), 0);
+      const partialRevenue = techCases
+        .filter((c: any) => ["ready", "delivered"].includes(c.status) && c.completion_type === "partial")
+        .reduce((s: number, c: any) => s + Number(c.net_amount || 0) * 0.5, 0);
+      const totalRevenue = fullRevenue + partialRevenue;
 
       const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
       const rejectionRate = total > 0 ? Math.round((rejected / total) * 100) : 0;
 
-      // Average turnaround (received to completed)
       const completedWithDates = techCases.filter((c: any) => c.received_date && c.completed_date);
       const avgTurnaround = completedWithDates.length > 0
         ? Math.round(completedWithDates.reduce((s: number, c: any) => {
@@ -46,6 +55,8 @@ export default function LdTechPerformancePage() {
         specialty: tech.specialty,
         total,
         completed,
+        fullyCompleted,
+        partiallyCompleted,
         inProgress,
         pending,
         rejected,
@@ -61,7 +72,8 @@ export default function LdTechPerformancePage() {
 
   const chartData = performanceData.map(t => ({
     name: t.name.split(" ")[0],
-    Completed: t.completed,
+    "Fully Completed": t.fullyCompleted,
+    "Partially Completed": t.partiallyCompleted,
     "In Progress": t.inProgress,
     Pending: t.pending,
     Rejected: t.rejected,
@@ -71,7 +83,7 @@ export default function LdTechPerformancePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Technician Performance" description="Output rates, rejection rates, and workload per technician" />
+      <PageHeader title="Technician Performance" description="Output rates, completion types, and salary-relevant metrics" />
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -81,11 +93,11 @@ export default function LdTechPerformancePage() {
         </CardContent></Card>
         <Card className="border-border/50"><CardContent className="p-4 flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center"><CheckCircle className="h-5 w-5 text-emerald-500" /></div>
-          <div><p className="text-[10px] text-muted-foreground uppercase">Total Completed</p><p className="text-xl font-bold">{performanceData.reduce((s, t) => s + t.completed, 0)}</p></div>
+          <div><p className="text-[10px] text-muted-foreground uppercase">Fully Completed</p><p className="text-xl font-bold">{performanceData.reduce((s, t) => s + t.fullyCompleted, 0)}</p></div>
         </CardContent></Card>
         <Card className="border-border/50"><CardContent className="p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-destructive/10 flex items-center justify-center"><AlertTriangle className="h-5 w-5 text-destructive" /></div>
-          <div><p className="text-[10px] text-muted-foreground uppercase">Total Rejected</p><p className="text-xl font-bold">{performanceData.reduce((s, t) => s + t.rejected, 0)}</p></div>
+          <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center"><Clock className="h-5 w-5 text-amber-500" /></div>
+          <div><p className="text-[10px] text-muted-foreground uppercase">Partially Completed</p><p className="text-xl font-bold">{performanceData.reduce((s, t) => s + t.partiallyCompleted, 0)}</p></div>
         </CardContent></Card>
         <Card className="border-border/50"><CardContent className="p-4 flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center"><TrendingUp className="h-5 w-5 text-blue-500" /></div>
@@ -104,9 +116,10 @@ export default function LdTechPerformancePage() {
                 <XAxis dataKey="name" className="text-xs" />
                 <YAxis className="text-xs" />
                 <Tooltip />
-                <Bar dataKey="Completed" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} stackId="stack" />
+                <Bar dataKey="Fully Completed" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} stackId="stack" />
+                <Bar dataKey="Partially Completed" fill="#f59e0b" radius={[2, 2, 0, 0]} stackId="stack" />
                 <Bar dataKey="In Progress" fill="#3b82f6" radius={[2, 2, 0, 0]} stackId="stack" />
-                <Bar dataKey="Pending" fill="#f59e0b" radius={[2, 2, 0, 0]} stackId="stack" />
+                <Bar dataKey="Pending" fill="#94a3b8" radius={[2, 2, 0, 0]} stackId="stack" />
                 <Bar dataKey="Rejected" fill="#ef4444" radius={[2, 2, 0, 0]} stackId="stack" />
               </BarChart>
             </ResponsiveContainer>
@@ -143,14 +156,18 @@ export default function LdTechPerformancePage() {
                     <Progress value={tech.completionRate} className="h-2" />
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2 text-center pt-2 border-t border-border/30">
+                  <div className="grid grid-cols-5 gap-2 text-center pt-2 border-t border-border/30">
                     <div>
-                      <p className="text-sm font-semibold text-emerald-600">{tech.completed}</p>
-                      <p className="text-[9px] text-muted-foreground">Completed</p>
+                      <p className="text-sm font-semibold text-emerald-600">{tech.fullyCompleted}</p>
+                      <p className="text-[9px] text-muted-foreground">Full</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-amber-500">{tech.partiallyCompleted}</p>
+                      <p className="text-[9px] text-muted-foreground">Partial</p>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-blue-500">{tech.inProgress}</p>
-                      <p className="text-[9px] text-muted-foreground">In Progress</p>
+                      <p className="text-[9px] text-muted-foreground">In Prog</p>
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-destructive">{tech.rejected}</p>
@@ -173,8 +190,15 @@ export default function LdTechPerformancePage() {
                     </div>
                     <div className="text-right">
                       <span className="font-medium">₦{tech.totalRevenue.toLocaleString()}</span>
+                      <p className="text-[9px] text-muted-foreground">Salary value</p>
                     </div>
                   </div>
+
+                  {tech.partiallyCompleted > 0 && (
+                    <div className="text-[10px] p-2 rounded bg-amber-500/10 text-amber-700">
+                      ⚠ {tech.partiallyCompleted} partially completed case(s) — value halved for salary calculation
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
