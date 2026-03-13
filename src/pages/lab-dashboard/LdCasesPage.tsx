@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Plus, Search, Pencil, CalendarIcon, LayoutGrid, Table, Eye } from "lucide-react";
 import { useLdCases, useCreateLdCase, useUpdateLdCase, useLdClients, useLdStaff, useLdWorkTypes } from "@/hooks/useLabDashboard";
+import { useLdExternalLabs } from "@/hooks/useLdExtendedFeatures";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -55,12 +56,19 @@ const stagger = {
   item: { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } },
 };
 
+function getDayOfWeek(dateStr: string) {
+  try {
+    return format(new Date(dateStr), "EEE");
+  } catch { return ""; }
+}
+
 export default function LdCasesPage() {
   const navigate = useNavigate();
   const { data: cases = [], isLoading } = useLdCases();
   const { data: clients = [] } = useLdClients();
   const { data: staff = [] } = useLdStaff();
   const { data: workTypes = [] } = useLdWorkTypes();
+  const { data: externalLabs = [] } = useLdExternalLabs();
   const { roles, user, profile } = useAuth();
   const isAdmin = roles.includes("admin");
   const createCase = useCreateLdCase();
@@ -75,7 +83,7 @@ export default function LdCasesPage() {
   const [editCase, setEditCase] = useState<any>(null);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
 
-  // Form state for job instructions checkboxes
+  // Form state
   const [formJobInstructions, setFormJobInstructions] = useState<string[]>([]);
   const [formRemark, setFormRemark] = useState("none");
   const [formDeliveryMethod, setFormDeliveryMethod] = useState("");
@@ -83,8 +91,19 @@ export default function LdCasesPage() {
   const [formLabFee, setFormLabFee] = useState(0);
   const [formDiscount, setFormDiscount] = useState(0);
   const [formDeposit, setFormDeposit] = useState(0);
+  const [formUnits, setFormUnits] = useState(1);
+  const [formCourierAmount, setFormCourierAmount] = useState(0);
+  const [formExpressSurcharge, setFormExpressSurcharge] = useState(0);
+  const [formClaspUnits, setFormClaspUnits] = useState(0);
+  const [formClaspCost, setFormClaspCost] = useState(0);
+  const [formGingivalMasking, setFormGingivalMasking] = useState(false);
+  const [formGingivalMaskingCost, setFormGingivalMaskingCost] = useState(0);
+  const [formCaseNumber, setFormCaseNumber] = useState("");
 
-  const netAmount = Math.max(formLabFee - formDiscount, 0);
+  // Calculate with units multiplication and additional fees
+  const baseAmount = formLabFee * formUnits;
+  const additionalFees = formCourierAmount + formExpressSurcharge + (formClaspUnits * formClaspCost) + (formGingivalMasking ? formGingivalMaskingCost : 0);
+  const netAmount = Math.max(baseAmount + additionalFees - formDiscount, 0);
   const balance = Math.max(netAmount - formDeposit, 0);
 
   const filtered = useMemo(() => {
@@ -107,6 +126,14 @@ export default function LdCasesPage() {
     setFormLabFee(0);
     setFormDiscount(0);
     setFormDeposit(0);
+    setFormUnits(1);
+    setFormCourierAmount(0);
+    setFormExpressSurcharge(0);
+    setFormClaspUnits(0);
+    setFormClaspCost(0);
+    setFormGingivalMasking(false);
+    setFormGingivalMaskingCost(0);
+    setFormCaseNumber("");
   };
 
   const openCreate = () => {
@@ -123,7 +150,15 @@ export default function LdCasesPage() {
     setFormIsPaid(c.is_paid || false);
     setFormLabFee(Number(c.lab_fee) || 0);
     setFormDiscount(Number(c.discount) || 0);
-    setFormDeposit(0);
+    setFormDeposit(Number(c.deposit_amount) || 0);
+    setFormUnits(Number(c.tooth_number) || 1);
+    setFormCourierAmount(Number(c.courier_amount) || 0);
+    setFormExpressSurcharge(Number(c.express_surcharge) || 0);
+    setFormClaspUnits(Number(c.clasp_units) || 0);
+    setFormClaspCost(Number(c.clasp_cost) || 0);
+    setFormGingivalMasking(c.gingival_masking || false);
+    setFormGingivalMaskingCost(Number(c.gingival_masking_cost) || 0);
+    setFormCaseNumber(c.case_number || "");
     setDialogOpen(true);
   };
 
@@ -138,18 +173,38 @@ export default function LdCasesPage() {
       work_type_id: fd.get("work_type_id") || null,
       work_type_name: workTypeName,
       assigned_technician_id: fd.get("assigned_technician_id") || null,
-      tooth_number: fd.get("tooth_number") ? Number(fd.get("tooth_number")) : null,
+      tooth_number: formUnits,
       shade: fd.get("shade"),
       instructions: fd.get("instructions"),
       job_description: fd.get("job_description") || "",
       lab_fee: formLabFee,
       discount: formDiscount,
+      deposit_amount: formDeposit,
       due_date: fd.get("due_date") || null,
+      received_date: fd.get("received_date") || null,
+      date_out: fd.get("date_out") || null,
       is_urgent: fd.get("is_urgent") === "on",
       delivery_method: formDeliveryMethod,
       remark: formRemark === "none" ? "" : formRemark,
       is_paid: formIsPaid || formDeposit >= netAmount,
+      external_lab_id: fd.get("external_lab_id") || null,
+      courier_amount: formCourierAmount,
+      express_surcharge: formExpressSurcharge,
+      clasp_units: formClaspUnits,
+      clasp_cost: formClaspCost,
+      gingival_masking: formGingivalMasking,
+      gingival_masking_cost: formGingivalMasking ? formGingivalMaskingCost : 0,
+      // Override net_amount with our calculated value
+      net_amount: netAmount,
     };
+
+    // Allow manual case number
+    if (formCaseNumber && !editCase) {
+      values.case_number = formCaseNumber;
+    }
+    if (editCase && formCaseNumber && formCaseNumber !== editCase.case_number) {
+      values.case_number = formCaseNumber;
+    }
 
     if (editCase) {
       if (!isAdmin && editCase.assigned_technician_id && values.assigned_technician_id !== editCase.assigned_technician_id) {
@@ -174,6 +229,15 @@ export default function LdCasesPage() {
 
   const toggleJobInstruction = (option: string) => {
     setFormJobInstructions(prev => prev.includes(option) ? prev.filter(v => v !== option) : [...prev, option]);
+  };
+
+  // Auto-set gingival masking cost from work types catalog
+  const handleGingivalToggle = (checked: boolean) => {
+    setFormGingivalMasking(checked);
+    if (checked && formGingivalMaskingCost === 0) {
+      const gmWorkType = workTypes.find((w: any) => w.name?.toLowerCase().includes("gingival"));
+      if (gmWorkType) setFormGingivalMaskingCost(Number(gmWorkType.base_price) || 0);
+    }
   };
 
   return (
@@ -293,12 +357,12 @@ export default function LdCasesPage() {
 
                           <div className="flex justify-between items-center mt-2 pt-1.5 border-t border-border/20">
                             <span className="text-[10px] text-muted-foreground">
-                              ₦{Number(c.lab_fee).toLocaleString()}
+                              ₦{Number(c.net_amount || c.lab_fee).toLocaleString()}
                               {Number(c.discount) > 0 && <span className="text-destructive ml-1">-₦{Number(c.discount).toLocaleString()}</span>}
                             </span>
                             {c.due_date && (
                               <span className={`text-[10px] ${new Date(c.due_date) < new Date() && !["delivered", "ready"].includes(c.status) ? "text-destructive font-medium" : "text-muted-foreground"}`}>
-                                Due: {format(new Date(c.due_date), "MMM d")}
+                                Due: {format(new Date(c.due_date), "MMM d")} ({getDayOfWeek(c.due_date)})
                               </span>
                             )}
                           </div>
@@ -358,7 +422,11 @@ export default function LdCasesPage() {
                           </SelectContent>
                         </Select>
                       </td>
-                      <td className="p-3 text-xs">{c.due_date ? format(new Date(c.due_date), "MMM d, yyyy") : "—"}</td>
+                      <td className="p-3 text-xs">
+                        {c.due_date ? (
+                          <span>{format(new Date(c.due_date), "MMM d, yyyy")} <span className="text-muted-foreground">({getDayOfWeek(c.due_date)})</span></span>
+                        ) : "—"}
+                      </td>
                       <td className="p-3 text-right font-medium">₦{Number(c.net_amount || 0).toLocaleString()}</td>
                       <td className="p-3 text-right">
                         <div className="flex gap-1 justify-end">
@@ -384,6 +452,16 @@ export default function LdCasesPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editCase ? `Edit Case — ${editCase.case_number}` : "New Lab Case"}</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Case Number - Manual input */}
+            <div>
+              <Label>Case # <span className="text-muted-foreground text-xs">(leave blank for auto-generated)</span></Label>
+              <Input 
+                value={formCaseNumber} 
+                onChange={(e) => setFormCaseNumber(e.target.value)} 
+                placeholder="e.g. LD-20260310-0036 (auto-generated if empty)" 
+              />
+            </div>
+
             {/* Patient & Client */}
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
@@ -423,7 +501,7 @@ export default function LdCasesPage() {
               </div>
             </div>
 
-            {/* Work Type Name (auto-filled or manual) */}
+            {/* Work Type Name */}
             <div>
               <Label>Work Type Name {formJobInstructions.length === 0 && "*"}</Label>
               <Input
@@ -432,9 +510,6 @@ export default function LdCasesPage() {
                 defaultValue={editCase?.work_type_name || ""}
                 placeholder={formJobInstructions.length > 0 ? formJobInstructions.join(", ") : "Enter work type name"}
               />
-              {formJobInstructions.length > 0 && (
-                <p className="text-[10px] text-muted-foreground mt-1">Will use selected job instructions if left empty</p>
-              )}
             </div>
 
             {/* Job Description */}
@@ -443,7 +518,7 @@ export default function LdCasesPage() {
               <Textarea name="job_description" placeholder="Additional job details..." rows={2} defaultValue={editCase?.job_description || ""} />
             </div>
 
-            {/* Technician, Tooth, Shade, Due Date */}
+            {/* Technician, Units, Shade, Dates */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Technician {editCase?.assigned_technician_id && !isAdmin ? "(locked)" : ""}</Label>
@@ -458,13 +533,11 @@ export default function LdCasesPage() {
                     <option key={s.id} value={s.id}>Technician {idx + 1} — {s.full_name}</option>
                   ))}
                 </select>
-                {editCase?.assigned_technician_id && !isAdmin && (
-                  <p className="text-[10px] text-muted-foreground mt-1">Only admin can change after assignment</p>
-                )}
               </div>
               <div>
-                <Label>Tooth #</Label>
-                <Input name="tooth_number" type="number" defaultValue={editCase?.tooth_number || ""} />
+                <Label>Units Nos</Label>
+                <Input type="number" min={1} value={formUnits} onChange={(e) => setFormUnits(Math.max(1, Number(e.target.value)))} />
+                <p className="text-[10px] text-muted-foreground mt-0.5">Units × Base Price = ₦{(formLabFee * formUnits).toLocaleString()}</p>
               </div>
               <div>
                 <Label>Shade</Label>
@@ -474,12 +547,31 @@ export default function LdCasesPage() {
                 <Label>Due Date</Label>
                 <Input name="due_date" type="date" defaultValue={editCase?.due_date || ""} />
               </div>
+              <div>
+                <Label>Date In / Received</Label>
+                <Input name="received_date" type="date" defaultValue={editCase?.received_date || new Date().toISOString().split("T")[0]} />
+              </div>
+              <div>
+                <Label>Date Out</Label>
+                <Input name="date_out" type="date" defaultValue={editCase?.date_out || ""} />
+              </div>
+            </div>
+
+            {/* External Lab */}
+            <div>
+              <Label>External Lab Used</Label>
+              <select name="external_lab_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.external_lab_id || ""}>
+                <option value="">None (In-house)</option>
+                {externalLabs.map((lab) => (
+                  <option key={lab.id} value={lab.id}>{lab.name} {lab.specialties?.length ? `(${lab.specialties.join(", ")})` : ""}</option>
+                ))}
+              </select>
             </div>
 
             {/* Cost, Discount, Deposit */}
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
-                <Label>Lab Fee (₦) *</Label>
+                <Label>Base Price / Unit (₦) *</Label>
                 <Input type="number" step="0.01" min={0} value={formLabFee} onChange={(e) => setFormLabFee(Number(e.target.value))} />
               </div>
               <div>
@@ -492,12 +584,68 @@ export default function LdCasesPage() {
               </div>
             </div>
 
+            {/* Additional Fee Buttons */}
+            <div className="space-y-3 p-3 border rounded-lg bg-muted/20">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">Additional Fees</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs">Express Surcharge (₦ or %)</Label>
+                  <Input type="number" step="0.01" min={0} value={formExpressSurcharge} onChange={(e) => setFormExpressSurcharge(Number(e.target.value))} />
+                </div>
+                <div>
+                  <Label className="text-xs">Courier Amount Paid (₦)</Label>
+                  <Input type="number" step="0.01" min={0} value={formCourierAmount} onChange={(e) => setFormCourierAmount(Number(e.target.value))} />
+                </div>
+                <div>
+                  <Label className="text-xs">Clasp Units</Label>
+                  <Input type="number" min={0} value={formClaspUnits} onChange={(e) => setFormClaspUnits(Number(e.target.value))} />
+                </div>
+                <div>
+                  <Label className="text-xs">Clasp Cost per Unit (₦)</Label>
+                  <Input type="number" step="0.01" min={0} value={formClaspCost} onChange={(e) => setFormClaspCost(Number(e.target.value))} />
+                </div>
+                <div className="col-span-2 flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Checkbox checked={formGingivalMasking} onCheckedChange={(v) => handleGingivalToggle(!!v)} id="gingival" />
+                    <Label htmlFor="gingival" className="text-xs cursor-pointer">Gingival Masking</Label>
+                  </div>
+                  {formGingivalMasking && (
+                    <div className="flex-1">
+                      <Input type="number" step="0.01" min={0} value={formGingivalMaskingCost} onChange={(e) => setFormGingivalMaskingCost(Number(e.target.value))} placeholder="Cost (₦)" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Net Amount & Balance Display */}
             <div className="rounded-lg border p-3 bg-muted/20 space-y-1">
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Net Amount:</span>
+                <span className="text-muted-foreground">Base ({formUnits} units × ₦{formLabFee.toLocaleString()}):</span>
+                <span className="font-medium">₦{baseAmount.toLocaleString()}</span>
+              </div>
+              {additionalFees > 0 && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Additional Fees:</span>
+                  <span className="font-medium">+₦{additionalFees.toLocaleString()}</span>
+                </div>
+              )}
+              {formDiscount > 0 && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Discount:</span>
+                  <span className="text-destructive">-₦{formDiscount.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-xs border-t pt-1">
+                <span className="text-muted-foreground font-semibold">Net Amount:</span>
                 <span className="font-semibold">₦{netAmount.toLocaleString()}</span>
               </div>
+              {formDeposit > 0 && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Deposit:</span>
+                  <span className="text-emerald-600">-₦{formDeposit.toLocaleString()}</span>
+                </div>
+              )}
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground">Balance Due:</span>
                 <span className={`font-bold ${balance > 0 ? "text-destructive" : "text-emerald-600"}`}>

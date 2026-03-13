@@ -1263,16 +1263,26 @@ export type Database = {
         Row: {
           assigned_technician_id: string | null
           case_number: string
+          clasp_cost: number | null
+          clasp_units: number | null
           client_id: string | null
           completed_date: string | null
+          completion_type: string | null
+          courier_amount: number | null
           courier_name: string | null
           created_at: string
           created_by: string | null
+          date_out: string | null
           delivered_date: string | null
           delivery_method: string | null
           delivery_notes: string | null
+          deposit_amount: number | null
           discount: number | null
           due_date: string | null
+          express_surcharge: number | null
+          external_lab_id: string | null
+          gingival_masking: boolean | null
+          gingival_masking_cost: number | null
           id: string
           instructions: string | null
           is_paid: boolean
@@ -1298,16 +1308,26 @@ export type Database = {
         Insert: {
           assigned_technician_id?: string | null
           case_number?: string
+          clasp_cost?: number | null
+          clasp_units?: number | null
           client_id?: string | null
           completed_date?: string | null
+          completion_type?: string | null
+          courier_amount?: number | null
           courier_name?: string | null
           created_at?: string
           created_by?: string | null
+          date_out?: string | null
           delivered_date?: string | null
           delivery_method?: string | null
           delivery_notes?: string | null
+          deposit_amount?: number | null
           discount?: number | null
           due_date?: string | null
+          express_surcharge?: number | null
+          external_lab_id?: string | null
+          gingival_masking?: boolean | null
+          gingival_masking_cost?: number | null
           id?: string
           instructions?: string | null
           is_paid?: boolean
@@ -1333,16 +1353,26 @@ export type Database = {
         Update: {
           assigned_technician_id?: string | null
           case_number?: string
+          clasp_cost?: number | null
+          clasp_units?: number | null
           client_id?: string | null
           completed_date?: string | null
+          completion_type?: string | null
+          courier_amount?: number | null
           courier_name?: string | null
           created_at?: string
           created_by?: string | null
+          date_out?: string | null
           delivered_date?: string | null
           delivery_method?: string | null
           delivery_notes?: string | null
+          deposit_amount?: number | null
           discount?: number | null
           due_date?: string | null
+          express_surcharge?: number | null
+          external_lab_id?: string | null
+          gingival_masking?: boolean | null
+          gingival_masking_cost?: number | null
           id?: string
           instructions?: string | null
           is_paid?: boolean
@@ -1378,6 +1408,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "ld_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_cases_external_lab_id_fkey"
+            columns: ["external_lab_id"]
+            isOneToOne: false
+            referencedRelation: "ld_external_labs"
             referencedColumns: ["id"]
           },
           {
@@ -3879,6 +3916,7 @@ export type Database = {
         | "receptionist"
         | "accountant"
         | "lab_technician"
+        | "lab_entry_clerk"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4014,6 +4052,7 @@ export const Constants = {
         "receptionist",
         "accountant",
         "lab_technician",
+        "lab_entry_clerk",
       ],
     },
   },

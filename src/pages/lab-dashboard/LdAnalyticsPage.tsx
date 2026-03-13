@@ -8,6 +8,7 @@ import { TrendingUp, Clock, CheckCircle, DollarSign } from "lucide-react";
 import { motion } from "framer-motion";
 
 const COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "#f59e0b", "#10b981", "#6366f1", "#ec4899"];
+const fmt = (v: number) => `₦${v.toLocaleString()}`;
 
 export default function LdAnalyticsPage() {
   const { data: cases = [] } = useQuery({
@@ -28,23 +29,19 @@ export default function LdAnalyticsPage() {
     },
   });
 
-  // Stats
   const totalCases = cases.length;
   const completedCases = cases.filter((c: any) => c.status === "completed" || c.status === "delivered").length;
   const totalRevenue = invoices.reduce((sum: number, i: any) => sum + Number(i.total_amount || 0), 0);
   const pendingCases = cases.filter((c: any) => c.status === "pending" || c.status === "in_progress").length;
 
-  // Cases by status
   const statusCounts: Record<string, number> = {};
   cases.forEach((c: any) => { statusCounts[c.status] = (statusCounts[c.status] || 0) + 1; });
   const statusData = Object.entries(statusCounts).map(([name, value]) => ({ name: name.replace(/_/g, " "), value }));
 
-  // Cases by work type
   const workTypeCounts: Record<string, number> = {};
   cases.forEach((c: any) => { workTypeCounts[c.work_type_name] = (workTypeCounts[c.work_type_name] || 0) + 1; });
   const workTypeData = Object.entries(workTypeCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6);
 
-  // Monthly revenue
   const monthlyRevenue: Record<string, number> = {};
   invoices.forEach((inv: any) => {
     const month = inv.invoice_date?.slice(0, 7) || "Unknown";
@@ -59,7 +56,7 @@ export default function LdAnalyticsPage() {
     { label: "Total Cases", value: totalCases, icon: CheckCircle, color: "text-blue-500" },
     { label: "Active Cases", value: pendingCases, icon: Clock, color: "text-amber-500" },
     { label: "Completed", value: completedCases, icon: TrendingUp, color: "text-emerald-500" },
-    { label: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-green-500" },
+    { label: "Total Revenue", value: fmt(totalRevenue), icon: DollarSign, color: "text-green-500" },
   ];
 
   return (
