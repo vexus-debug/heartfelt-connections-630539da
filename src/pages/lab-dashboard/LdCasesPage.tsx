@@ -137,6 +137,8 @@ export default function LdCasesPage() {
     setFormGingivalMasking(false);
     setFormGingivalMaskingCost(0);
     setFormCaseNumber("");
+    setClientSearch("");
+    setWorkTypeSearch("");
   };
 
   const openCreate = () => {
