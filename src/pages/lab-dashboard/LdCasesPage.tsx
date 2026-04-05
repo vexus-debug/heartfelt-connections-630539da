@@ -83,6 +83,8 @@ export default function LdCasesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editCase, setEditCase] = useState<any>(null);
   const [viewMode, setViewMode] = useState<"table" | "kanban">("table");
+  const [clientSearch, setClientSearch] = useState("");
+  const [workTypeSearch, setWorkTypeSearch] = useState("");
 
   // Form state
   const [formJobInstructions, setFormJobInstructions] = useState<string[]>([]);
