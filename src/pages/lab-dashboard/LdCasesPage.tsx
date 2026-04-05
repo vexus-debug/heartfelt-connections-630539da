@@ -473,17 +473,47 @@ export default function LdCasesPage() {
               </div>
               <div>
                 <Label>Client (Clinic)</Label>
-                <select name="client_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.client_id || ""}>
-                  <option value="">Walk-in</option>
-                  {clients.map((c: any) => <option key={c.id} value={c.id}>{c.clinic_code ? `[${c.clinic_code}] ` : ""}{c.clinic_name} - {c.doctor_name}</option>)}
-                </select>
+                <div className="relative">
+                  <Input
+                    placeholder="Type to search clients..."
+                    value={clientSearch}
+                    onChange={(e) => setClientSearch(e.target.value)}
+                    className="mb-1"
+                  />
+                  <select name="client_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.client_id || ""}>
+                    <option value="">Walk-in</option>
+                    {clients
+                      .filter((c: any) => !clientSearch || c.clinic_name?.toLowerCase().includes(clientSearch.toLowerCase()) || c.doctor_name?.toLowerCase().includes(clientSearch.toLowerCase()) || c.clinic_code?.toLowerCase().includes(clientSearch.toLowerCase()))
+                      .map((c: any) => <option key={c.id} value={c.id}>{c.clinic_code ? `[${c.clinic_code}] ` : ""}{c.clinic_name} - {c.doctor_name}</option>)}
+                  </select>
+                </div>
               </div>
               <div>
                 <Label>Work Type (Catalog)</Label>
-                <select name="work_type_id" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editCase?.work_type_id || ""}>
-                  <option value="">Select...</option>
-                  {workTypes.map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}
-                </select>
+                <div className="relative">
+                  <Input
+                    placeholder="Type to search work types..."
+                    value={workTypeSearch}
+                    onChange={(e) => setWorkTypeSearch(e.target.value)}
+                    className="mb-1"
+                  />
+                  <select
+                    name="work_type_id"
+                    className="w-full border rounded-md p-2 text-sm bg-background"
+                    defaultValue={editCase?.work_type_id || ""}
+                    onChange={(e) => {
+                      const selectedWt = workTypes.find((w: any) => w.id === e.target.value);
+                      if (selectedWt && Number(selectedWt.base_price) > 0) {
+                        setFormLabFee(Number(selectedWt.base_price));
+                      }
+                    }}
+                  >
+                    <option value="">Select...</option>
+                    {workTypes
+                      .filter((w: any) => !workTypeSearch || w.name?.toLowerCase().includes(workTypeSearch.toLowerCase()))
+                      .map((w: any) => <option key={w.id} value={w.id}>{w.name} {Number(w.base_price) > 0 ? `(₦${Number(w.base_price).toLocaleString()})` : ""}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
 
