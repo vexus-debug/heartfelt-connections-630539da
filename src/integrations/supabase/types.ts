@@ -1791,6 +1791,48 @@ export type Database = {
           },
         ]
       }
+      ld_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          expense_date: string
+          id: string
+          payment_method: string | null
+          receipt_reference: string | null
+          updated_at: string | null
+          vendor: string | null
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          payment_method?: string | null
+          receipt_reference?: string | null
+          updated_at?: string | null
+          vendor?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          expense_date?: string
+          id?: string
+          payment_method?: string | null
+          receipt_reference?: string | null
+          updated_at?: string | null
+          vendor?: string | null
+        }
+        Relationships: []
+      }
       ld_external_labs: {
         Row: {
           address: string | null
@@ -1875,6 +1917,63 @@ export type Database = {
         }
         Relationships: []
       }
+      ld_invoice_items: {
+        Row: {
+          code: string | null
+          created_at: string | null
+          date_in: string | null
+          id: string
+          invoice_id: string
+          job_description: string | null
+          lab_case_id: string | null
+          patient_name: string | null
+          total_cost: number | null
+          unit_price: number | null
+          units: number | null
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string | null
+          date_in?: string | null
+          id?: string
+          invoice_id: string
+          job_description?: string | null
+          lab_case_id?: string | null
+          patient_name?: string | null
+          total_cost?: number | null
+          unit_price?: number | null
+          units?: number | null
+        }
+        Update: {
+          code?: string | null
+          created_at?: string | null
+          date_in?: string | null
+          id?: string
+          invoice_id?: string
+          job_description?: string | null
+          lab_case_id?: string | null
+          patient_name?: string | null
+          total_cost?: number | null
+          unit_price?: number | null
+          units?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "ld_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ld_invoice_items_lab_case_id_fkey"
+            columns: ["lab_case_id"]
+            isOneToOne: false
+            referencedRelation: "ld_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ld_invoices: {
         Row: {
           amount_paid: number
@@ -1882,6 +1981,9 @@ export type Database = {
           client_id: string | null
           created_at: string
           created_by: string | null
+          date_from: string | null
+          date_to: string | null
+          deposit_amount: number | null
           discount: number
           due_date: string | null
           id: string
@@ -1900,6 +2002,9 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           created_by?: string | null
+          date_from?: string | null
+          date_to?: string | null
+          deposit_amount?: number | null
           discount?: number
           due_date?: string | null
           id?: string
@@ -1918,6 +2023,9 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           created_by?: string | null
+          date_from?: string | null
+          date_to?: string | null
+          deposit_amount?: number | null
           discount?: number
           due_date?: string | null
           id?: string
@@ -2395,6 +2503,7 @@ export type Database = {
           id: string
           phone: string | null
           role: string
+          seniority_level: number | null
           specialty: string | null
           status: string
           updated_at: string
@@ -2407,6 +2516,7 @@ export type Database = {
           id?: string
           phone?: string | null
           role?: string
+          seniority_level?: number | null
           specialty?: string | null
           status?: string
           updated_at?: string
@@ -2419,12 +2529,60 @@ export type Database = {
           id?: string
           phone?: string | null
           role?: string
+          seniority_level?: number | null
           specialty?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
         }
         Relationships: []
+      }
+      ld_staff_revenue_allocations: {
+        Row: {
+          allocated_amount: number | null
+          allocation_type: string
+          created_at: string | null
+          id: string
+          jobs_count: number | null
+          notes: string | null
+          period_end: string
+          period_start: string
+          staff_id: string
+          total_revenue: number | null
+        }
+        Insert: {
+          allocated_amount?: number | null
+          allocation_type?: string
+          created_at?: string | null
+          id?: string
+          jobs_count?: number | null
+          notes?: string | null
+          period_end: string
+          period_start: string
+          staff_id: string
+          total_revenue?: number | null
+        }
+        Update: {
+          allocated_amount?: number | null
+          allocation_type?: string
+          created_at?: string | null
+          id?: string
+          jobs_count?: number | null
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          staff_id?: string
+          total_revenue?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ld_staff_revenue_allocations_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "ld_staff"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ld_technician_skills: {
         Row: {
