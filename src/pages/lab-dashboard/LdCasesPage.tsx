@@ -528,7 +528,7 @@ export default function LdCasesPage() {
                       onCheckedChange={() => toggleJobInstruction(option)}
                       id={`ji-${option}`}
                     />
-                    <Label htmlFor={`ji-${option}`} className="text-xs font-normal cursor-pointer">{option}</Label>
+                    <Label htmlFor={`ji-${option}`} className={`text-xs font-normal cursor-pointer ${option === "Bite Block" ? "text-destructive font-bold" : ""}`}>{option}</Label>
                   </div>
                 ))}
               </div>
