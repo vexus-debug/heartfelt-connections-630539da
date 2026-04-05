@@ -66,6 +66,7 @@ import LdCommunicationsPage from "./pages/lab-dashboard/LdCommunicationsPage";
 import LdShadeLibraryPage from "./pages/lab-dashboard/LdShadeLibraryPage";
 import LdSkillsMatrixPage from "./pages/lab-dashboard/LdSkillsMatrixPage";
 import LdDispatchPage from "./pages/lab-dashboard/LdDispatchPage";
+import LdExpensesPage from "./pages/lab-dashboard/LdExpensesPage";
 import LabLogin from "./pages/lab-dashboard/LabLogin";
 import DashboardHome from "./pages/dashboard/DashboardHome";
 import PatientsPage from "./pages/dashboard/PatientsPage";
@@ -221,6 +222,7 @@ const App = () => (
             <Route path="/lab-dashboard/shades" element={<ProtectedLabDashboard><LdShadeLibraryPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/skills" element={<ProtectedLabDashboard><LdSkillsMatrixPage /></ProtectedLabDashboard>} />
             <Route path="/lab-dashboard/dispatch" element={<ProtectedLabDashboard><LdDispatchPage /></ProtectedLabDashboard>} />
+            <Route path="/lab-dashboard/expenses" element={<ProtectedLabDashboard><LdExpensesPage /></ProtectedLabDashboard>} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
