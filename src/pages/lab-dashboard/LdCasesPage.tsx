@@ -40,9 +40,10 @@ const JOB_INSTRUCTION_OPTIONS = [
   "Courier Charge", "Acrylic Dentures", "Flexible Dentures", "AJC Crowns",
   "PFM Crowns", "Zirconia Crowns", "Shell Crowns (Gold)", "Shell Crowns (Silver)",
   "VFR", "Orthodontic Appliances", "Denture Repair", "Crown Repair", "Gingival Masking",
+  "Bite Block",
 ];
 
-const REMARK_OPTIONS = ["Express", "Rejected", "Damaged", "Repeat", "Remake"];
+const REMARK_OPTIONS = ["Express", "Rejected", "Damaged", "Repeat", "Suspended"];
 
 const DELIVERY_METHODS = [
   { value: "", label: "Not set" },
