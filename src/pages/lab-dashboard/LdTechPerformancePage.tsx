@@ -23,7 +23,7 @@ export default function LdTechPerformancePage() {
       const completed = fullyCompleted + partiallyCompleted;
       const inProgress = techCases.filter((c: any) => c.status === "in-progress").length;
       const pending = techCases.filter((c: any) => c.status === "pending").length;
-      const rejected = techCases.filter((c: any) => c.remark && ["Rejected", "Damaged", "Remake"].includes(c.remark)).length;
+      const rejected = techCases.filter((c: any) => c.remark && ["Rejected", "Damaged", "Suspended"].includes(c.remark)).length;
       const overdue = techCases.filter((c: any) => c.due_date && new Date(c.due_date) < new Date() && !["delivered", "ready"].includes(c.status)).length;
       const urgent = techCases.filter((c: any) => c.is_urgent && !["delivered"].includes(c.status)).length;
       

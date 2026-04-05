@@ -34,6 +34,7 @@ export default function LdStaffPage() {
       phone: fd.get("phone") as string,
       email: fd.get("email") as string,
       status: fd.get("status") as string,
+      seniority_level: Number(fd.get("seniority_level") || 1),
     };
     if (editStaff) {
       updateStaff.mutate({ id: editStaff.id, ...values }, { onSuccess: () => { setDialogOpen(false); setEditStaff(null); } });
@@ -86,6 +87,7 @@ export default function LdStaffPage() {
                   <div><Label>Specialty</Label><Input name="specialty" defaultValue={editStaff?.specialty || ""} /></div>
                   <div><Label>Phone</Label><Input name="phone" defaultValue={editStaff?.phone || ""} /></div>
                   <div><Label>Email</Label><Input name="email" defaultValue={editStaff?.email || ""} /></div>
+                  <div><Label>Seniority Level</Label><Input name="seniority_level" type="number" min={1} max={10} defaultValue={editStaff?.seniority_level || 1} /></div>
                   <div>
                     <Label>Status</Label>
                     <select name="status" className="w-full border rounded-md p-2 text-sm bg-background" defaultValue={editStaff?.status || "active"}>
